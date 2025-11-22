@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ClientInsightReport, ProspectInsight } from "@/lib/types";
-import Logo from "./components/Logo";
+import Sidebar from "./components/Sidebar";
 import RegeneratePitchModal from "./components/RegeneratePitchModal";
 import ExpandPitchModal from "./components/ExpandPitchModal";
 
@@ -312,22 +312,30 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
-      {/* Navigation */}
-      <nav className="border-b border-gray-200 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Logo />
-          <div className="flex items-center gap-2">
-            <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full" />
-            <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-              Live
-            </span>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen flex bg-gray-50">
+      {/* Sidebar Navigation */}
+      <Sidebar />
 
       {/* Main Content */}
-      <div className="flex-1 max-w-5xl mx-auto w-full py-8 sm:py-16 px-4 sm:px-6 lg:px-8">
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header */}
+        <header className="bg-white border-b border-gray-200 px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-semibold text-gray-900">Prospect Intelligence</h1>
+              <p className="text-sm text-gray-500 mt-1">Transform prospect data into actionable insights</p>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 rounded-full">
+              <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" />
+              <span className="text-xs font-medium text-emerald-700">
+                Live
+              </span>
+            </div>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <div className="flex-1 overflow-y-auto px-8 py-6">
         <AnimatePresence mode="wait">
           {!insights && streamingInsights.length === 0 ? (
             <motion.div 
@@ -335,25 +343,32 @@ export default function HomePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="space-y-10"
+              className="space-y-8"
             >
-              {/* Header */}
-              <div className="space-y-3">
-                <h1 className="text-4xl sm:text-5xl font-semibold text-gray-900 tracking-tight">
-                  Prospect Intelligence
-                </h1>
-                <p className="text-lg text-gray-600 max-w-2xl">
-                  Upload your prospect data to generate personalized sales insights and pitches powered by AI
-                </p>
-              </div>
 
               {/* Upload Form */}
-              <div className="bg-white border border-gray-200 rounded-lg p-6 sm:p-8">
-                <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="max-w-4xl bg-white border border-gray-200 rounded-xl shadow-sm">
+                {/* Card Header */}
+                <div className="px-8 py-6 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-blue-50 rounded-lg">
+                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-900">Upload Prospect Data</h2>
+                      <p className="text-sm text-gray-600 mt-0.5">Import your LinkedIn export or prospect list</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Content */}
+                <form onSubmit={handleSubmit} className="p-8 space-y-6">
                   {/* File Upload */}
-                  <div className="space-y-4">
-                    <label className="block text-sm font-medium text-gray-900">
-                      Upload File
+                  <div className="space-y-3">
+                    <label className="block text-sm font-semibold text-gray-900">
+                      Select File
                     </label>
 
                     <input
@@ -404,29 +419,32 @@ export default function HomePage() {
                   </div>
 
                   {/* Required Columns */}
-                  <div className="space-y-3">
-                    <label className="block text-sm font-medium text-gray-900">
-                      Required Columns
+                  <div className="space-y-3 bg-gray-50 rounded-lg p-5 border border-gray-200">
+                    <label className="block text-sm font-semibold text-gray-900">
+                      Required Data Columns
                     </label>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       {[
-                        { col: "Name", options: ["name", "full_name"] },
-                        { col: "Role", options: ["role", "title"] },
-                        { col: "Company", options: ["company", "org"] }
+                        { col: "Name", options: ["name", "full_name"], icon: "👤" },
+                        { col: "Role", options: ["role", "title"], icon: "💼" },
+                        { col: "Company", options: ["company", "org"], icon: "🏢" }
                       ].map((req, idx) => (
                         <div
                           key={idx}
-                          className="p-3 bg-gray-50 border border-gray-200 rounded-lg"
+                          className="p-4 bg-white border border-gray-200 rounded-lg"
                         >
-                          <p className="font-medium text-gray-900 text-sm mb-2">{req.col}</p>
+                          <div className="flex items-center gap-2 mb-2.5">
+                            <span className="text-lg">{req.icon}</span>
+                            <p className="font-semibold text-gray-900 text-sm">{req.col}</p>
+                          </div>
                           <div className="space-y-1.5">
                             {req.options.map((opt, i) => (
                               <div key={i}>
-                                <code className="block px-2 py-1 bg-white border border-gray-200 rounded text-xs text-gray-700 font-mono">
+                                <code className="block px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded text-xs text-gray-700 font-mono">
                                   {opt}
                                 </code>
-                                {i === 0 && <p className="text-center text-xs text-gray-400 py-0.5">or</p>}
+                                {i === 0 && <p className="text-center text-xs text-gray-400 py-1">or</p>}
                               </div>
                             ))}
                           </div>
@@ -434,9 +452,14 @@ export default function HomePage() {
                       ))}
                     </div>
 
-                    <p className="text-xs text-gray-500">
-                      Optional: location, description, profile
-                    </p>
+                    <div className="flex items-start gap-2 mt-3 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                      <svg className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                      <p className="text-xs text-blue-700">
+                        <span className="font-semibold">Optional columns:</span> location, description, profile, work_positions, education
+                      </p>
+                    </div>
                   </div>
 
                   {/* Error */}
@@ -450,18 +473,23 @@ export default function HomePage() {
                   <button
                     type="submit"
                     disabled={isPending || !selectedFile}
-                    className="w-full px-4 py-3 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="w-full px-6 py-3.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-base font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow-md"
                   >
                     {isPending ? (
-                      <span className="flex items-center justify-center gap-2">
-                        <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                      <span className="flex items-center justify-center gap-2.5">
+                        <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        Analyzing...
+                        Analyzing Prospects...
                       </span>
                     ) : (
-                      "Analyze Prospects"
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Generate Insights
+                      </span>
                     )}
                   </button>
                 </form>
@@ -687,16 +715,8 @@ export default function HomePage() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <p className="text-xs text-gray-500 text-center">
-            © 2025 Cehpoint. All rights reserved.
-          </p>
         </div>
-      </footer>
+      </div>
 
       {/* Regenerate Pitch Modal */}
       {selectedProspectForRegeneration && (
