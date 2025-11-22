@@ -80,9 +80,9 @@ ${prospect.profile ? `Profile: ${prospect.profile}` : ""}
 
 Return ONLY valid JSON with this exact structure:
 {
-  "name": "${prospect.name}",
-  "role": "${prospect.role}",
-  "company": "${prospect.company}",
+  "name": ${JSON.stringify(prospect.name)},
+  "role": ${JSON.stringify(prospect.role)},
+  "company": ${JSON.stringify(prospect.company)},${prospect.location ? `\n  "location": ${JSON.stringify(prospect.location)},` : ""}${prospect.description ? `\n  "description": ${JSON.stringify(prospect.description)},` : ""}
   "profileNotes": "2-3 sentences analyzing prospect's likely priorities based on role/company",
   "pitchSuggestions": [
     { "pitch": "First pitch approach focused on specific business outcome" },
