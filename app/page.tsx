@@ -20,11 +20,11 @@ export default function HomePage() {
           {/* Subtitle - Removed AI branding per user preference */}
 
           {/* Main Headline */}
-          <div className="space-y-6 text-center">
-            <h1 className="text-5xl md:text-6xl font-black leading-tight tracking-tight">
-              Transform Prospect Data Into
-              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">
-                Actionable Sales Intelligence
+          <div className="space-y-8 text-center">
+            <h1 className="text-5xl md:text-7xl font-black leading-tight tracking-tighter">
+              <span className="block text-white mb-3">Transform Prospect</span>
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-blue-500 to-cyan-400">
+                Data Into Intelligence
               </span>
             </h1>
 
@@ -34,31 +34,31 @@ export default function HomePage() {
           </div>
 
           {/* CTA Button */}
-          <div className="flex justify-center pt-6">
+          <div className="flex justify-center pt-8">
             <Link
               href="/upload"
               className="group relative inline-block"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-500 rounded-lg blur opacity-75 group-hover:opacity-100 transition-opacity" />
-              <button className="relative inline-block bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold px-8 py-4 rounded-lg transition-all text-base min-h-14 flex items-center justify-center whitespace-nowrap">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 rounded-xl blur-xl opacity-80 group-hover:opacity-100 transition-all duration-300 scale-105" />
+              <button className="relative inline-block bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 active:scale-95 text-white font-black px-10 py-5 rounded-xl transition-all text-lg min-h-16 flex items-center justify-center whitespace-nowrap shadow-2xl shadow-blue-600/50">
                 START ANALYZING
               </button>
             </Link>
           </div>
 
           {/* Stats Row */}
-          <div className="grid grid-cols-3 gap-8 pt-16 border-t border-slate-800">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-400 mb-2">15</div>
-              <p className="text-xs text-slate-400 uppercase tracking-widest">Max Prospects</p>
+          <div className="grid grid-cols-3 gap-6 pt-16 border-t border-slate-800">
+            <div className="text-center bg-slate-800/40 border border-slate-700/50 rounded-lg p-6 hover:border-blue-500/50 transition-all">
+              <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 mb-3">15</div>
+              <p className="text-sm font-semibold text-slate-400 uppercase tracking-widest">Max Prospects</p>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-400 mb-2">5</div>
-              <p className="text-xs text-slate-400 uppercase tracking-widest">Per Batch</p>
+            <div className="text-center bg-slate-800/40 border border-slate-700/50 rounded-lg p-6 hover:border-blue-500/50 transition-all">
+              <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 mb-3">5</div>
+              <p className="text-sm font-semibold text-slate-400 uppercase tracking-widest">Per Batch</p>
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-400 mb-2">3</div>
-              <p className="text-xs text-slate-400 uppercase tracking-widest">Pitches Per Prospect</p>
+            <div className="text-center bg-slate-800/40 border border-slate-700/50 rounded-lg p-6 hover:border-blue-500/50 transition-all">
+              <div className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400 mb-3">3</div>
+              <p className="text-sm font-semibold text-slate-400 uppercase tracking-widest">Pitches Per Prospect</p>
             </div>
           </div>
         </div>
@@ -99,9 +99,9 @@ export default function HomePage() {
                 className="relative group"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity blur" />
-                <div className="relative bg-slate-800/50 backdrop-blur border border-slate-700 p-8 rounded-lg hover:border-blue-500/50 transition-all">
-                  <div className="text-4xl mb-4">{item.icon}</div>
-                  <h3 className="text-lg font-bold text-white mb-3">
+                <div className="relative bg-gradient-to-br from-slate-800/60 to-slate-900/40 backdrop-blur border border-slate-700/60 hover:border-blue-500/60 p-8 rounded-xl transition-all hover:shadow-lg hover:shadow-blue-500/10">
+                  <div className="text-5xl mb-4">{item.icon}</div>
+                  <h3 className="text-xl font-bold text-white mb-3">
                     {item.title}
                   </h3>
                   <p className="text-slate-300 text-sm leading-relaxed">
@@ -157,19 +157,19 @@ export default function HomePage() {
                 )}
 
                 <div className="flex-shrink-0 pt-1">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-full flex items-center justify-center font-bold text-2xl shadow-lg shadow-blue-600/30">
+                  <div className="w-20 h-20 bg-gradient-to-br from-blue-600 via-blue-500 to-cyan-500 text-white rounded-full flex items-center justify-center font-black text-3xl shadow-2xl shadow-blue-600/50 border-2 border-blue-400/30">
                     {item.step}
                   </div>
                 </div>
 
-                <div className="flex-1 pt-2">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-2xl">{item.icon}</span>
-                    <h3 className="text-xl font-bold text-white">
+                <div className="flex-1 pt-3">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-3xl">{item.icon}</span>
+                    <h3 className="text-2xl font-bold text-white">
                       {item.title}
                     </h3>
                   </div>
-                  <p className="text-slate-300 text-sm leading-relaxed">
+                  <p className="text-slate-300 text-base leading-relaxed">
                     {item.desc}
                   </p>
                 </div>

@@ -168,9 +168,9 @@ export default function UploadPage() {
               <div className="relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-10 lg:p-16 shadow-2xl">
                 <form onSubmit={handleSubmit} className="space-y-10">
                   {/* File Upload */}
-                  <div className="space-y-4">
-                    <label htmlFor="file" className="block text-sm font-semibold text-white/90">
-                      Select Your Data File
+                  <div className="space-y-6">
+                    <label htmlFor="file" className="block text-lg font-black text-white">
+                      📂 Select Your Data File
                     </label>
 
                     <input
@@ -188,8 +188,8 @@ export default function UploadPage() {
                       htmlFor="file"
                       className={`flex flex-col items-center justify-center w-full px-8 py-24 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-300 group ${
                         selectedFile
-                          ? "border-emerald-400/60 bg-emerald-500/5"
-                          : "border-slate-600/50 hover:border-blue-400/60 hover:bg-blue-500/5 bg-slate-800/20"
+                          ? "border-emerald-400/80 bg-emerald-500/10 shadow-lg shadow-emerald-500/10"
+                          : "border-blue-400/60 hover:border-blue-300/80 hover:bg-blue-500/10 bg-slate-800/40 hover:shadow-lg hover:shadow-blue-500/10"
                       } ${isPending ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
                       <svg
@@ -232,30 +232,30 @@ export default function UploadPage() {
                   </div>
 
                   {/* Requirements Grid */}
-                  <div className="bg-slate-800/30 border border-slate-700/30 rounded-xl p-8 space-y-6">
-                    <h4 className="font-semibold text-white/90 text-sm flex items-center gap-2">
-                      <span className="text-lg">📋</span>
+                  <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/30 border border-slate-700/60 rounded-xl p-8 space-y-6 hover:border-slate-600/80 transition-all">
+                    <h4 className="font-black text-white text-base flex items-center gap-3">
+                      <span className="text-xl">📋</span>
                       Required Columns
                     </h4>
                     <div className="grid md:grid-cols-3 gap-6">
-                      <div className="space-y-3">
-                        <p className="text-xs text-slate-400 uppercase tracking-widest font-semibold">Name</p>
+                      <div className="space-y-3 p-4 bg-slate-900/40 rounded-lg border border-slate-700/40">
+                        <p className="text-xs text-slate-300 uppercase tracking-widest font-bold">Name</p>
                         <div className="flex flex-wrap gap-2">
                           <code className="px-3 py-1.5 bg-slate-900/60 rounded-md text-xs text-blue-300 font-mono border border-slate-700/50">name</code>
                           <span className="text-slate-500 text-xs flex items-center">or</span>
                           <code className="px-3 py-1.5 bg-slate-900/60 rounded-md text-xs text-blue-300 font-mono border border-slate-700/50">full_name</code>
                         </div>
                       </div>
-                      <div className="space-y-3">
-                        <p className="text-xs text-slate-400 uppercase tracking-widest font-semibold">Role</p>
+                      <div className="space-y-3 p-4 bg-slate-900/40 rounded-lg border border-slate-700/40">
+                        <p className="text-xs text-slate-300 uppercase tracking-widest font-bold">Role</p>
                         <div className="flex flex-wrap gap-2">
                           <code className="px-3 py-1.5 bg-slate-900/60 rounded-md text-xs text-blue-300 font-mono border border-slate-700/50">role</code>
                           <span className="text-slate-500 text-xs flex items-center">or</span>
                           <code className="px-3 py-1.5 bg-slate-900/60 rounded-md text-xs text-blue-300 font-mono border border-slate-700/50">title</code>
                         </div>
                       </div>
-                      <div className="space-y-3">
-                        <p className="text-xs text-slate-400 uppercase tracking-widest font-semibold">Company</p>
+                      <div className="space-y-3 p-4 bg-slate-900/40 rounded-lg border border-slate-700/40">
+                        <p className="text-xs text-slate-300 uppercase tracking-widest font-bold">Company</p>
                         <div className="flex flex-wrap gap-2">
                           <code className="px-3 py-1.5 bg-slate-900/60 rounded-md text-xs text-blue-300 font-mono border border-slate-700/50">company</code>
                           <span className="text-slate-500 text-xs flex items-center">or</span>
@@ -264,7 +264,7 @@ export default function UploadPage() {
                       </div>
                     </div>
                     <div className="pt-4 border-t border-slate-700/30">
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-slate-400 font-medium">
                         💡 Optional: location, description, profile
                       </p>
                     </div>
@@ -286,8 +286,8 @@ export default function UploadPage() {
                     disabled={isPending || !selectedFile}
                     className="w-full group relative"
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 rounded-xl blur-lg opacity-75 group-hover:enabled:opacity-100 transition-all duration-300 group-active:enabled:blur-md" />
-                    <div className={`relative text-white font-bold py-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 text-base min-h-14 shadow-xl ${
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 rounded-xl blur-xl opacity-80 group-hover:enabled:opacity-100 transition-all duration-300 group-active:enabled:scale-95" />
+                    <div className={`relative text-white font-black py-5 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg min-h-16 shadow-2xl shadow-blue-600/50 ${
                       isPending 
                         ? 'bg-gradient-to-r from-blue-600 to-blue-500' 
                         : selectedFile 
