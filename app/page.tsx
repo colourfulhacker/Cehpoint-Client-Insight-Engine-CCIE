@@ -154,8 +154,26 @@ export default function HomePage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to analyze file");
+        const contentType = response.headers.get("content-type");
+        let errorMessage = "Failed to analyze file";
+        
+        try {
+          if (contentType && contentType.startsWith("application/json")) {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorMessage;
+          } else {
+            const errorText = await response.text();
+            if (errorText.trim().startsWith('<') || errorText.trim().startsWith('<!DOCTYPE')) {
+              errorMessage = "API Configuration Error: The server returned an HTML error page. Please check your Gemini API key configuration.";
+            } else {
+              errorMessage = errorText.substring(0, 200) || errorMessage;
+            }
+          }
+        } catch (parseError) {
+          errorMessage = "Server Error: Unable to process error response from the server.";
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const reader = response.body?.getReader();
@@ -185,6 +203,15 @@ export default function HomePage() {
 
         for (const line of lines) {
           if (!line.trim()) continue;
+
+          // Check if the response is HTML instead of JSON
+          const trimmedLine = line.trim();
+          if (trimmedLine.startsWith('<') || trimmedLine.startsWith('<!DOCTYPE')) {
+            console.error("Received HTML response instead of JSON:", trimmedLine.substring(0, 100));
+            setApiError("API Configuration Error: The server returned an unexpected response. Please check your API key configuration or contact support.");
+            setIsPending(false);
+            break; // Exit loop immediately to prevent repeated errors
+          }
 
           try {
             const update: BatchUpdate = JSON.parse(line);
@@ -234,8 +261,9 @@ export default function HomePage() {
               setApiError(`${update.message}. System will continue batch-wise processing.`);
               setIsStillProcessing(true);
             }
-          } catch {
-            // Continue parsing
+          } catch (parseError) {
+            console.error("JSON Parse Error:", parseError, "Line:", trimmedLine.substring(0, 100));
+            setApiError("Data Processing Error: Unable to parse server response. The analysis may continue with partial results.");
           }
         }
       }
