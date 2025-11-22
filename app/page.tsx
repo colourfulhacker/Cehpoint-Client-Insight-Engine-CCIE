@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ClientInsightReport, ProspectInsight } from "@/lib/types";
 import Logo from "./components/Logo";
+import RegeneratePitchModal from "./components/RegeneratePitchModal";
 
 interface BatchUpdate {
   type: string;
@@ -36,7 +37,8 @@ export default function HomePage() {
   const [apiError, setApiError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [copiedPitch, setCopiedPitch] = useState<string | null>(null);
-  const [regeneratingIndex, setRegeneratingIndex] = useState<number | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedProspectForRegeneration, setSelectedProspectForRegeneration] = useState<{ prospect: ProspectInsight; index: number } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,44 +90,32 @@ export default function HomePage() {
     }
   };
 
-  const regeneratePitches = async (prospect: ProspectInsight, index: number) => {
-    setRegeneratingIndex(index);
-    try {
-      const response = await fetch("/api/regenerate-pitch", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: prospect.name,
-          role: prospect.role,
-          company: prospect.company,
-        }),
-      });
+  const openRegenerateModal = (prospect: ProspectInsight, index: number) => {
+    setSelectedProspectForRegeneration({ prospect, index });
+    setModalOpen(true);
+  };
 
-      if (!response.ok) {
-        throw new Error("Failed to regenerate pitches");
-      }
+  const closeRegenerateModal = () => {
+    setModalOpen(false);
+    setSelectedProspectForRegeneration(null);
+  };
 
-      const updatedProspect: ProspectInsight = await response.json();
+  const handleProspectUpdate = (updatedProspect: ProspectInsight) => {
+    if (!selectedProspectForRegeneration) return;
+    
+    const index = selectedProspectForRegeneration.index;
 
-      // Update the prospect in both insights and streaming insights
-      if (insights) {
-        const updatedInsights = { ...insights };
-        updatedInsights.prospectInsights[index] = updatedProspect;
-        setInsights(updatedInsights);
-      }
+    // Update the prospect in both insights and streaming insights
+    if (insights) {
+      const updatedInsights = { ...insights };
+      updatedInsights.prospectInsights[index] = updatedProspect;
+      setInsights(updatedInsights);
+    }
 
-      if (streamingInsights.length > 0) {
-        const updatedStreamingInsights = [...streamingInsights];
-        updatedStreamingInsights[index] = updatedProspect;
-        setStreamingInsights(updatedStreamingInsights);
-      }
-    } catch (err) {
-      console.error("Failed to regenerate pitches:", err);
-      alert("Failed to regenerate pitches. Please try again.");
-    } finally {
-      setRegeneratingIndex(null);
+    if (streamingInsights.length > 0) {
+      const updatedStreamingInsights = [...streamingInsights];
+      updatedStreamingInsights[index] = updatedProspect;
+      setStreamingInsights(updatedStreamingInsights);
     }
   };
 
@@ -574,27 +564,14 @@ export default function HomePage() {
                           Pitch Suggestions
                         </h4>
                         <button
-                          onClick={() => regeneratePitches(prospect, idx)}
-                          disabled={regeneratingIndex === idx}
-                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          onClick={() => openRegenerateModal(prospect, idx)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
                           title="Generate new pitch variations"
                         >
-                          {regeneratingIndex === idx ? (
-                            <>
-                              <svg className="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
-                              <span>Regenerating...</span>
-                            </>
-                          ) : (
-                            <>
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                              </svg>
-                              <span>Regenerate</span>
-                            </>
-                          )}
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                          <span>Regenerate</span>
                         </button>
                       </div>
                       <div className="space-y-2">
@@ -670,6 +647,16 @@ export default function HomePage() {
           </p>
         </div>
       </footer>
+
+      {/* Regenerate Pitch Modal */}
+      {selectedProspectForRegeneration && (
+        <RegeneratePitchModal
+          isOpen={modalOpen}
+          onClose={closeRegenerateModal}
+          prospect={selectedProspectForRegeneration.prospect}
+          onRegenerate={handleProspectUpdate}
+        />
+      )}
     </div>
   );
 }
