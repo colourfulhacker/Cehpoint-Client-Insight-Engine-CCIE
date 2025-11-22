@@ -559,6 +559,7 @@ export default function HomePage() {
                         {prospect.name}
                       </h3>
                       <p className="text-sm text-gray-600">{prospect.role}</p>
+                      <p className="text-sm text-gray-500 mt-0.5">{prospect.company}</p>
                     </div>
 
                     {/* Profile Notes */}

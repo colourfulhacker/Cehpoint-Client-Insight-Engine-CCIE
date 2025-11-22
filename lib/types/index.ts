@@ -13,6 +13,7 @@ export interface PitchSuggestion {
 export interface ProspectInsight {
   name: string;
   role: string;
+  company: string;
   profileNotes: string;
   pitchSuggestions: PitchSuggestion[];
   conversationStarter: string;

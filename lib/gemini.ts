@@ -97,6 +97,7 @@ OUTPUT - STRICT VALID JSON ONLY (no markdown, no commentary):
     {
       "name": "Full name exactly as provided",
       "role": "Their exact role/title",
+      "company": "Their exact company name",
       "profileNotes": "2-3 sentences: role context + company stage + technical challenge + Cehpoint alignment",
       "pitchSuggestions": [
         {"pitch": "Pitch 1 - their most urgent problem"},
