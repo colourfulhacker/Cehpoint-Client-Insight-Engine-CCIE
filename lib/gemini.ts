@@ -1,24 +1,9 @@
-import { GoogleGenAI } from "@google/genai";
 import { LeadRecord, ClientInsightReport } from "./types";
+import { geminiClient } from "./gemini-client";
+import { RateLimitError } from "./errors";
+import { sleep } from "./retry";
 
-const API_KEYS = [
-  process.env.GEMINI_API_KEY || "",
-  process.env.GEMINI_API_KEY_2 || "",
-].filter(key => key.length > 0);
-
-let currentKeyIndex = 0;
-
-function getNextApiKey(): string {
-  if (API_KEYS.length === 0) {
-    throw new Error("No Gemini API keys configured");
-  }
-  
-  const key = API_KEYS[currentKeyIndex];
-  currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
-  
-  console.log(`[Gemini API] Using API key ${currentKeyIndex} of ${API_KEYS.length}`);
-  return key;
-}
+const MAX_RATE_LIMIT_RETRIES = 10;
 
 export async function generateClientInsights(
   leads: LeadRecord[]
@@ -135,63 +120,38 @@ CRITICAL REQUIREMENTS:
 5. Conversation starters must be personalized and specific
 6. Include 2-4 ideal client framework categories based on the prospects provided`;
 
-  let lastError: Error | null = null;
+  console.log(`[Gemini API] Analyzing ${leads.length} prospect(s)...`);
   
-  for (let attempt = 0; attempt < API_KEYS.length; attempt++) {
+  for (let rateLimitRetry = 0; rateLimitRetry < MAX_RATE_LIMIT_RETRIES; rateLimitRetry++) {
     try {
-      const apiKey = getNextApiKey();
-      const ai = new GoogleGenAI({ apiKey });
-      
-      console.log(`[Gemini API] Analyzing ${leads.length} prospect(s) (attempt ${attempt + 1}/${API_KEYS.length})...`);
-      
-      const response = await ai.models.generateContent({
+      const rawJson = await geminiClient.callWithRetry({
         model: "gemini-2.5-flash",
-        config: {
-          systemInstruction: systemPrompt,
-          responseMimeType: "application/json",
-          temperature: 0.7, // Balanced for creativity and consistency
-        },
-        contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+        systemInstruction: systemPrompt,
+        userPrompt,
+        temperature: 0.7,
+        responseMimeType: "application/json",
+      }, (telemetry) => {
+        console.log(`[Gemini API] Retry attempt ${telemetry.attempt}/${telemetry.maxAttempts} after ${(telemetry.delay / 1000).toFixed(1)}s (key: ${telemetry.keyUsed}, error: ${telemetry.error.message})`);
       });
-
-      // Extract text from response
-      let rawJson: string | null = null;
-      
-      if ((response as any)?.text) {
-        rawJson = (response as any).text;
-      } else if ((response as any)?.response?.text) {
-        rawJson = (response as any).response.text;
-      } else if ((response as any)?.candidates?.[0]?.content?.parts?.[0]?.text) {
-        rawJson = (response as any).candidates[0].content.parts[0].text;
-      }
-      
-      if (!rawJson) {
-        console.error("[Gemini API] Could not extract text from response");
-        throw new Error("Failed to extract response from Gemini API");
-      }
       
       console.log("[Gemini API] Parsing JSON response...");
       
-      // Clean and parse JSON
-      const cleanedJson = rawJson.trim();
-      const insights: ClientInsightReport = JSON.parse(cleanedJson);
+      const insights: ClientInsightReport = JSON.parse(rawJson);
       insights.generatedAt = new Date().toISOString();
       
       console.log(`[Gemini API] ✓ Successfully generated insights for ${insights.prospectInsights.length} prospect(s)`);
       return insights;
     } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error(`[Gemini API] Key ${attempt + 1} failed: ${errorMsg}`);
-      lastError = error instanceof Error ? error : new Error(errorMsg);
-      
-      if (attempt < API_KEYS.length - 1) {
-        console.log("[Gemini API] Retrying with next key...");
+      if (error instanceof RateLimitError) {
+        const waitTime = (error.retryAfter || 60) * 1000;
+        console.log(`[Gemini API] All keys on cooldown. Waiting ${error.retryAfter || 60}s before retry (attempt ${rateLimitRetry + 1}/${MAX_RATE_LIMIT_RETRIES})...`);
+        await sleep(waitTime);
         continue;
       }
+      
+      throw error;
     }
   }
   
-  const errorMessage = lastError?.message || "Unknown error";
-  console.error(`[Gemini API] All keys exhausted. Final error: ${errorMessage}`);
-  throw new Error(`Failed to generate insights: ${errorMessage}`);
+  throw new Error(`Failed to generate insights after ${MAX_RATE_LIMIT_RETRIES} rate limit retries`);
 }

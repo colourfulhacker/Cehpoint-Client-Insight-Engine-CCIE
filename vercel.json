@@ -5,7 +5,12 @@
   "framework": "nextjs",
   "regions": ["iad1"],
   "env": {
-    "GEMINI_API_KEY": "@gemini_api_key",
-    "GEMINI_API_KEY_2": "@gemini_api_key_2"
+    "GEMINI_API_KEY_PRIMARY": "@gemini_api_key_primary",
+    "GEMINI_API_KEY_SECONDARY": "@gemini_api_key_secondary",
+    "GEMINI_API_KEY_EXTRA_1": "@gemini_api_key_extra_1",
+    "GEMINI_API_KEY_EXTRA_2": "@gemini_api_key_extra_2",
+    "GEMINI_API_KEY_EXTRA_3": "@gemini_api_key_extra_3",
+    "GEMINI_API_KEY_EXTRA_4": "@gemini_api_key_extra_4",
+    "GEMINI_API_KEY_EXTRA_5": "@gemini_api_key_extra_5"
   }
 }

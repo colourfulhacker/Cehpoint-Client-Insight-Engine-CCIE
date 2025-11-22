@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { geminiClient } from "@/lib/gemini-client";
 import { RateLimitError, ValidationError as CustomValidationError } from "@/lib/errors";
+import { sleep } from "@/lib/retry";
+
+const MAX_RATE_LIMIT_RETRIES = 10;
 
 const ProspectContextSchema = z.object({
   name: z.string(),
@@ -68,19 +71,32 @@ Return ONLY valid JSON with this exact structure:
   "expandedPitch": "Full multi-paragraph pitch text here. Use \\n\\n to separate paragraphs."
 }`;
 
-    const rawJson = await geminiClient.callWithRetry({
-      model: "gemini-2.5-flash",
-      systemInstruction: systemPrompt,
-      userPrompt,
-      temperature: 0.7,
-      responseMimeType: "application/json",
-    });
+    for (let rateLimitRetry = 0; rateLimitRetry < MAX_RATE_LIMIT_RETRIES; rateLimitRetry++) {
+      try {
+        const rawJson = await geminiClient.callWithRetry({
+          model: "gemini-2.5-flash",
+          systemInstruction: systemPrompt,
+          userPrompt,
+          temperature: 0.7,
+          responseMimeType: "application/json",
+        });
 
-    const parsedResponse = JSON.parse(rawJson);
-    const validatedResponse =
-      ExpandedPitchResponseSchema.parse(parsedResponse);
+        const parsedResponse = JSON.parse(rawJson);
+        const validatedResponse =
+          ExpandedPitchResponseSchema.parse(parsedResponse);
 
-    return NextResponse.json(validatedResponse);
+        return NextResponse.json(validatedResponse);
+      } catch (error) {
+        if (error instanceof RateLimitError && rateLimitRetry < MAX_RATE_LIMIT_RETRIES - 1) {
+          const waitTime = (error.retryAfter || 60) * 1000;
+          console.log(`[Expand Pitch] All keys on cooldown. Waiting ${error.retryAfter || 60}s before retry (attempt ${rateLimitRetry + 1}/${MAX_RATE_LIMIT_RETRIES})...`);
+          await sleep(waitTime);
+          continue;
+        }
+        
+        throw error;
+      }
+    }
   } catch (error) {
     console.error("Expand pitch error:", error);
 
