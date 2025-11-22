@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ClientInsightReport, ProspectInsight } from "@/lib/types";
 import Logo from "./components/Logo";
 import RegeneratePitchModal from "./components/RegeneratePitchModal";
+import ExpandPitchModal from "./components/ExpandPitchModal";
 
 interface BatchUpdate {
   type: string;
@@ -39,6 +40,8 @@ export default function HomePage() {
   const [copiedPitch, setCopiedPitch] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProspectForRegeneration, setSelectedProspectForRegeneration] = useState<{ prospect: ProspectInsight; index: number } | null>(null);
+  const [expandModalOpen, setExpandModalOpen] = useState(false);
+  const [selectedPitchForExpansion, setSelectedPitchForExpansion] = useState<{ prospect: ProspectInsight; pitch: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,6 +101,16 @@ export default function HomePage() {
   const closeRegenerateModal = () => {
     setModalOpen(false);
     setSelectedProspectForRegeneration(null);
+  };
+
+  const openExpandModal = (prospect: ProspectInsight, pitch: string) => {
+    setSelectedPitchForExpansion({ prospect, pitch });
+    setExpandModalOpen(true);
+  };
+
+  const closeExpandModal = () => {
+    setExpandModalOpen(false);
+    setSelectedPitchForExpansion(null);
   };
 
   const handleProspectUpdate = (updatedProspect: ProspectInsight) => {
@@ -584,25 +597,34 @@ export default function HomePage() {
                               key={pIdx}
                               className="group relative p-3 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
                             >
-                              <div className="flex gap-2 pr-8">
+                              <div className="flex gap-2 pr-20">
                                 <span className="text-sm font-medium text-gray-500 flex-shrink-0">{pIdx + 1}.</span>
                                 <p className="text-sm text-gray-700">{pitch.pitch}</p>
                               </div>
-                              <button
-                                onClick={() => copyToClipboard(pitch.pitch, pitchId)}
-                                className="absolute top-2 right-2 p-1.5 opacity-0 group-hover:opacity-100 hover:bg-white rounded transition-all"
-                                title="Copy"
-                              >
-                                {isCopied ? (
-                                  <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                  </svg>
-                                ) : (
-                                  <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                  </svg>
-                                )}
-                              </button>
+                              <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  onClick={() => openExpandModal(prospect, pitch.pitch)}
+                                  className="px-2 py-1 text-xs font-medium text-blue-600 bg-white border border-blue-200 rounded hover:bg-blue-50 transition-colors"
+                                  title="Generate full pitch"
+                                >
+                                  Expand
+                                </button>
+                                <button
+                                  onClick={() => copyToClipboard(pitch.pitch, pitchId)}
+                                  className="p-1.5 hover:bg-white rounded transition-all"
+                                  title="Copy"
+                                >
+                                  {isCopied ? (
+                                    <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                  ) : (
+                                    <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                  )}
+                                </button>
+                              </div>
                             </div>
                           );
                         })}
@@ -655,6 +677,16 @@ export default function HomePage() {
           onClose={closeRegenerateModal}
           prospect={selectedProspectForRegeneration.prospect}
           onRegenerate={handleProspectUpdate}
+        />
+      )}
+
+      {/* Expand Pitch Modal */}
+      {selectedPitchForExpansion && (
+        <ExpandPitchModal
+          isOpen={expandModalOpen}
+          onClose={closeExpandModal}
+          prospect={selectedPitchForExpansion.prospect}
+          shortPitch={selectedPitchForExpansion.pitch}
         />
       )}
     </div>
