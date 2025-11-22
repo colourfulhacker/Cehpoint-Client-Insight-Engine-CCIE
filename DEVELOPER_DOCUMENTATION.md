@@ -86,11 +86,23 @@ cehpoint-client-insight-engine/
    
    Create a `.env.local` file:
    ```env
-   GEMINI_API_KEY=your_primary_api_key_here
-   GEMINI_API_KEY_2=your_secondary_api_key_here
+   # Required
+   GEMINI_API_KEY_PRIMARY=your_primary_api_key_here
+   
+   # Recommended (for reliability)
+   GEMINI_API_KEY_SECONDARY=your_secondary_api_key_here
+   GEMINI_API_KEY_EXTRA_1=your_third_api_key_here
+   
+   # Optional (maximum reliability)
+   # GEMINI_API_KEY_EXTRA_2=your_fourth_api_key_here
+   # GEMINI_API_KEY_EXTRA_3=your_fifth_api_key_here
+   # GEMINI_API_KEY_EXTRA_4=your_sixth_api_key_here
+   # GEMINI_API_KEY_EXTRA_5=your_seventh_api_key_here
    ```
 
    **Get API Keys**: Visit [Google AI Studio](https://ai.google.dev) to generate free API keys.
+   
+   **Backward Compatibility**: Legacy variable names (`GEMINI_API_KEY`, `GEMINI_API_KEY_2`) are still supported.
 
 4. **Run development server**
    ```bash
@@ -100,26 +112,118 @@ cehpoint-client-insight-engine/
 
 ---
 
-## API Key Rotation System
+## Production-Grade Error Handling System (v5.2)
 
-### How It Works
+### Overview
 
-The application implements intelligent API key rotation to bypass free tier rate limits:
+The application features a comprehensive error handling infrastructure with multi-API-key rotation, exponential backoff retry logic, and intelligent cooldown management.
+
+### Architecture
+
+```
+┌─────────────────────────────────────────────────┐
+│  API Route (analyze/expand/regenerate)          │
+│  - Outer retry loop (10 attempts)               │
+│  - Catches RateLimitError, waits & retries      │
+└─────────────────┬───────────────────────────────┘
+                  │
+                  ▼
+┌─────────────────────────────────────────────────┐
+│  GeminiClient (lib/gemini-client.ts)            │
+│  - Multi-key rotation (PRIMARY → SECONDARY)     │
+│  - Inner retry loop (5 attempts)                │
+│  - Exponential backoff (1s → 60s max)           │
+│  - Per-key cooldown management                  │
+└─────────────────┬───────────────────────────────┘
+                  │
+                  ▼
+┌─────────────────────────────────────────────────┐
+│  Error Classification (lib/errors.ts)           │
+│  - RateLimitError (429) → Wait & retry          │
+│  - AuthError (401/403) → Switch key             │
+│  - TransientAPIError (5xx) → Retry              │
+│  - FatalAPIError (400) → Stop immediately       │
+└─────────────────────────────────────────────────┘
+```
+
+### Key Components
+
+#### 1. Error Classification (`lib/errors.ts`)
 
 ```typescript
-// lib/gemini.ts
-const API_KEYS = [
-  process.env.GEMINI_API_KEY,
-  process.env.GEMINI_API_KEY_2,
-].filter(key => key.length > 0);
-
-let currentKeyIndex = 0;
-
-function getNextApiKey(): string {
-  const key = API_KEYS[currentKeyIndex];
-  currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
-  return key;
+// 5 error types for granular handling
+export class RateLimitError extends Error {
+  constructor(message: string, public retryAfter?: number) {}
 }
+export class AuthError extends Error {}
+export class ValidationError extends Error {}
+export class TransientAPIError extends Error {}
+export class FatalAPIError extends Error {}
+```
+
+#### 2. Retry Utilities (`lib/retry.ts`)
+
+```typescript
+// Exponential backoff: 1s → 2s → 4s → 8s → 16s (max 60s)
+export async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  config: RetryConfig = { maxAttempts: 5, baseDelay: 1000, maxDelay: 60000 }
+): Promise<T>
+```
+
+#### 3. GeminiClient (`lib/gemini-client.ts`)
+
+```typescript
+// Multi-key rotation with cooldown management
+export class GeminiClient {
+  private keys: APIKey[] = []; // PRIMARY, SECONDARY, EXTRA_1-5
+  
+  async callWithRetry(options, onRetry?): Promise<string> {
+    // Inner retry loop: 5 attempts with exponential backoff
+    // Rotates through available keys
+    // Failed keys enter cooldown (60s standard, 5min auth errors)
+  }
+}
+```
+
+### Environment Variables
+
+#### Required
+- `GEMINI_API_KEY_PRIMARY` - Primary API key (fallback: `GEMINI_API_KEY`)
+
+#### Optional (Recommended for Reliability)
+- `GEMINI_API_KEY_SECONDARY` - Secondary API key for failover
+- `GEMINI_API_KEY_EXTRA_1` through `GEMINI_API_KEY_EXTRA_5` - Additional keys
+
+### Error Handling Flow
+
+#### Scenario 1: Rate Limit Exceeded (Single Key)
+```
+1. Request fails with 429 error
+2. GeminiClient classifies as RateLimitError
+3. Exponential backoff: wait 1s
+4. Retry #1 fails → wait 2s
+5. Retry #2 fails → wait 4s
+6. Retry #3 succeeds ✓
+```
+
+#### Scenario 2: All Keys on Cooldown
+```
+1. All keys hit rate limit
+2. GeminiClient throws RateLimitError(retryAfter: 60)
+3. Outer loop catches error
+4. Waits 60 seconds
+5. Retries entire operation
+6. Keys recovered → succeeds ✓
+```
+
+#### Scenario 3: Authentication Failure
+```
+1. PRIMARY key fails with 401 error
+2. GeminiClient classifies as AuthError
+3. PRIMARY enters 5-minute cooldown
+4. Switches to SECONDARY key
+5. Request succeeds with SECONDARY ✓
 ```
 
 ### Benefits
@@ -132,14 +236,32 @@ function getNextApiKey(): string {
 
 **For Replit:**
 Use the Secrets tab to add:
-- `GEMINI_API_KEY`
-- `GEMINI_API_KEY_2`
+- `GEMINI_API_KEY_PRIMARY` (required)
+- `GEMINI_API_KEY_SECONDARY` (recommended)
+- `GEMINI_API_KEY_EXTRA_1` through `GEMINI_API_KEY_EXTRA_5` (optional)
 
 **For Vercel:**
-Add in Project Settings → Environment Variables
+Add in Project Settings → Environment Variables (see `DEPLOYMENT_GUIDE.md`)
 
 **For Local Development:**
 Add to `.env.local` (never commit this file!)
+
+### Monitoring & Telemetry
+
+The system logs detailed retry telemetry for debugging:
+
+```bash
+[Gemini API] Analyzing 5 prospect(s)...
+[Gemini API] Retry attempt 2/5 after 2.0s (key: primary, error: Rate limit exceeded)
+[Gemini API] All keys on cooldown. Waiting 60s before retry (attempt 1/10)...
+[Gemini API] ✓ Successfully generated insights for 5 prospect(s)
+```
+
+Check console logs to monitor:
+- Which keys are being used
+- Retry patterns and delays
+- Cooldown periods
+- Success/failure rates
 
 ---
 
