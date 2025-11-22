@@ -2,7 +2,14 @@
 
 ## Overview
 
-The Cehpoint Client Insight Engine is a premium, production-ready B2B sales enablement platform designed for marketing and sales teams. It transforms raw LinkedIn prospect data from Excel/CSV files into personalized, actionable outreach strategies. The platform generates client categorization, three tailored pitch suggestions per prospect, and conversation starters optimized for B2B sales conversations. Features include real-time batch processing, progressive streaming results, time-based pagination, mid-process export, and comprehensive data export options.
+The Cehpoint Client Insight Engine is a premium, production-ready B2B sales enablement platform designed for marketing and sales teams. It transforms raw LinkedIn prospect data from Excel/CSV files into personalized, actionable outreach strategies. The platform generates client categorization, three tailored pitch suggestions per prospect, and conversation starters optimized for B2B sales conversations. Features include real-time batch processing, progressive streaming results, time-based pagination (15 prospects initially, then 15 every minute), mid-process export, and comprehensive data export options.
+
+## Key Updates (Current Session)
+- ✅ Removed landing page completely - upload screen IS the home page
+- ✅ Enhanced error handling: API failures trigger batch-wise processing continuation
+- ✅ Improved response handling: 5-second timeout notification, graceful degradation
+- ✅ Perfected Gemini prompt: laser-focused buyer personas, specific pain points, quality checklist
+- ✅ All exports (Text/JSON) work during processing and at completion
 
 ## Latest Improvements (v4.0 - Complete Enterprise Redesign + Advanced Pagination)
 
@@ -215,18 +222,20 @@ The Cehpoint Client Insight Engine is a premium, production-ready B2B sales enab
 **Production**: Vercel for serverless deployment with environment variable management.
 **Development**: Replit for testing with `npm run dev` on port 5000.
 
-## Status: ✅ PRODUCTION READY
+## Status: ✅ PRODUCTION READY - v5.0 (Optimized & Resilient)
 
 All specifications implemented and tested:
-- ✅ Split hero layout with premium design
+- ✅ Upload screen as home page (no separate landing page)
 - ✅ Enterprise design system (Stripe/Linear standards)
-- ✅ Time-based pagination (15 → wait 1 min → 15 more)
-- ✅ Mid-process export capability
-- ✅ Enhanced Gemini prompt (ideal client framework)
-- ✅ Real-time progress tracking
-- ✅ Streaming analysis with error handling
+- ✅ Time-based pagination (15 initial, 1 min intervals, unlimited prospects)
+- ✅ Mid-process export capability (Text + JSON)
+- ✅ Enhanced Gemini prompt (4 buyer personas, specific pain points, quality checklist)
+- ✅ Real-time progress tracking with percentage and prospect count
+- ✅ Resilient streaming with automatic batch-wise processing on API errors
+- ✅ 5-second response timeout detection with user notification
+- ✅ Graceful error handling - continues processing even if API encounters issues
 - ✅ Responsive design across all devices
 - ✅ Professional animations and micro-interactions
-- ✅ Complete export options (Text + JSON)
+- ✅ Complete export options (Text + JSON) at any point during processing
 
-Ready to deploy and publish to production.
+Ready to deploy and publish to production with enterprise-grade reliability.

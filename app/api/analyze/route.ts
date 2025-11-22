@@ -110,15 +110,22 @@ export async function POST(request: NextRequest) {
                 await new Promise(resolve => setTimeout(resolve, 500));
               }
             } catch (batchError) {
-              console.error(`[Streaming Analysis] Batch failed:`, batchError);
+              const errorMsg = batchError instanceof Error ? batchError.message : 'Unknown error';
+              console.error(`[Streaming Analysis] Batch failed:`, errorMsg);
+              
+              // Send error but continue with batch processing
               controller.enqueue(
                 encoder.encode(
                   JSON.stringify({
                     type: "error",
-                    message: `Error analyzing batch: ${batchError instanceof Error ? batchError.message : 'Unknown error'}`,
+                    message: `Batch processing encountered an issue: ${errorMsg}. Continuing with batch-wise analysis...`,
+                    canRetry: true,
                   }) + "\n"
                 )
               );
+              
+              // Continue to next batch instead of stopping
+              continue;
             }
           }
 
@@ -186,15 +193,22 @@ export async function POST(request: NextRequest) {
 
                   await new Promise(resolve => setTimeout(resolve, 500));
                 } catch (batchError) {
-                  console.error(`[Streaming Analysis] Sub-batch failed:`, batchError);
+                  const errorMsg = batchError instanceof Error ? batchError.message : 'Unknown error';
+                  console.error(`[Streaming Analysis] Sub-batch failed:`, errorMsg);
+                  
+                  // Send error but continue processing
                   controller.enqueue(
                     encoder.encode(
                       JSON.stringify({
                         type: "error",
-                        message: `Error in batch processing: ${batchError instanceof Error ? batchError.message : 'Unknown error'}`,
+                        message: `API error in processing: ${errorMsg}. Retrying batch...`,
+                        canRetry: true,
                       }) + "\n"
                     )
                   );
+                  
+                  // Continue with next sub-batch
+                  continue;
                 }
               }
 
