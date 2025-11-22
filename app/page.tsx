@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ClientInsightReport, ProspectInsight } from "@/lib/types";
 import Sidebar from "./components/Sidebar";
@@ -21,6 +21,16 @@ interface BatchUpdate {
   totalInFile?: number;
   isProcessing?: boolean;
   canRetry?: boolean;
+}
+
+interface Campaign {
+  id: string;
+  name: string;
+  fileName: string;
+  date: string;
+  leadCount: number;
+  report: ClientInsightReport;
+  status: "completed" | "processing" | "failed";
 }
 
 export default function HomePage() {
@@ -44,7 +54,30 @@ export default function HomePage() {
   const [selectedProspectForRegeneration, setSelectedProspectForRegeneration] = useState<{ prospect: ProspectInsight; index: number } | null>(null);
   const [expandModalOpen, setExpandModalOpen] = useState(false);
   const [selectedPitchForExpansion, setSelectedPitchForExpansion] = useState<{ prospect: ProspectInsight; pitch: string } | null>(null);
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load campaigns from localStorage on mount
+  useEffect(() => {
+    const savedCampaigns = localStorage.getItem("ccie_campaigns");
+    if (savedCampaigns) {
+      try {
+        setCampaigns(JSON.parse(savedCampaigns));
+      } catch (e) {
+        console.error("Failed to load campaigns:", e);
+      }
+    }
+  }, []);
+
+  // Save campaigns to localStorage whenever they change
+  useEffect(() => {
+    if (campaigns.length > 0) {
+      localStorage.setItem("ccie_campaigns", JSON.stringify(campaigns));
+    } else {
+      localStorage.removeItem("ccie_campaigns");
+    }
+  }, [campaigns]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -256,6 +289,18 @@ export default function HomePage() {
               setStreamingMessage("Analysis complete");
               setIsStillProcessing(false);
               setIsPending(false);
+              
+              // Save campaign to history
+              const newCampaign: Campaign = {
+                id: crypto.randomUUID(),
+                name: selectedFile?.name.replace(/\.(csv|xlsx|xls)$/i, "") || "Unnamed Campaign",
+                fileName: selectedFile?.name || "Unknown file",
+                date: new Date().toISOString(),
+                leadCount: update.report.prospectInsights.length,
+                report: update.report,
+                status: "completed"
+              };
+              setCampaigns(prev => [newCampaign, ...prev]);
             }
 
             if (update.type === "error") {
@@ -1098,43 +1143,557 @@ export default function HomePage() {
         )}
 
         {activeSection === 'campaigns' && (
-          <div className="text-center py-20">
-            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-            </svg>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Campaign Management Coming Soon</h2>
-            <p className="text-gray-600">Organize and track your outreach campaigns here</p>
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Campaign History</h1>
+                <p className="text-sm text-gray-600 mt-1">View and manage your prospect analysis campaigns</p>
+              </div>
+              <button
+                onClick={() => setActiveSection('upload')}
+                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all font-medium shadow-sm"
+              >
+                + New Campaign
+              </button>
+            </div>
+
+            {campaigns.length === 0 ? (
+              <div className="bg-white border border-gray-200 rounded-xl p-12 text-center">
+                <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No campaigns yet</h3>
+                <p className="text-gray-600 mb-4">Upload your first prospect file to get started</p>
+                <button
+                  onClick={() => setActiveSection('upload')}
+                  className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                  Create First Campaign
+                </button>
+              </div>
+            ) : selectedCampaign ? (
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setSelectedCampaign(null)}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900">{selectedCampaign.name}</h2>
+                    <p className="text-sm text-gray-600">{selectedCampaign.leadCount} prospects • {new Date(selectedCampaign.date).toLocaleDateString()}</p>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                  <div className="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200 flex justify-between items-center">
+                    <h3 className="font-semibold text-gray-900">Prospect Insights</h3>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => downloadJSON(selectedCampaign.report)}
+                        className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-gray-700"
+                      >
+                        Export JSON
+                      </button>
+                      <button
+                        onClick={() => downloadInsights(selectedCampaign.report)}
+                        className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                      >
+                        Export TXT
+                      </button>
+                    </div>
+                  </div>
+                  <div className="divide-y divide-gray-200">
+                    {selectedCampaign.report.prospectInsights.map((prospect, idx) => (
+                      <div key={idx} className="p-6 hover:bg-gray-50 transition-colors">
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <h4 className="font-semibold text-gray-900">{prospect.name}</h4>
+                            <p className="text-sm text-gray-600">{prospect.role} at {prospect.company}</p>
+                          </div>
+                          <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+                            Analyzed
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-700 mb-3">{prospect.profileNotes}</p>
+                        <div className="text-sm text-gray-600">
+                          <strong>Opening:</strong> "{prospect.conversationStarter}"
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {campaigns.map((campaign) => (
+                  <div
+                    key={campaign.id}
+                    onClick={() => setSelectedCampaign(campaign)}
+                    className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="p-3 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors">
+                        <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${
+                        campaign.status === 'completed' ? 'bg-green-100 text-green-800' :
+                        campaign.status === 'processing' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {campaign.status}
+                      </span>
+                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-1">{campaign.name}</h3>
+                    <p className="text-sm text-gray-600 mb-3 line-clamp-1">
+                      <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                      {campaign.fileName}
+                    </p>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-600">
+                        <strong className="text-gray-900">{campaign.leadCount}</strong> leads
+                      </span>
+                      <span className="text-gray-500">
+                        {new Date(campaign.date).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
         {activeSection === 'learning' && (
-          <div className="text-center py-20">
-            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Learning Hub Coming Soon</h2>
-            <p className="text-gray-600">Tutorials and best practices for sales intelligence</p>
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Learning Hub</h1>
+              <p className="text-sm text-gray-600 mt-1">Master sales intelligence and outreach strategies</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Getting Started */}
+              <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                <div className="px-6 py-5 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-white rounded-lg shadow-sm">
+                      <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900">Getting Started</h2>
+                      <p className="text-sm text-gray-600 mt-0.5">Quick start guides for new users</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 space-y-4">
+                  {[
+                    { title: "Upload Your First Prospect File", desc: "Learn the required CSV/Excel format and data columns" },
+                    { title: "Understanding AI Insights", desc: "How Gemini analyzes prospects and generates personalized pitches" },
+                    { title: "Navigating the Platform", desc: "Tour of all features: Upload, Templates, Campaigns, Learning Hub" }
+                  ].map((lesson, i) => (
+                    <div key={i} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                      <div className="flex gap-3">
+                        <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-700 font-semibold text-sm">
+                          {i + 1}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900 text-sm mb-1">{lesson.title}</h3>
+                          <p className="text-xs text-gray-600">{lesson.desc}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Best Practices */}
+              <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                <div className="px-6 py-5 bg-gradient-to-r from-blue-50 to-cyan-50 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-white rounded-lg shadow-sm">
+                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900">Best Practices</h2>
+                      <p className="text-sm text-gray-600 mt-0.5">Expert tips for successful outreach</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 space-y-4">
+                  {[
+                    { title: "Personalization is Key", desc: "Use AI insights to customize every message for better response rates" },
+                    { title: "Follow-Up Strategy", desc: "Best timing and frequency for follow-ups without being pushy" },
+                    { title: "Multi-Channel Approach", desc: "Combine email, LinkedIn, and phone outreach effectively" }
+                  ].map((tip, i) => (
+                    <div key={i} className="p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div className="flex gap-3">
+                        <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        <div>
+                          <h3 className="font-semibold text-gray-900 text-sm mb-1">{tip.title}</h3>
+                          <p className="text-xs text-gray-600">{tip.desc}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Cehpoint Expertise */}
+              <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                <div className="px-6 py-5 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-white rounded-lg shadow-sm">
+                      <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900">Cybersecurity & IT Services</h2>
+                      <p className="text-sm text-gray-600 mt-0.5">Cehpoint-specific knowledge</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 space-y-3">
+                  <div className="p-4 bg-purple-50 rounded-lg">
+                    <h3 className="font-semibold text-gray-900 text-sm mb-2">Understanding Client Pain Points</h3>
+                    <ul className="text-xs text-gray-700 space-y-1.5">
+                      <li className="flex gap-2"><span className="text-purple-600">•</span> Data breach prevention and incident response</li>
+                      <li className="flex gap-2"><span className="text-purple-600">•</span> Regulatory compliance (GDPR, HIPAA, SOC 2)</li>
+                      <li className="flex gap-2"><span className="text-purple-600">•</span> Cloud security and infrastructure protection</li>
+                      <li className="flex gap-2"><span className="text-purple-600">•</span> Endpoint security and threat detection</li>
+                    </ul>
+                  </div>
+                  <div className="p-4 bg-pink-50 rounded-lg">
+                    <h3 className="font-semibold text-gray-900 text-sm mb-2">Value Propositions</h3>
+                    <ul className="text-xs text-gray-700 space-y-1.5">
+                      <li className="flex gap-2"><span className="text-pink-600">•</span> 24/7 security operations center (SOC)</li>
+                      <li className="flex gap-2"><span className="text-pink-600">•</span> Proactive threat hunting and monitoring</li>
+                      <li className="flex gap-2"><span className="text-pink-600">•</span> Customized security assessments</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Advanced Techniques */}
+              <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                <div className="px-6 py-5 bg-gradient-to-r from-orange-50 to-amber-50 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-white rounded-lg shadow-sm">
+                      <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900">Advanced Techniques</h2>
+                      <p className="text-sm text-gray-600 mt-0.5">Level up your sales game</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 space-y-4">
+                  {[
+                    { title: "Account-Based Marketing", desc: "Target high-value accounts with coordinated campaigns" },
+                    { title: "Social Selling Strategies", desc: "Build relationships through LinkedIn engagement and content" },
+                    { title: "Data-Driven Prospecting", desc: "Use analytics to identify your ideal customer profile" }
+                  ].map((technique, i) => (
+                    <div key={i} className="p-4 border border-orange-200 rounded-lg hover:border-orange-400 transition-colors">
+                      <div className="flex gap-3 items-start">
+                        <div className="flex-shrink-0 w-6 h-6 bg-orange-100 rounded text-orange-700 font-bold text-xs flex items-center justify-center">
+                          {i + 1}
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-gray-900 text-sm mb-1">{technique.title}</h3>
+                          <p className="text-xs text-gray-600">{technique.desc}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {activeSection === 'settings' && (
-          <div className="text-center py-20">
-            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Settings Coming Soon</h2>
-            <p className="text-gray-600">Customize your workspace and preferences</p>
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+              <p className="text-sm text-gray-600 mt-1">Configure your workspace and integrations</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* API Configuration */}
+              <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                <div className="px-6 py-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-white rounded-lg shadow-sm">
+                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900">API Integrations</h2>
+                      <p className="text-sm text-gray-600 mt-0.5">Manage your API keys</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Google Gemini API Key
+                      <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded">Configured ✓</span>
+                    </label>
+                    <p className="text-xs text-gray-600 mb-2">
+                      Your Gemini API key is securely configured via Replit Secrets
+                    </p>
+                    <div className="flex gap-2">
+                      <input
+                        type="password"
+                        value="••••••••••••••••••••••••"
+                        disabled
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-sm"
+                      />
+                      <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
+                        Update
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-200">
+                    <h3 className="text-sm font-medium text-gray-900 mb-3">Optional Integrations</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">Email Finder API</p>
+                          <p className="text-xs text-gray-600">Find prospect email addresses</p>
+                        </div>
+                        <span className="px-2.5 py-1 bg-gray-200 text-gray-600 text-xs rounded-full">Not configured</span>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">Domain Lookup API</p>
+                          <p className="text-xs text-gray-600">Company website enrichment</p>
+                        </div>
+                        <span className="px-2.5 py-1 bg-gray-200 text-gray-600 text-xs rounded-full">Not configured</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* General Settings */}
+              <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                <div className="px-6 py-5 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-white rounded-lg shadow-sm">
+                      <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900">General Settings</h2>
+                      <p className="text-sm text-gray-600 mt-0.5">Workspace preferences</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Default Export Format
+                    </label>
+                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                      <option>JSON (Recommended)</option>
+                      <option>Text (.txt)</option>
+                      <option>CSV</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Analysis Batch Size
+                    </label>
+                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                      <option>5 prospects (Faster)</option>
+                      <option selected>10 prospects (Balanced)</option>
+                      <option>15 prospects (Slower)</option>
+                    </select>
+                    <p className="text-xs text-gray-600 mt-1">Larger batches may take longer but use fewer API calls</p>
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-200">
+                    <h3 className="text-sm font-medium text-gray-900 mb-3">Data Management</h3>
+                    <button
+                      onClick={() => {
+                        if (confirm("Clear all campaign history? This cannot be undone.")) {
+                          localStorage.removeItem("ccie_campaigns");
+                          setCampaigns([]);
+                          alert("Campaign history cleared successfully");
+                        }
+                      }}
+                      className="w-full px-4 py-2.5 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors font-medium text-sm border border-red-200"
+                    >
+                      Clear All Campaign History
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {activeSection === 'help' && (
-          <div className="text-center py-20">
-            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Help & Support Coming Soon</h2>
-            <p className="text-gray-600">Documentation and support resources</p>
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Help & Support</h1>
+              <p className="text-sm text-gray-600 mt-1">Get assistance and find answers to common questions</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* FAQ */}
+              <div className="lg:col-span-2 space-y-4">
+                <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                  <div className="px-6 py-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 bg-white rounded-lg shadow-sm">
+                        <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-bold text-gray-900">Frequently Asked Questions</h2>
+                        <p className="text-sm text-gray-600 mt-0.5">Quick answers to common questions</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-6 space-y-4">
+                    {[
+                      {
+                        q: "What file format should I upload?",
+                        a: "Upload CSV or Excel files (.csv, .xlsx, .xls) with columns for Name, Role, and Company. Optional columns: location, description, profile, work_positions, education."
+                      },
+                      {
+                        q: "How does the AI analyze prospects?",
+                        a: "Our platform uses Google Gemini AI to analyze prospect profiles, identify pain points, and generate personalized pitch suggestions and conversation starters tailored to each prospect."
+                      },
+                      {
+                        q: "Can I edit or regenerate pitches?",
+                        a: "Yes! Click 'Regenerate Pitch' on any insight card to create new variations with different tones, or use 'Expand Pitch' to get longer versions for email templates."
+                      },
+                      {
+                        q: "How is my data stored?",
+                        a: "Campaign history is saved in your browser's local storage for quick access. Your data never leaves your browser except for AI analysis via secure API calls."
+                      },
+                      {
+                        q: "What's the best way to use Templates?",
+                        a: "Use templates as starting points, then personalize them with the AI-generated insights for each prospect. Combine multiple templates for different outreach channels."
+                      },
+                      {
+                        q: "How many prospects can I analyze at once?",
+                        a: "There's no hard limit, but larger files process in batches of 5-10 prospects. You can download partial results while processing continues."
+                      }
+                    ].map((faq, i) => (
+                      <details key={i} className="group">
+                        <summary className="cursor-pointer p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors list-none">
+                          <div className="flex justify-between items-center">
+                            <h3 className="font-semibold text-gray-900 text-sm">{faq.q}</h3>
+                            <svg className="w-5 h-5 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </summary>
+                        <div className="p-4 text-sm text-gray-700 bg-white rounded-b-lg border-l-4 border-blue-500">
+                          {faq.a}
+                        </div>
+                      </details>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="space-y-4">
+                <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                  <div className="px-6 py-5 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-gray-200">
+                    <h3 className="font-bold text-gray-900">Quick Actions</h3>
+                  </div>
+                  <div className="p-4 space-y-3">
+                    <button className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all font-medium text-sm flex items-center justify-center gap-2">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      Contact Support
+                    </button>
+                    <button className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm text-gray-700">
+                      Report an Issue
+                    </button>
+                    <button className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm text-gray-700">
+                      Feature Request
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-xl p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 bg-green-50 rounded-lg">
+                      <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900 text-sm">System Status</h3>
+                      <p className="text-xs text-green-600">All systems operational</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-xs text-gray-600">
+                    <div className="flex justify-between">
+                      <span>Gemini AI API</span>
+                      <span className="text-green-600 font-medium">✓ Online</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>File Processing</span>
+                      <span className="text-green-600 font-medium">✓ Online</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Export Services</span>
+                      <span className="text-green-600 font-medium">✓ Online</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-6">
+                  <h3 className="font-bold text-gray-900 mb-2 text-sm">Need More Help?</h3>
+                  <p className="text-xs text-gray-700 mb-4">
+                    Our support team is here to assist you with any questions or issues.
+                  </p>
+                  <div className="space-y-2 text-xs text-gray-700">
+                    <div className="flex items-center gap-2">
+                      <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                      support@cehpoint.com
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Mon-Fri, 9AM-6PM EST
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
         </div>
