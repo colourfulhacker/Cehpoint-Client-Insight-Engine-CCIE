@@ -1,6 +1,7 @@
-import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { geminiClient } from "@/lib/gemini-client";
+import { RateLimitError, ValidationError as CustomValidationError } from "@/lib/errors";
 
 const ProspectSchema = z.object({
   name: z.string(),
@@ -32,15 +33,6 @@ export async function POST(request: Request) {
     const body = await request.json();
     const prospect = ProspectSchema.parse(body);
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "Gemini API key not configured" },
-        { status: 500 }
-      );
-    }
-
-    const ai = new GoogleGenAI({ apiKey });
 
     const systemPrompt = `You are an expert B2B sales strategist specializing in personalized outreach for Cehpoint's services.
 
@@ -92,32 +84,15 @@ Return ONLY valid JSON with this exact structure:
   "conversationStarter": "Personalized opening message showing understanding of their context"
 }`;
 
-    const response = await ai.models.generateContent({
+    const rawJson = await geminiClient.callWithRetry({
       model: "gemini-2.5-flash",
-      config: {
-        systemInstruction: systemPrompt,
-        responseMimeType: "application/json",
-        temperature: 0.8,
-      },
-      contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+      systemInstruction: systemPrompt,
+      userPrompt,
+      temperature: 0.8,
+      responseMimeType: "application/json",
     });
 
-    let rawJson: string | null = null;
-    
-    if ((response as any)?.text) {
-      rawJson = (response as any).text;
-    } else if ((response as any)?.response?.text) {
-      rawJson = (response as any).response.text;
-    } else if ((response as any)?.candidates?.[0]?.content?.parts?.[0]?.text) {
-      rawJson = (response as any).candidates[0].content.parts[0].text;
-    }
-    
-    if (!rawJson) {
-      throw new Error("Failed to extract response from Gemini API");
-    }
-    
-    const cleanedJson = rawJson.trim();
-    const parsedResponse = JSON.parse(cleanedJson);
+    const parsedResponse = JSON.parse(rawJson);
     const validatedInsight = ProspectInsightSchema.parse(parsedResponse);
 
     // Preserve optional fields from the request
@@ -133,13 +108,30 @@ Return ONLY valid JSON with this exact structure:
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Invalid request data" },
+        { error: "Invalid request data", details: error.issues },
+        { status: 400 }
+      );
+    }
+
+    if (error instanceof RateLimitError) {
+      return NextResponse.json(
+        { 
+          error: "Rate limit exceeded. Please wait and try again.",
+          retryAfter: error.retryAfter,
+        },
+        { status: 429 }
+      );
+    }
+
+    if (error instanceof CustomValidationError) {
+      return NextResponse.json(
+        { error: error.message },
         { status: 400 }
       );
     }
 
     return NextResponse.json(
-      { error: "Failed to regenerate pitch" },
+      { error: error instanceof Error ? error.message : "Failed to regenerate pitch" },
       { status: 500 }
     );
   }

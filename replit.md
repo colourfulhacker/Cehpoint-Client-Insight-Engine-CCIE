@@ -4,14 +4,27 @@
 
 The Cehpoint Client Insight Engine is a premium, production-ready B2B sales enablement platform designed for marketing and sales teams. It transforms raw LinkedIn prospect data from Excel/CSV files into personalized, actionable outreach strategies. The platform generates client categorization, three tailored pitch suggestions per prospect, and conversation starters optimized for B2B sales conversations. Features include real-time batch processing, progressive streaming results, time-based pagination (15 prospects initially, then 15 every minute), mid-process export, and comprehensive data export options.
 
-## Key Updates (Current Session)
-- ✅ Removed landing page completely - upload screen IS the home page
+## Key Updates (Current Session - v5.1)
+- ✅ **NEW: Expand Pitch Feature** - Generate full detailed pitches (200-250 words) for each pitch suggestion
+- ✅ **Professional Modal UI** - Enterprise-grade popup with loading, error handling, and copy functionality
+- ✅ **Pitch Regeneration** - Regenerate all pitches for individual prospects with complete data preservation
 - ✅ Enhanced error handling: API failures trigger batch-wise processing continuation
 - ✅ Improved response handling: 5-second timeout notification, graceful degradation
 - ✅ Perfected Gemini prompt: laser-focused buyer personas, specific pain points, quality checklist
 - ✅ All exports (Text/JSON) work during processing and at completion
 
-## Latest Improvements (v4.0 - Complete Enterprise Redesign + Advanced Pagination)
+## Latest Improvements (v5.1 - Expand Pitch Feature + Complete Enterprise Redesign)
+
+### NEW: Pitch Expansion & Regeneration (v5.1)
+- ✅ **Expand Pitch Modal**: Click "Expand" on any pitch suggestion to generate a full 200-250 word detailed pitch
+- ✅ **Automatic Generation**: Modal automatically generates expanded pitch using Gemini AI on open
+- ✅ **Professional UI**: Loading skeleton, error handling with retry, copy-to-clipboard functionality
+- ✅ **Accessibility**: Escape key dismissal, backdrop click, body scroll prevention
+- ✅ **Context Preservation**: Uses complete prospect data (name, role, company, location, description)
+- ✅ **Regenerate Feature**: Regenerate all 3 pitch suggestions for individual prospects
+- ✅ **Data Integrity**: JSON escaping for special characters, Zod validation, proper error handling
+
+### Enterprise Design & Pagination (v4.0)
 
 ### Landing Page Redesign - Enterprise Grade
 - ✅ **Split Hero Layout**: Left text/CTA, right gradient visual with geometric pattern
