@@ -169,9 +169,12 @@ export default function UploadPage() {
                 <form onSubmit={handleSubmit} className="space-y-10">
                   {/* File Upload */}
                   <div className="space-y-6">
-                    <label htmlFor="file" className="block text-lg font-black text-white">
-                      📂 Select Your Data File
-                    </label>
+                    <div>
+                      <label htmlFor="file" className="block text-2xl font-black text-white mb-2">
+                        📂 Select Your Data File
+                      </label>
+                      <p className="text-sm text-slate-400">Upload your prospect list (Excel or CSV format)</p>
+                    </div>
 
                     <input
                       type="file"
@@ -219,12 +222,12 @@ export default function UploadPage() {
                           </p>
                         </div>
                       ) : (
-                        <div className="text-center">
-                          <p className="font-semibold text-white text-lg">
-                            Click to upload or drag and drop
+                        <div className="text-center space-y-2">
+                          <p className="font-black text-white text-xl">
+                            Click to upload or drag & drop
                           </p>
-                          <p className="text-sm text-slate-500 mt-3">
-                            Excel (.xlsx, .xls) or CSV, up to 10 MB
+                          <p className="text-sm text-slate-400">
+                            Excel (.xlsx, .xls) or CSV • Up to 10 MB
                           </p>
                         </div>
                       )}
@@ -232,40 +235,40 @@ export default function UploadPage() {
                   </div>
 
                   {/* Requirements Grid */}
-                  <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/30 border border-slate-700/60 rounded-xl p-8 space-y-6 hover:border-slate-600/80 transition-all">
-                    <h4 className="font-black text-white text-base flex items-center gap-3">
-                      <span className="text-xl">📋</span>
+                  <div className="bg-gradient-to-br from-slate-800/60 to-slate-900/40 border border-blue-500/20 rounded-xl p-8 space-y-8 hover:border-blue-500/40 transition-all">
+                    <h4 className="font-black text-white text-lg flex items-center gap-3">
+                      <span className="text-2xl">📋</span>
                       Required Columns
                     </h4>
                     <div className="grid md:grid-cols-3 gap-6">
-                      <div className="space-y-3 p-4 bg-slate-900/40 rounded-lg border border-slate-700/40">
-                        <p className="text-xs text-slate-300 uppercase tracking-widest font-bold">Name</p>
-                        <div className="flex flex-wrap gap-2">
-                          <code className="px-3 py-1.5 bg-slate-900/60 rounded-md text-xs text-blue-300 font-mono border border-slate-700/50">name</code>
-                          <span className="text-slate-500 text-xs flex items-center">or</span>
-                          <code className="px-3 py-1.5 bg-slate-900/60 rounded-md text-xs text-blue-300 font-mono border border-slate-700/50">full_name</code>
+                      <div className="space-y-4 p-5 bg-gradient-to-br from-blue-900/20 to-slate-900/30 rounded-lg border-2 border-blue-500/40 hover:border-blue-500/70 transition-all">
+                        <p className="text-base text-blue-300 uppercase tracking-wider font-bold">👤 Name</p>
+                        <div className="flex flex-col gap-3">
+                          <code className="px-3 py-2.5 bg-blue-950/40 rounded-md text-sm text-blue-100 font-mono border-l-3 border-blue-500 hover:bg-blue-950/60 transition-all">name</code>
+                          <span className="text-blue-400 text-sm font-medium text-center">or</span>
+                          <code className="px-3 py-2.5 bg-blue-950/40 rounded-md text-sm text-blue-100 font-mono border-l-3 border-blue-500 hover:bg-blue-950/60 transition-all">full_name</code>
                         </div>
                       </div>
-                      <div className="space-y-3 p-4 bg-slate-900/40 rounded-lg border border-slate-700/40">
-                        <p className="text-xs text-slate-300 uppercase tracking-widest font-bold">Role</p>
-                        <div className="flex flex-wrap gap-2">
-                          <code className="px-3 py-1.5 bg-slate-900/60 rounded-md text-xs text-blue-300 font-mono border border-slate-700/50">role</code>
-                          <span className="text-slate-500 text-xs flex items-center">or</span>
-                          <code className="px-3 py-1.5 bg-slate-900/60 rounded-md text-xs text-blue-300 font-mono border border-slate-700/50">title</code>
+                      <div className="space-y-4 p-5 bg-gradient-to-br from-purple-900/20 to-slate-900/30 rounded-lg border-2 border-purple-500/40 hover:border-purple-500/70 transition-all">
+                        <p className="text-base text-purple-300 uppercase tracking-wider font-bold">💼 Role</p>
+                        <div className="flex flex-col gap-3">
+                          <code className="px-3 py-2.5 bg-purple-950/40 rounded-md text-sm text-purple-100 font-mono border-l-3 border-purple-500 hover:bg-purple-950/60 transition-all">role</code>
+                          <span className="text-purple-400 text-sm font-medium text-center">or</span>
+                          <code className="px-3 py-2.5 bg-purple-950/40 rounded-md text-sm text-purple-100 font-mono border-l-3 border-purple-500 hover:bg-purple-950/60 transition-all">title</code>
                         </div>
                       </div>
-                      <div className="space-y-3 p-4 bg-slate-900/40 rounded-lg border border-slate-700/40">
-                        <p className="text-xs text-slate-300 uppercase tracking-widest font-bold">Company</p>
-                        <div className="flex flex-wrap gap-2">
-                          <code className="px-3 py-1.5 bg-slate-900/60 rounded-md text-xs text-blue-300 font-mono border border-slate-700/50">company</code>
-                          <span className="text-slate-500 text-xs flex items-center">or</span>
-                          <code className="px-3 py-1.5 bg-slate-900/60 rounded-md text-xs text-blue-300 font-mono border border-slate-700/50">org</code>
+                      <div className="space-y-4 p-5 bg-gradient-to-br from-cyan-900/20 to-slate-900/30 rounded-lg border-2 border-cyan-500/40 hover:border-cyan-500/70 transition-all">
+                        <p className="text-base text-cyan-300 uppercase tracking-wider font-bold">🏢 Company</p>
+                        <div className="flex flex-col gap-3">
+                          <code className="px-3 py-2.5 bg-cyan-950/40 rounded-md text-sm text-cyan-100 font-mono border-l-3 border-cyan-500 hover:bg-cyan-950/60 transition-all">company</code>
+                          <span className="text-cyan-400 text-sm font-medium text-center">or</span>
+                          <code className="px-3 py-2.5 bg-cyan-950/40 rounded-md text-sm text-cyan-100 font-mono border-l-3 border-cyan-500 hover:bg-cyan-950/60 transition-all">org</code>
                         </div>
                       </div>
                     </div>
-                    <div className="pt-4 border-t border-slate-700/30">
-                      <p className="text-xs text-slate-400 font-medium">
-                        💡 Optional: location, description, profile
+                    <div className="pt-6 border-t border-slate-700/50">
+                      <p className="text-sm text-slate-300 font-medium">
+                        💡 <strong>Optional columns:</strong> location, description, profile
                       </p>
                     </div>
                   </div>
@@ -287,12 +290,12 @@ export default function UploadPage() {
                     className="w-full group relative"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 rounded-xl blur-xl opacity-80 group-hover:enabled:opacity-100 transition-all duration-300 group-active:enabled:scale-95" />
-                    <div className={`relative text-white font-black py-5 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg min-h-16 shadow-2xl shadow-blue-600/50 ${
+                    <div className={`relative text-white font-black py-5 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg min-h-16 shadow-2xl ${
                       isPending 
-                        ? 'bg-gradient-to-r from-blue-600 to-blue-500' 
+                        ? 'bg-gradient-to-r from-blue-600 to-blue-500 shadow-blue-600/50' 
                         : selectedFile 
-                          ? 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 active:scale-95'
-                          : 'bg-gradient-to-r from-slate-700 to-slate-600 cursor-not-allowed'
+                          ? 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 active:scale-95 shadow-blue-600/50'
+                          : 'bg-gradient-to-r from-blue-500/50 to-blue-400/50 cursor-not-allowed shadow-blue-500/30 hover:from-blue-500/60 hover:to-blue-400/60'
                     }`}>
                       {isPending ? (
                         <>

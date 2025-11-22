@@ -4,29 +4,29 @@
 
 The Cehpoint Client Insight Engine is a production-ready B2B sales enablement tool designed for marketing teams. It processes LinkedIn prospect data from Excel/CSV files to generate personalized outreach strategies. These strategies include client categorization, pitch suggestions, and conversation starters tailored to Cehpoint's custom software development and cybersecurity services. Features real-time batch processing, progressive streaming results, and comprehensive export options.
 
-## Latest Improvements (v1.3.0 - Comprehensive UI/UX Audit & Polish)
+## Latest Improvements (v1.3.1 - Final UI/UX Refinements)
 
-**Homepage Enhancements:**
-- ✅ Hero headline redesign—split layout ("Transform Prospect" white + "Data Into Intelligence" gradient) for better visual flow
-- ✅ CTA button amplified—larger size (min-h-16, text-lg, font-black), stronger gradient, enhanced glow effect with shadow
-- ✅ Stats cards styled—added subtle backgrounds, borders, gradient numbers (cyan gradient), hover effects for visual hierarchy
-- ✅ Feature cards refined—improved border visibility, gradient backgrounds, larger icons (text-5xl), hover shadows
-- ✅ Workflow step numbers enlarged (w-20 h-20)—stronger cyan gradient, enhanced border styling, increased prominence
+**Logo Fix:**
+- ✅ Blue gradient background with white text—now visible on dark theme (previously dark on dark)
 
-**Upload Page Polish:**
-- ✅ File selection label enhanced—added emoji, increased to text-lg, font-black for better prominence
-- ✅ Upload zone border visibility improved—changed from subtle slate-600 to prominent blue-400 with proper contrast
-- ✅ Upload zone background enhanced—increased opacity and added shadow for better depth perception
-- ✅ Required Columns section redesigned—gradient background, stronger borders, better card organization with individual column cards
-- ✅ Column labels improved—larger, bolder typography with better visual separation
-- ✅ Optional columns text styled—increased weight and contrast
-- ✅ Submit button amplified—larger size (min-h-16, text-lg, font-black), enhanced gradient, stronger shadow (shadow-2xl shadow-blue-600/50)
+**Upload Page Real Improvements:**
+- ✅ Upload zone text enlarged—"Click to upload or drag & drop" now text-xl + font-black for visibility
+- ✅ Required Columns color-coded system:
+  - NAME (Blue) → blue card, blue "or" text, blue left-border on code boxes
+  - ROLE (Purple) → purple card, purple "or" text, purple left-border on code boxes
+  - COMPANY (Cyan) → cyan card, cyan "or" text, cyan left-border on code boxes
+- ✅ Column labels increased to text-base for better readability
+- ✅ Code boxes styled with color-matched backgrounds and left borders (border-l-3)
+- ✅ "Or" text now matches column color (was generic gray) with font-medium weight
+- ✅ Submit button inviting even when disabled—blue gradient instead of dull gray
 
-**Overall Design Consistency:**
-- ✅ Enhanced button shadows throughout—consistent shadow-2xl shadow-blue-600/50 for all primary CTAs
-- ✅ Improved typography hierarchy—better font weights and sizes across all sections
-- ✅ Better visual feedback—stronger hover states and transitions on interactive elements
-- ✅ Production-ready styling—all components polished to enterprise standards
+**Previous Enhancements (v1.3.0):**
+- Hero headline split layout with gradient
+- Stats cards with styled backgrounds and gradient numbers  
+- Feature cards with improved borders and icons
+- Workflow step numbers enlarged with enhanced styling
+- File selection label with emoji and increased prominence
+- Upload zone with blue border and shadow effects
 
 ## User Preferences
 
