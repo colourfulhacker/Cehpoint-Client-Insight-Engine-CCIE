@@ -3,126 +3,115 @@ import Logo from "./components/Logo";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950">
+    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-50">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center">
+      <nav className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/95 backdrop-blur">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
           <Logo />
+          <div className="text-xs font-semibold text-slate-400 tracking-widest uppercase">
+            Enterprise Sales Intelligence
+          </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 py-32 sm:py-48">
-        <div className="max-w-3xl w-full text-center space-y-16">
-          <div className="space-y-8">
-            <h1 className="text-slate-900 dark:text-white">
-              Identify & Engage Your Ideal Prospects
+      <main className="flex-1 flex flex-col items-center justify-center px-6 py-20 sm:py-32">
+        <div className="max-w-4xl w-full space-y-10">
+          {/* Subtitle */}
+          <div className="text-center">
+            <div className="inline-block px-4 py-2 rounded-full border border-slate-700 bg-slate-900/50 mb-8">
+              <p className="text-xs font-semibold text-blue-400 tracking-widest uppercase">
+                ★ Powered by Advanced AI Analysis
+              </p>
+            </div>
+          </div>
+
+          {/* Main Headline */}
+          <div className="space-y-6 text-center">
+            <h1 className="text-5xl md:text-6xl font-black leading-tight tracking-tight">
+              Transform Prospect Data Into
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">
+                Actionable Sales Intelligence
+              </span>
             </h1>
 
-            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-              Upload your prospect list and receive personalized outreach strategies with tailored pitch recommendations and conversation starters—immediately actionable.
+            <p className="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed font-light">
+              Upload your prospect list and instantly receive personalized outreach strategies, tailored pitch recommendations, and conversation starters optimized for your sales pipeline.
             </p>
           </div>
 
-          <Link
-            href="/upload"
-            className="inline-block bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold px-12 py-5 rounded-lg shadow-lg hover:shadow-xl transition-all text-lg min-h-16 flex items-center justify-center"
-          >
-            START ANALYZING
-          </Link>
+          {/* CTA Button */}
+          <div className="flex justify-center pt-6">
+            <Link
+              href="/upload"
+              className="group relative inline-block"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-500 rounded-lg blur opacity-75 group-hover:opacity-100 transition-opacity" />
+              <button className="relative inline-block bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold px-8 py-4 rounded-lg transition-all text-base min-h-14 flex items-center justify-center whitespace-nowrap">
+                START ANALYZING
+              </button>
+            </Link>
+          </div>
+
+          {/* Stats Row */}
+          <div className="grid grid-cols-3 gap-8 pt-16 border-t border-slate-800">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-400 mb-2">15+</div>
+              <p className="text-xs text-slate-400 uppercase tracking-widest">Prospects Per Batch</p>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-400 mb-2">60s</div>
+              <p className="text-xs text-slate-400 uppercase tracking-widest">Analysis Time</p>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-400 mb-2">3</div>
+              <p className="text-xs text-slate-400 uppercase tracking-widest">Pitches Per Prospect</p>
+            </div>
+          </div>
         </div>
       </main>
 
-      {/* Capabilities Section */}
-      <section className="px-6 lg:px-8 py-24 bg-slate-50 dark:bg-slate-900">
+      {/* Platform Capabilities Section */}
+      <section className="px-6 lg:px-8 py-24 bg-slate-900/50">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-20 space-y-4">
-            <h2 className="text-slate-900 dark:text-white">
-              Platform Capabilities
+          <div className="text-center mb-16 space-y-3">
+            <h2 className="text-3xl md:text-4xl font-bold">
+              Comprehensive Analysis Engine
             </h2>
-            <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
-              Generate comprehensive, actionable insights for each prospect in your pipeline
+            <p className="text-slate-300 max-w-2xl mx-auto text-base">
+              Every prospect receives deep strategic analysis powered by advanced AI
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-6">
             {[
               {
-                number: "01",
+                icon: "📊",
                 title: "Smart Classification",
-                desc: "Automatically categorize prospects by industry vertical, decision-making authority, and strategic business needs",
+                desc: "Automatically categorize prospects by industry, decision-making authority, and strategic alignment with your services",
               },
               {
-                number: "02",
-                title: "Service Recommendations",
-                desc: "Receive three customized service suggestions for each prospect based on their company profile and role",
+                icon: "🎯",
+                title: "Targeted Recommendations",
+                desc: "Receive three customized service suggestions based on each prospect's company profile, role, and business context",
               },
               {
-                number: "03",
-                title: "Outreach Templates",
-                desc: "Access pre-crafted, personalized conversation starters tailored to each individual prospect's context",
+                icon: "💬",
+                title: "Personalized Outreach",
+                desc: "Pre-crafted conversation starters tailored to each individual prospect for maximum engagement and relevance",
               },
             ].map((item, idx) => (
               <div
                 key={idx}
-                className="bg-white dark:bg-slate-800 p-8 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md transition-all"
+                className="relative group"
               >
-                <div className="text-4xl font-bold text-slate-300 dark:text-slate-600 mb-6">
-                  {item.number}
-                </div>
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">
-                  {item.title}
-                </h3>
-                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                  {item.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="px-6 lg:px-8 py-24 bg-white dark:bg-slate-950">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-20 space-y-4">
-            <h2 className="text-slate-900 dark:text-white">
-              How It Works
-            </h2>
-            <p className="text-lg text-slate-600 dark:text-slate-300">
-              Three simple steps to analyze and enhance your prospect engagement
-            </p>
-          </div>
-
-          <div className="space-y-8">
-            {[
-              {
-                step: 1,
-                title: "Upload Your Data",
-                desc: "Import an Excel (.xlsx, .xls) or CSV file containing prospect information with name, role, and company details",
-              },
-              {
-                step: 2,
-                title: "AI Analysis",
-                desc: "Our system processes each prospect and generates personalized insights within 30-60 seconds",
-              },
-              {
-                step: 3,
-                title: "Export & Deploy",
-                desc: "Download comprehensive reports as formatted text or structured JSON data for CRM integration",
-              },
-            ].map((item, idx) => (
-              <div key={idx} className="flex gap-8 items-start pb-8 border-b border-slate-200 dark:border-slate-800 last:border-b-0 last:pb-0">
-                <div className="flex-shrink-0 pt-1">
-                  <div className="w-12 h-12 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-base">
-                    {item.step}
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+                <div className="absolute inset-0 bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity blur" />
+                <div className="relative bg-slate-800/50 backdrop-blur border border-slate-700 p-8 rounded-lg hover:border-blue-500/50 transition-all">
+                  <div className="text-4xl mb-4">{item.icon}</div>
+                  <h3 className="text-lg font-bold text-white mb-3">
                     {item.title}
                   </h3>
-                  <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                  <p className="text-slate-300 text-sm leading-relaxed">
                     {item.desc}
                   </p>
                 </div>
@@ -132,35 +121,154 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="px-6 lg:px-8 py-24 bg-blue-600 text-white">
-        <div className="max-w-4xl mx-auto text-center space-y-10">
-          <div className="space-y-4">
-            <h2 className="text-white text-3xl sm:text-4xl font-bold">
-              Ready to Transform Your Sales Process?
+      {/* How It Works Section */}
+      <section className="px-6 lg:px-8 py-24 bg-slate-950">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-20 space-y-3">
+            <h2 className="text-3xl md:text-4xl font-bold">
+              Enterprise Workflow
             </h2>
-            <p className="text-blue-100 text-lg max-w-2xl mx-auto">
-              Begin analyzing your prospect list today and unlock data-driven outreach strategies
+            <p className="text-slate-300 text-base">
+              Streamlined process designed for maximum efficiency and accuracy
             </p>
           </div>
+
+          <div className="space-y-8">
+            {[
+              {
+                step: 1,
+                title: "Upload & Validate",
+                desc: "Import prospect data via Excel or CSV with intelligent column mapping and automatic validation",
+                icon: "📁",
+              },
+              {
+                step: 2,
+                title: "Intelligent Processing",
+                desc: "Prospects analyzed in optimal batches with real-time progress tracking and live result streaming",
+                icon: "⚡",
+              },
+              {
+                step: 3,
+                title: "Export Intelligence",
+                desc: "Download comprehensive insights as formatted text or structured JSON for seamless CRM integration",
+                icon: "📤",
+              },
+            ].map((item, idx) => (
+              <div 
+                key={idx} 
+                className="flex gap-6 items-start relative"
+              >
+                {/* Connecting line */}
+                {idx < 2 && (
+                  <div className="absolute left-[30px] top-20 w-0.5 h-12 bg-gradient-to-b from-blue-600 to-transparent" />
+                )}
+
+                <div className="flex-shrink-0 pt-1">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-full flex items-center justify-center font-bold text-2xl shadow-lg shadow-blue-600/30">
+                    {item.step}
+                  </div>
+                </div>
+
+                <div className="flex-1 pt-2">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="text-2xl">{item.icon}</span>
+                    <h3 className="text-xl font-bold text-white">
+                      {item.title}
+                    </h3>
+                  </div>
+                  <p className="text-slate-300 text-sm leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features Grid */}
+      <section className="px-6 lg:px-8 py-24 bg-slate-900/50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16 space-y-3">
+            <h2 className="text-3xl md:text-4xl font-bold">
+              Advanced Capabilities
+            </h2>
+            <p className="text-slate-300 max-w-2xl mx-auto text-base">
+              Enterprise-grade features for professional sales teams
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {[
+              { label: "Progressive Streaming", detail: "Results display as batches complete, zero wait time perception" },
+              { label: "Batch Optimization", detail: "5 prospects per batch for maximum accuracy and cost efficiency" },
+              { label: "API Key Rotation", detail: "Intelligent rotation system for seamless API rate management" },
+              { label: "Intelligent Filtering", detail: "Automatic validation removes incomplete records before processing" },
+              { label: "CRM Integration Ready", detail: "Export JSON format compatible with all major CRM platforms" },
+              { label: "Production Scalable", detail: "Architecture ready for enterprise deployment and expansion" },
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                className="border border-slate-700 bg-slate-800/30 backdrop-blur p-6 rounded-lg hover:border-blue-500/50 transition-all"
+              >
+                <h3 className="font-bold text-white text-sm mb-2">
+                  {item.label}
+                </h3>
+                <p className="text-slate-300 text-xs leading-relaxed">
+                  {item.detail}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="px-6 lg:px-8 py-24 bg-gradient-to-b from-slate-900 to-slate-950 border-t border-slate-800">
+        <div className="max-w-4xl mx-auto text-center space-y-10">
+          <div className="space-y-4">
+            <h2 className="text-4xl md:text-5xl font-bold leading-tight">
+              Ready to Gain <span className="text-blue-400">Sales Intelligence?</span>
+            </h2>
+            <p className="text-slate-300 text-lg max-w-2xl mx-auto">
+              Transform your prospect engagement with AI-powered insights. Start analyzing your pipeline in under a minute.
+            </p>
+          </div>
+
           <Link
             href="/upload"
-            className="inline-block bg-white text-blue-600 font-bold px-12 py-5 rounded-lg hover:bg-blue-50 active:bg-blue-100 transition-colors shadow-lg hover:shadow-xl text-lg min-h-16 flex items-center justify-center"
+            className="group relative inline-block"
           >
-            GET STARTED
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-500 rounded-lg blur opacity-75 group-hover:opacity-100 transition-opacity" />
+            <button className="relative inline-block bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold px-8 py-4 rounded-lg transition-all text-base min-h-14 flex items-center justify-center whitespace-nowrap">
+              LAUNCH ANALYZER
+            </button>
           </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 dark:border-slate-800 py-12 px-6 lg:px-8 bg-white dark:bg-slate-950">
-        <div className="max-w-6xl mx-auto text-center space-y-3">
-          <p className="text-slate-600 dark:text-slate-400 text-sm font-medium">
-            Cehpoint Client Insights Engine
-          </p>
-          <p className="text-slate-500 dark:text-slate-500 text-xs">
-            Custom Software Development • Security & Compliance Services
-          </p>
+      <footer className="border-t border-slate-800 py-12 px-6 lg:px-8 bg-slate-950">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 mb-8 pb-8 border-b border-slate-800">
+            <div>
+              <p className="font-bold text-white text-sm mb-2">Company</p>
+              <p className="text-slate-400 text-xs">Cehpoint</p>
+            </div>
+            <div>
+              <p className="font-bold text-white text-sm mb-2">Services</p>
+              <p className="text-slate-400 text-xs leading-relaxed">Custom Software Development<br />Security & Compliance</p>
+            </div>
+            <div>
+              <p className="font-bold text-white text-sm mb-2">Platform</p>
+              <p className="text-slate-400 text-xs">Client Insights Engine</p>
+            </div>
+          </div>
+          <div className="text-center">
+            <p className="text-slate-500 text-xs">
+              © 2025 Cehpoint. All rights reserved.
+            </p>
+          </div>
         </div>
       </footer>
     </div>
