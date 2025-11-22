@@ -1,0 +1,351 @@
+A detailed knowledge base for interns to understand Cehpoint’s technical capabilities and service strengths.
+
+1. Custom Software Development
+Frontend Development
+
+React.js
+
+Next.js
+
+Vue.js
+
+TailwindCSS
+
+HTML/CSS/JS
+
+Component-driven architecture
+
+Backend Development
+
+Node.js (Express, NestJS)
+
+Python (Django, Flask, FastAPI)
+
+PHP (Laravel, CodeIgniter)
+
+Golang (for APIs & microservices)
+
+Full-Stack Development
+
+MERN Stack (MongoDB, Express, React, Node)
+
+MEAN Stack
+
+Next.js Full Stack (API Routes)
+
+Supabase-backed full-stack applications
+
+Mobile App Development
+
+Flutter
+
+React Native
+
+Native Android (Java + Kotlin)
+
+Cross-platform UI/UX systems
+
+Database Systems
+
+PostgreSQL
+
+MySQL
+
+MongoDB
+
+Firebase Firestore
+
+Supabase Database
+
+Redis Caching
+
+Cloud Storage + Backends
+
+Google Cloud Platform (GCP)
+
+Firebase (Auth, DB, Functions, Hosting)
+
+Supabase (Auth, Edge Functions, Storage)
+
+Value Proposition
+
+High-performance apps
+
+Scalable architecture
+
+Fast delivery timelines
+
+2. Cybersecurity Services
+Security Testing
+
+Penetration Testing (Web, Mobile, API)
+
+Vulnerability Assessment (VAPT)
+
+Source Code Review
+
+SAST + DAST workflows
+
+Incident Response
+
+Breach detection
+
+Threat hunting
+
+Forensics investigation
+
+Malware analysis
+
+Compliance & Governance
+
+SOC 2
+
+ISO 27001
+
+HIPAA (Health-based products)
+
+GDPR
+
+Cloud & Infra Security
+
+GCP security posture review
+
+Kubernetes & container security
+
+Network & firewall policy review
+
+Value Proposition
+
+End-to-end protection
+
+Rapid incident handling
+
+Security-integrated development
+
+3. Automation & Process Engineering
+Business Process Automation (BPA)
+
+ERP functions automation
+
+HR, payroll, and attendance automation
+
+Finance workflows & invoicing automation
+
+Recruitment and onboarding automation
+
+Robotic Process Automation (RPA)
+
+UI-based automation
+
+Bot-based business process execution
+
+Dashboard automation workflows
+
+Advanced Workflow Automation
+
+Zapier
+
+Make.com
+
+N8N workflows
+
+API-based automation triggers
+
+Value Proposition
+
+Reduce operational overhead
+
+Remove manual repetitive steps
+
+Higher accuracy & speed
+
+4. AI, ML & Intelligent Systems
+AI Integration
+
+AI chatbots
+
+Customer support AI agents
+
+Lead scoring automation
+
+AI-powered recommendation systems
+
+AI Assistants
+
+Custom LLMs
+
+Gemini-based document intelligence
+
+Automated lead analysis
+
+Voice AI and speech-to-text
+
+ML Engineering
+
+Predictive modeling
+
+NLP applications
+
+Data classification & clustering
+
+Model deployment (FastAPI / Flask)
+
+Value Proposition
+
+Real-time smart automation
+
+Improved business decisions
+
+Enhanced customer experience
+
+5. DevOps, CI/CD & Cloud Systems
+DevOps Implementation
+
+CI/CD pipelines (GitHub Actions, GitLab CI)
+
+Automated build & deploy
+
+Docker containerization
+
+Kubernetes orchestration
+
+Cloud Services (GCP Only)
+
+VM setup
+
+Cloud Functions
+
+GCP Firestore & Cloud SQL
+
+Load balancers & managed services
+
+Monitoring & Logging
+
+Prometheus + Grafana
+
+Error monitoring (Sentry)
+
+Log aggregation (ELK stack)
+
+Value Proposition
+
+Zero downtime deployments
+
+Faster development cycles
+
+Efficient cloud resource usage
+
+6. Enterprise IT & Digital Infrastructure
+Infrastructure Services
+
+Server setup and maintenance
+
+Network architecture
+
+Firewall configuration
+
+VPN and secure remote access
+
+Disaster Recovery
+
+Backup automation
+
+Failover strategy setup
+
+Data integrity protection
+
+Value Proposition
+
+Reliable business continuity
+
+Professional IT governance
+
+7. SaaS & Product Engineering
+Product Development
+
+SaaS application architecture
+
+Multi-tenant systems
+
+Subscription billing integration
+
+Custom dashboards
+
+API Development
+
+RESTful APIs
+
+GraphQL architectures
+
+Third-party API integrations
+
+Value Proposition
+
+Complete end-to-end execution
+
+High scalability and modularity
+
+8. Website & Digital Experience Development
+Services
+
+Corporate websites
+
+Landing pages for campaigns
+
+High-speed Next.js websites
+
+E-commerce stores
+
+Optimization
+
+SEO technical optimization
+
+Page speed improvement
+
+Conversion-focused UI
+
+Value Proposition
+
+Professional brand presence
+
+High-performance web experience
+
+9. CRM, Sales & Marketing Automation Systems
+CRM Customization
+
+Zoho
+
+HubSpot
+
+Salesforce (light customization)
+
+Sales Automation
+
+Outreach automation
+
+Lead enrichment flows
+
+Email sequencing systems
+
+Value Proposition
+
+Faster lead management
+
+Higher conversion rates
+
+10. Legacy System Modernization
+Modernization Work
+
+Converting old apps to modern stacks
+
+Migrating PHP monoliths to modern frameworks
+
+Turning React apps into Next.js
+
+API refactoring
+
+Value Proposition
+
+Reduced technical debt
+
+Higher performance and maintainability

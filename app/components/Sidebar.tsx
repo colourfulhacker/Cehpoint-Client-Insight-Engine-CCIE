@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Logo from "./Logo";
 import { 
   HomeIcon, 
@@ -8,7 +9,9 @@ import {
   DocumentTextIcon,
   Cog6ToothIcon,
   QuestionMarkCircleIcon,
-  AcademicCapIcon
+  AcademicCapIcon,
+  Bars3Icon,
+  XMarkIcon
 } from "@heroicons/react/24/outline";
 
 interface NavItem {
@@ -23,6 +26,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ activeSection, onNavigate }: SidebarProps) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigation: NavItem[] = [
     { name: 'Dashboard', id: 'dashboard', icon: HomeIcon },
     { name: 'Upload Prospects', id: 'upload', icon: CloudArrowUpIcon },
@@ -36,20 +40,51 @@ export default function Sidebar({ activeSection, onNavigate }: SidebarProps) {
     { name: 'Help & Support', id: 'help', icon: QuestionMarkCircleIcon },
   ];
 
-  return (
-    <div className="flex h-full w-64 flex-col bg-white border-r border-gray-200">
-      {/* Logo */}
-      <div className="flex h-16 items-center px-6 border-b border-gray-200">
-        <Logo />
-      </div>
+  const handleNavigation = (section: string) => {
+    onNavigate(section);
+    setIsMobileMenuOpen(false);
+  };
 
-      {/* Navigation */}
-      <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
+  return (
+    <>
+      {/* Mobile menu button */}
+      <button
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg border border-gray-200"
+      >
+        {isMobileMenuOpen ? (
+          <XMarkIcon className="h-6 w-6 text-gray-600" />
+        ) : (
+          <Bars3Icon className="h-6 w-6 text-gray-600" />
+        )}
+      </button>
+
+      {/* Mobile overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-30"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div className={`
+        flex h-full w-64 flex-col bg-white border-r border-gray-200
+        fixed lg:static inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out
+        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
+        {/* Logo */}
+        <div className="flex h-16 items-center px-6 border-b border-gray-200">
+          <Logo />
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto">
         <div className="space-y-1">
           {navigation.map((item) => (
             <button
               key={item.name}
-              onClick={() => onNavigate(item.id)}
+              onClick={() => handleNavigation(item.id)}
               className={`
                 w-full group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors
                 ${activeSection === item.id
@@ -78,7 +113,7 @@ export default function Sidebar({ activeSection, onNavigate }: SidebarProps) {
             {secondaryNavigation.map((item) => (
               <button
                 key={item.name}
-                onClick={() => onNavigate(item.id)}
+                onClick={() => handleNavigation(item.id)}
                 className={`
                   w-full group flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors
                   ${activeSection === item.id
@@ -113,6 +148,7 @@ export default function Sidebar({ activeSection, onNavigate }: SidebarProps) {
           </span>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

@@ -292,7 +292,7 @@ export default function HomePage() {
               
               // Save campaign to history
               const newCampaign: Campaign = {
-                id: crypto.randomUUID(),
+                id: `campaign-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
                 name: selectedFile?.name.replace(/\.(csv|xlsx|xls)$/i, "") || "Unnamed Campaign",
                 fileName: selectedFile?.name || "Unknown file",
                 date: new Date().toISOString(),
@@ -376,13 +376,13 @@ export default function HomePage() {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 px-8 py-4">
-          <div className="flex items-center justify-between">
+        <header className="bg-white border-b border-gray-200 px-4 lg:px-8 py-4">
+          <div className="flex items-center justify-between lg:ml-0 ml-12">
             <div>
-              <h1 className="text-2xl font-semibold text-gray-900">Prospect Intelligence</h1>
+              <h1 className="text-xl lg:text-2xl font-semibold text-gray-900">Prospect Intelligence</h1>
               <p className="text-sm text-gray-500 mt-1">Transform prospect data into actionable insights</p>
             </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 rounded-full">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 rounded-full">
               <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" />
               <span className="text-xs font-medium text-emerald-700">
                 Live
@@ -392,7 +392,7 @@ export default function HomePage() {
         </header>
 
         {/* Page Content */}
-        <div className="flex-1 overflow-y-auto px-8 py-6">
+        <div className="flex-1 overflow-y-auto px-4 lg:px-8 py-6">
         {activeSection === 'upload' && (
         <AnimatePresence mode="wait">
           {!insights && streamingInsights.length === 0 ? (
