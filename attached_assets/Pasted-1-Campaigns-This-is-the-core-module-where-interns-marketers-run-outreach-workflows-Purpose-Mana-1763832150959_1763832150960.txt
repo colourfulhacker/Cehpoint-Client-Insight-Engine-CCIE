@@ -1,0 +1,185 @@
+1. Campaigns
+
+This is the core module where interns/marketers run outreach workflows.
+
+Purpose
+
+Manage uploaded lead files, generate insights, perform enrichment (email/website finding), and track outreach tasks.
+
+Key Features
+
+Upload Excel/CSV
+
+Run Gemini-based insight generation
+
+Lead enrichment (email + website finder)
+
+View all previously generated insight batches
+
+Export insights (PDF, DOCX, CSV)
+
+“Find Email” and “Find Website” options per lead
+
+Status indicators (Processed, Pending, Need Review)
+
+Subpages
+
+New Campaign (Upload file + run analysis)
+
+Campaign History
+
+Lead Insights View
+
+Email Finder Panel
+
+Export Center
+
+UI Notes
+
+Campaign cards showing: Name, Date, File uploaded, Leads count
+
+CTA: “Create New Campaign”
+
+Clean table/list layout for leads
+
+2. Templates
+
+This section stores pre-built conversation starters, pitches, email outreach templates, and LinkedIn messages.
+
+Purpose
+
+Make intern outreach faster, consistent, and professional.
+
+Features
+
+AI-generated outreach scripts per persona
+
+Message templates grouped by industry
+
+Edit + save custom templates
+
+One-click “Copy message”
+
+Integration: Insert template in Campaign > Lead view
+
+Subcategories
+
+Conversation starters
+
+Cold email templates
+
+LinkedIn outreach messages
+
+Follow-up messages
+
+Client explanation scripts
+
+UI Notes
+
+Template cards with title + preview
+
+Rich-text editor for customization
+
+3. Learning Hub
+
+Your internal training module for interns and team members working on lead analysis and outreach.
+
+Purpose
+
+Provide educational content and explain how to use CCIE effectively.
+
+Content Types
+
+“How to upload a lead file” guide
+
+“How to use Find Email feature”
+
+AI-based lead scoring explanation
+
+Best practices for B2B outreach
+
+Cybersecurity + IT services awareness modules (Cehpoint specific)
+
+Optional AI Assistant
+
+“Ask CCIE Assistant Anything” chat window (Gemini backend).
+
+UI Notes
+
+Video players
+
+Document viewer
+
+Module progress indicators
+
+4. Settings
+
+Core configuration area for admins.
+
+Purpose
+
+Control system behavior, API keys, access, integrations.
+
+Features
+
+Gemini API key entry
+
+Optional Clearbit / free API settings
+
+Domain mapping
+
+User roles: Admin, Intern, Marketing Manager
+
+Email delivery settings (SMTP / API)
+
+Branding (Logo, Colors)
+
+Subsections
+
+General Settings
+
+API Integrations
+
+User Management
+
+Export & File Settings
+
+Brand Customization
+
+UI Notes
+
+Simple forms with validation
+
+Important settings grouped
+
+5. Help & Support
+
+Support center for interns and team members.
+
+Purpose
+
+Provide help, troubleshooting, and documentation.
+
+Features
+
+FAQ
+
+Raise Support Ticket
+
+Contact details
+
+System status
+
+Troubleshooting guide
+
+“Report Incorrect Insight” button
+
+Optional
+
+Chat-based support (Gemini)
+
+UI Notes
+
+Clean knowledge base layout
+
+Categorized help topics
