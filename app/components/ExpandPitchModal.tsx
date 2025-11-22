@@ -25,17 +25,26 @@ export default function ExpandPitchModal({
     if (isOpen) {
       document.body.style.overflow = "hidden";
       generateExpandedPitch();
+
+      const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          onClose();
+        }
+      };
+
+      document.addEventListener("keydown", handleEscape);
+
+      return () => {
+        document.body.style.overflow = "unset";
+        document.removeEventListener("keydown", handleEscape);
+      };
     } else {
       document.body.style.overflow = "unset";
       setExpandedPitch("");
       setError(null);
       setCopied(false);
     }
-
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   const generateExpandedPitch = async () => {
     setIsGenerating(true);
