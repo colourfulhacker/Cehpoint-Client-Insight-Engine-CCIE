@@ -87,6 +87,19 @@ web_modules/
 .next
 out
 
+# Vercel
+.vercel
+
+# Test data uploads
+test_data/*.xlsx
+test_data/*.xls
+!test_data/sample_prospects.csv
+
+# Replit (keep these)
+!.replit
+!replit.nix
+!replit.md
+
 # Nuxt.js build / generate output
 .nuxt
 dist

@@ -9,11 +9,11 @@ export async function parseExcelFile(file: File): Promise<LeadRecord[]> {
   const jsonData = XLSX.utils.sheet_to_json<any>(firstSheet);
   
   const leads: LeadRecord[] = jsonData.map((row) => ({
-    name: row.name || row.Name || row.NAME || "",
-    role: row.role || row.Role || row.ROLE || row.title || row.Title || "",
-    company: row.company || row.Company || row.COMPANY || row.organization || "",
+    name: row.name || row.Name || row.NAME || row.full_name || row.Full_Name || row.FULL_NAME || "",
+    role: row.role || row.Role || row.ROLE || row.title || row.Title || row.occupation || row.Occupation || "",
+    company: row.company || row.Company || row.COMPANY || row.organization || row.Organization || "",
     location: row.location || row.Location || row.LOCATION || "",
-    description: row.description || row.Description || row.DESCRIPTION || row.profile || row.Profile || "",
+    description: row.description || row.Description || row.DESCRIPTION || row.profile || row.Profile || row.work_positions || row.education || "",
   }));
   
   return leads.filter(lead => lead.name && lead.role);
@@ -27,11 +27,11 @@ export async function parseCSVFile(file: File): Promise<LeadRecord[]> {
   const jsonData = XLSX.utils.sheet_to_json<any>(firstSheet);
   
   const leads: LeadRecord[] = jsonData.map((row) => ({
-    name: row.name || row.Name || row.NAME || "",
-    role: row.role || row.Role || row.ROLE || row.title || row.Title || "",
-    company: row.company || row.Company || row.COMPANY || row.organization || "",
+    name: row.name || row.Name || row.NAME || row.full_name || row.Full_Name || row.FULL_NAME || "",
+    role: row.role || row.Role || row.ROLE || row.title || row.Title || row.occupation || row.Occupation || "",
+    company: row.company || row.Company || row.COMPANY || row.organization || row.Organization || "",
     location: row.location || row.Location || row.LOCATION || "",
-    description: row.description || row.Description || row.DESCRIPTION || row.profile || row.Profile || "",
+    description: row.description || row.Description || row.DESCRIPTION || row.profile || row.Profile || row.work_positions || row.education || "",
   }));
   
   return leads.filter(lead => lead.name && lead.role);

@@ -1,7 +1,24 @@
 import { GoogleGenAI } from "@google/genai";
 import { LeadRecord, ClientInsightReport } from "./types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+const API_KEYS = [
+  process.env.GEMINI_API_KEY || "",
+  process.env.GEMINI_API_KEY_2 || "",
+].filter(key => key.length > 0);
+
+let currentKeyIndex = 0;
+
+function getNextApiKey(): string {
+  if (API_KEYS.length === 0) {
+    throw new Error("No Gemini API keys configured");
+  }
+  
+  const key = API_KEYS[currentKeyIndex];
+  currentKeyIndex = (currentKeyIndex + 1) % API_KEYS.length;
+  
+  console.log(`Using API key ${currentKeyIndex + 1} of ${API_KEYS.length}`);
+  return key;
+}
 
 export async function generateClientInsights(
   leads: LeadRecord[]
@@ -52,86 +69,102 @@ Respond with a JSON object following this exact structure:
 
   const userPrompt = `Analyze these ${leads.length} prospects and generate insights:\n\n${JSON.stringify(leads, null, 2)}`;
 
-  try {
-    console.log(`Analyzing ${leads.length} prospects with Gemini API...`);
-    
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-pro",
-      config: {
-        systemInstruction: systemPrompt,
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: "object",
-          properties: {
-            idealClientFramework: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  category: { type: "string" },
-                  description: { type: "string" },
-                  needs: { type: "array", items: { type: "string" } },
-                },
-                required: ["category", "description", "needs"],
-              },
-            },
-            prospectInsights: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  name: { type: "string" },
-                  role: { type: "string" },
-                  profileNotes: { type: "string" },
-                  pitchSuggestions: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        pitch: { type: "string" },
-                      },
-                      required: ["pitch"],
-                    },
-                  },
-                  conversationStarter: { type: "string" },
-                },
-                required: ["name", "role", "profileNotes", "pitchSuggestions", "conversationStarter"],
-              },
-            },
-            generatedAt: { type: "string" },
-          },
-          required: ["idealClientFramework", "prospectInsights", "generatedAt"],
-        },
-      },
-      contents: userPrompt,
-    });
-
-    const rawJson = response.text;
-    
-    console.log("Gemini API response received");
-    
-    if (!rawJson) {
-      throw new Error("Empty response from Gemini API");
-    }
-
-    let insights: ClientInsightReport;
+  let lastError: Error | null = null;
+  
+  for (let attempt = 0; attempt < API_KEYS.length; attempt++) {
     try {
-      insights = JSON.parse(rawJson);
-    } catch (parseError) {
-      console.error("Failed to parse JSON response:", rawJson);
-      throw new Error(`Invalid JSON response from Gemini: ${parseError instanceof Error ? parseError.message : "Parse error"}`);
+      const apiKey = getNextApiKey();
+      const ai = new GoogleGenAI({ apiKey });
+      
+      console.log(`Analyzing ${leads.length} prospects with Gemini API (attempt ${attempt + 1}/${API_KEYS.length})...`);
+      
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        config: {
+          systemInstruction: systemPrompt,
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "object",
+            properties: {
+              idealClientFramework: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    category: { type: "string" },
+                    description: { type: "string" },
+                    needs: { type: "array", items: { type: "string" } },
+                  },
+                  required: ["category", "description", "needs"],
+                },
+              },
+              prospectInsights: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    name: { type: "string" },
+                    role: { type: "string" },
+                    profileNotes: { type: "string" },
+                    pitchSuggestions: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          pitch: { type: "string" },
+                        },
+                        required: ["pitch"],
+                      },
+                    },
+                    conversationStarter: { type: "string" },
+                  },
+                  required: ["name", "role", "profileNotes", "pitchSuggestions", "conversationStarter"],
+                },
+              },
+              generatedAt: { type: "string" },
+            },
+            required: ["idealClientFramework", "prospectInsights", "generatedAt"],
+          },
+        },
+        contents: userPrompt,
+      });
+
+      const rawJson = response.text;
+      
+      console.log("Gemini API response received successfully");
+      
+      if (!rawJson) {
+        throw new Error("Empty response from Gemini API");
+      }
+
+      let insights: ClientInsightReport;
+      try {
+        insights = JSON.parse(rawJson);
+      } catch (parseError) {
+        console.error("Failed to parse JSON response:", rawJson.substring(0, 200));
+        throw new Error(`Invalid JSON response from Gemini: ${parseError instanceof Error ? parseError.message : "Parse error"}`);
+      }
+      
+      insights.generatedAt = new Date().toISOString();
+      
+      console.log(`Successfully generated insights for ${insights.prospectInsights.length} prospects`);
+      
+      return insights;
+      
+    } catch (error) {
+      console.error(`API Key ${attempt + 1} failed:`, error);
+      lastError = error instanceof Error ? error : new Error("Unknown error");
+      
+      if (attempt < API_KEYS.length - 1) {
+        console.log("Trying next API key...");
+        continue;
+      }
     }
-    
-    insights.generatedAt = new Date().toISOString();
-    
-    console.log(`Successfully generated insights for ${insights.prospectInsights.length} prospects`);
-    
-    return insights;
-  } catch (error) {
-    console.error("Gemini API Error:", error);
-    if (error instanceof Error) {
-      throw new Error(`Failed to generate insights: ${error.message}`);
-    }
-    throw new Error("Failed to generate insights: Unknown error occurred");
   }
+  
+  if (lastError) {
+    throw new Error(`All API keys exhausted. Last error: ${lastError.message}`);
+  }
+  
+  throw new Error("Failed to generate insights: No API keys available");
 }
