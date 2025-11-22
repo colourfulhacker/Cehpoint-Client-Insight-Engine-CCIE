@@ -1,0 +1,203 @@
+Rebuild the entire landing page using a proper enterprise-grade design system.
+Do not tweak the existing layout. Replace it completely according to the following specifications.
+
+1. HERO SECTION (MUST BE REBUILT)
+
+Use a split hero layout (Left: text & CTA, Right: visual).
+
+Add a premium background mesh/gradient or abstract geometric graphic on the right side.
+
+Hero must use:
+
+H1: 56px, bold
+
+Subtext: 20px, max width 600px
+
+CTA buttons (Primary + Secondary)
+
+Remove empty whitespace and create a clearly structured hero block.
+
+2. KPI METRIC STRIP (15 / 5 / 3)
+
+Replace the current rectangle boxes completely.
+
+Use this exact structure:
+
+3 horizontal cards, equal width, same height
+
+White cards with 20–24px rounded corners
+
+Soft shadow: 0 4px 16px rgba(0,0,0,0.06)
+
+Icon inside a circular colored badge
+
+Number: 32px bold
+
+Label: 14px medium
+
+Ensure alignment is pixel-perfect.
+
+3. FEATURE CARDS (Smart Classification, Recommendations, Outreach)
+
+Rebuild this section using a three-column modern grid.
+
+Card specification:
+
+White background
+
+Border: 1px solid #E5E7EB
+
+Padding: 32px
+
+Icon at top with circular halo
+
+Title: 20–22px semibold
+
+Description: max 2 lines
+
+Shadow on hover: 0 8px 24px rgba(0,0,0,0.08)
+
+Equal spacing between cards
+
+These cards must look like Stripe/Linear-style components.
+
+4. HOW IT WORKS (CONVERT TO TIMELINE)
+
+Replace the current bulky circles and vertical divider.
+
+Use a horizontal 3-step timeline:
+
+[Step 1] —— [Step 2] —— [Step 3]
+
+
+Each step must contain:
+
+Number inside a circular badge
+
+Title (18–20px)
+
+Short description (2 lines max)
+
+Equal card heights
+
+Subtle hover elevation
+
+Spacing: 64px between steps.
+
+5. DARK CTA SECTION (REBUILD)
+
+The current dark bar looks like a footer. Rebuild it as a premium CTA.
+
+Requirements:
+
+Navy gradient background
+
+Large headline: 32–36px bold
+
+Subheading: 18px
+
+CTA button centered
+
+Container max width: 1100px
+
+Add subtle mesh/noise texture for visual depth
+
+6. FOOTER (RESTRUCTURE)
+
+Use a 3-column professional enterprise footer:
+
+Column 1: Company
+
+Column 2: Product
+
+Column 3: Legal
+
+Add:
+
+Thin divider line above
+
+14px text
+
+Consistent spacing
+
+Better vertical padding
+
+7. GLOBAL DESIGN SYSTEM (MANDATORY)
+
+Use the following:
+
+Typography:
+
+Inter
+
+H1: 56px
+
+H2: 36px
+
+H3: 24px
+
+Body: 17px
+
+Line heights:
+
+Headlines: 1.1
+
+Body: 1.6
+
+Spacing Scale:
+
+Use only:
+0, 8, 16, 24, 32, 48, 64, 80, 120
+Spacing must be consistent across all sections.
+
+Color Palette:
+
+Primary: #0C1A3D
+
+Secondary: #2D65FF
+
+Accent: #7BA7FF
+
+Background: #F5F7FA
+
+Card Background: #FFFFFF
+
+Border: rgba(0,0,0,0.08)
+
+Text Primary: #0A0A0A
+
+Text Secondary: #4B4B4B
+
+Shadows:
+
+Card default: 0 4px 16px rgba(0,0,0,0.06)
+
+Hover: 0 8px 24px rgba(0,0,0,0.12)
+
+8. DON’T DO THE FOLLOWING:
+
+Do NOT reuse the old boxes or layout.
+
+Do NOT place items randomly without a grid.
+
+Do NOT keep the outdated icons.
+
+Do NOT use uneven spacing or arbitrary paddings.
+
+Do NOT apply overly dark or heavy shadows.
+
+9. GOAL
+
+Deliver a clean, modern, enterprise SaaS landing page similar in standard to:
+
+Stripe
+
+Linear
+
+HubSpot
+
+Notion
+
+Segment
+
+Everything must look premium, aligned, balanced, and intentionally structured.

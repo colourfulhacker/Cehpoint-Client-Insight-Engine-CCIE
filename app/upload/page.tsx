@@ -14,7 +14,10 @@ interface BatchUpdate {
   progress?: number;
   message?: string;
   report?: ClientInsightReport;
+  currentReport?: ClientInsightReport;
   totalProcessed?: number;
+  totalInFile?: number;
+  isProcessing?: boolean;
 }
 
 export default function UploadPage() {
@@ -25,7 +28,10 @@ export default function UploadPage() {
   const [streamingInsights, setStreamingInsights] = useState<ProspectInsight[]>([]);
   const [streamingProgress, setStreamingProgress] = useState(0);
   const [streamingMessage, setStreamingMessage] = useState("");
-  const [totalBatches, setTotalBatches] = useState(0);
+  const [totalInFile, setTotalInFile] = useState(0);
+  const [totalProcessed, setTotalProcessed] = useState(0);
+  const [availableForExport, setAvailableForExport] = useState<ClientInsightReport | null>(null);
+  const [isStillProcessing, setIsStillProcessing] = useState(false);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -42,7 +48,10 @@ export default function UploadPage() {
     setStreamingInsights([]);
     setStreamingProgress(0);
     setStreamingMessage("");
-    setTotalBatches(0);
+    setTotalInFile(0);
+    setTotalProcessed(0);
+    setAvailableForExport(null);
+    setIsStillProcessing(false);
 
     const formData = new FormData(event.currentTarget);
 
@@ -77,16 +86,40 @@ export default function UploadPage() {
           try {
             const update: BatchUpdate = JSON.parse(line);
 
-            if (update.type === "batch_complete" && update.prospects) {
+            // Handle different message types
+            if (update.type === "status") {
+              setStreamingMessage(update.message || "Starting analysis...");
+              setTotalInFile(update.totalInFile || 0);
+            }
+
+            if (update.type === "batch" && update.prospects) {
               setStreamingInsights(prev => [...prev, ...update.prospects!]);
+              setTotalProcessed(update.totalProcessed || 0);
+              setTotalInFile(update.totalInFile || 0);
+              const progressPercent = update.totalInFile 
+                ? Math.round((update.totalProcessed / update.totalInFile) * 100) 
+                : 0;
+              setStreamingProgress(progressPercent);
+              setIsStillProcessing(update.isProcessing === true);
             }
-            if (update.type === "progress") {
-              setStreamingProgress(update.progress || 0);
-              setStreamingMessage(update.message || "Processing...");
-              setTotalBatches(update.totalBatches || 0);
+
+            if (update.type === "batch_complete_available" && update.currentReport) {
+              setAvailableForExport(update.currentReport);
+              setTotalProcessed(update.totalProcessed || 0);
+              setTotalInFile(update.totalInFile || 0);
+              setStreamingMessage(update.message || "Processing more data...");
+              setIsStillProcessing(update.isProcessing === true);
+              const progressPercent = update.totalInFile 
+                ? Math.round((update.totalProcessed / update.totalInFile) * 100) 
+                : 0;
+              setStreamingProgress(progressPercent);
             }
+
             if (update.type === "complete" && update.report) {
               setInsights(update.report);
+              setStreamingProgress(100);
+              setStreamingMessage("Analysis complete!");
+              setIsStillProcessing(false);
               setIsPending(false);
             }
           } catch {
@@ -100,11 +133,14 @@ export default function UploadPage() {
     }
   };
 
-  const downloadInsights = () => {
-    if (!insights) return;
-    const text = insights.prospectInsights
+  const downloadInsights = (report: ClientInsightReport | null = null) => {
+    const dataToExport = report || insights;
+    if (!dataToExport) return;
+    
+    const text = dataToExport.prospectInsights
       .map(p => `${p.name} (${p.role})\n${p.profileNotes}\n\nPitches:\n${p.pitchSuggestions.map((s, i) => `${i + 1}. ${s.pitch}`).join("\n")}\n\nOpening:\n"${p.conversationStarter}"\n`)
       .join("\n---\n");
+    
     const blob = new Blob([text], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -116,9 +152,11 @@ export default function UploadPage() {
     URL.revokeObjectURL(url);
   };
 
-  const downloadJSON = () => {
-    if (!insights) return;
-    const blob = new Blob([JSON.stringify(insights, null, 2)], { type: "application/json" });
+  const downloadJSON = (report: ClientInsightReport | null = null) => {
+    const dataToExport = report || insights;
+    if (!dataToExport) return;
+    
+    const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -137,7 +175,7 @@ export default function UploadPage() {
           <Link href="/" className="hover:opacity-70 transition-opacity">
             <Logo />
           </Link>
-          <div className="text-xs font-semibold text-slate-500 tracking-widest uppercase">
+          <div className="text-xs font-semibold text-slate-600 tracking-widest uppercase">
             Analysis Engine
           </div>
         </div>
@@ -253,37 +291,79 @@ export default function UploadPage() {
           </div>
         ) : (
           <div className="space-y-12">
-            {/* Progress */}
+            {/* Progress Indicator */}
             {!insights && streamingInsights.length > 0 && (
               <div className="bg-blue-50 border border-blue-200 rounded-2xl p-8">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold text-slate-950">Analysis In Progress</h2>
+                  <div>
+                    <h2 className="text-2xl font-bold text-slate-950 mb-1">Analysis In Progress</h2>
+                    <p className="text-sm text-slate-600">
+                      {totalProcessed}/{totalInFile} prospects loaded • {streamingProgress}% complete
+                    </p>
+                  </div>
                   <div className="text-4xl font-bold text-slate-950">{streamingProgress}%</div>
                 </div>
-                <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden mb-4">
+                
+                <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden mb-6">
                   <div
-                    className="bg-blue-600 h-full transition-all"
+                    className="bg-blue-600 h-full transition-all duration-500"
                     style={{ width: `${streamingProgress}%` }}
                   />
                 </div>
-                <p className="text-sm text-slate-600">{streamingMessage}</p>
+                
+                <p className="text-sm text-slate-700 mb-4">{streamingMessage}</p>
+                
+                {isStillProcessing && (
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></div>
+                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></div>
+                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></div>
+                    </div>
+                    <span>Processing more data...</span>
+                  </div>
+                )}
               </div>
             )}
 
-            {/* Success */}
+            {/* Export Available Data During Processing */}
+            {availableForExport && isStillProcessing && (
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8">
+                <h3 className="text-lg font-bold text-slate-950 mb-3">✓ {totalProcessed} Prospects Ready</h3>
+                <p className="text-slate-700 mb-4">
+                  You can download insights for the {totalProcessed} prospects loaded so far while we continue processing the remaining {totalInFile - totalProcessed} prospects.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={() => downloadInsights(availableForExport)}
+                    className="px-4 py-2 bg-amber-600 text-white font-semibold rounded-lg hover:bg-amber-700 text-sm"
+                  >
+                    Download Available (Text)
+                  </button>
+                  <button
+                    onClick={() => downloadJSON(availableForExport)}
+                    className="px-4 py-2 bg-amber-600 text-white font-semibold rounded-lg hover:bg-amber-700 text-sm"
+                  >
+                    Download Available (JSON)
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Completion */}
             {insights && (
               <div className="bg-green-50 border border-green-200 rounded-2xl p-8">
                 <h2 className="text-2xl font-bold text-slate-950 mb-4">✓ Analysis Complete</h2>
-                <p className="text-slate-700 mb-6">Generated insights for {insights.prospectInsights.length} prospect{insights.prospectInsights.length !== 1 ? 's' : ''}</p>
+                <p className="text-slate-700 mb-6">Generated insights for all {insights.prospectInsights.length} prospect{insights.prospectInsights.length !== 1 ? 's' : ''}</p>
                 <div className="flex flex-wrap gap-3">
                   <button
-                    onClick={downloadInsights}
+                    onClick={() => downloadInsights()}
                     className="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 text-sm"
                   >
                     Download Text
                   </button>
                   <button
-                    onClick={downloadJSON}
+                    onClick={() => downloadJSON()}
                     className="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 text-sm"
                   >
                     Download JSON
@@ -293,6 +373,7 @@ export default function UploadPage() {
                       setInsights(null);
                       setStreamingInsights([]);
                       setSelectedFile(null);
+                      setAvailableForExport(null);
                     }}
                     className="px-4 py-2 border border-slate-300 text-slate-950 font-semibold rounded-lg hover:bg-slate-50 text-sm"
                   >
