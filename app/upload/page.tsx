@@ -1,16 +1,30 @@
 "use client";
 
-import { useState } from "react";
-import { processLeadFile, UploadResult } from "./actions";
-import { ClientInsightReport } from "@/lib/types";
+import { useState, useEffect } from "react";
+import { ClientInsightReport, ProspectInsight } from "@/lib/types";
 import Link from "next/link";
 import Logo from "../components/Logo";
+
+interface BatchUpdate {
+  type: string;
+  batchNumber?: number;
+  totalBatches?: number;
+  prospects?: ProspectInsight[];
+  progress?: number;
+  message?: string;
+  report?: ClientInsightReport;
+  totalProcessed?: number;
+}
 
 export default function UploadPage() {
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [insights, setInsights] = useState<ClientInsightReport | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [streamingInsights, setStreamingInsights] = useState<ProspectInsight[]>([]);
+  const [streamingProgress, setStreamingProgress] = useState(0);
+  const [streamingMessage, setStreamingMessage] = useState("");
+  const [totalBatches, setTotalBatches] = useState(0);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -24,16 +38,71 @@ export default function UploadPage() {
     event.preventDefault();
     setIsPending(true);
     setError(null);
+    setStreamingInsights([]);
+    setStreamingProgress(0);
+    setStreamingMessage("");
+    setTotalBatches(0);
 
     const formData = new FormData(event.currentTarget);
-    const result = await processLeadFile(formData);
 
-    setIsPending(false);
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        body: formData,
+      });
 
-    if (result.success && result.insights) {
-      setInsights(result.insights);
-    } else if (result.error) {
-      setError(result.error);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to analyze file");
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("No response body");
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+
+          try {
+            const update: BatchUpdate = JSON.parse(line);
+
+            if (update.type === "status") {
+              setStreamingMessage(update.message || "");
+              setTotalBatches(update.batches || 0);
+            } else if (update.type === "batch" && update.prospects) {
+              setStreamingInsights((prev) => [...prev, ...update.prospects!]);
+              setStreamingProgress(update.progress || 0);
+              setStreamingMessage(`Processing batch ${update.batchNumber}/${update.totalBatches}...`);
+            } else if (update.type === "complete" && update.report) {
+              setInsights(update.report);
+              setStreamingMessage("Analysis complete!");
+              setStreamingProgress(100);
+            } else if (update.type === "error") {
+              throw new Error(update.message || "Unknown error during streaming");
+            }
+          } catch (parseError) {
+            console.error("Failed to parse streaming update:", line, parseError);
+          }
+        }
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
+      setError(errorMessage);
+      setStreamingInsights([]);
+      setStreamingProgress(0);
+      setStreamingMessage("");
+    } finally {
+      setIsPending(false);
     }
   };
 
@@ -79,7 +148,7 @@ export default function UploadPage() {
 
       {/* Main Content */}
       <div className="flex-1 max-w-4xl mx-auto w-full py-20 px-6 lg:px-8">
-        {!insights ? (
+        {!insights && streamingInsights.length === 0 ? (
           <div className="space-y-12">
             {/* Header */}
             <div className="space-y-4">
@@ -87,7 +156,7 @@ export default function UploadPage() {
                 Analyze Prospects
               </h1>
               <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl">
-                Upload your prospect data to generate actionable outreach strategies and personalized recommendations. Each file processes up to 15 prospects for optimal accuracy.
+                Upload your prospect data to generate actionable outreach strategies. Results display progressively as each batch completes.
               </p>
             </div>
 
@@ -217,65 +286,95 @@ export default function UploadPage() {
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         />
                       </svg>
-                      <span>PROCESSING...</span>
+                      <span>ANALYZING...</span>
                     </>
                   ) : (
                     "ANALYZE PROSPECTS"
                   )}
                 </button>
-
-                {isPending && (
-                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-center">
-                    <p className="text-sm text-blue-700 dark:text-blue-300">
-                      Analyzing your prospects. This typically takes 30-60 seconds.
-                    </p>
-                  </div>
-                )}
               </form>
             </div>
           </div>
         ) : (
           <div className="space-y-12">
-            {/* Success Banner */}
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-8">
-              <div className="flex gap-4 items-start mb-8">
-                <svg className="w-6 h-6 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                    Analysis Complete
-                  </h2>
-                  <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">
-                    Generated insights for <span className="font-semibold">{insights.prospectInsights.length}</span> prospect{insights.prospectInsights.length !== 1 ? 's' : ''}
+            {/* Progress Section (while streaming) */}
+            {!insights && streamingInsights.length > 0 && (
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-8">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                        Analysis in Progress
+                      </h2>
+                      <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+                        {streamingMessage}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        {streamingProgress}%
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Progress Bar */}
+                  <div className="w-full bg-blue-200 dark:bg-blue-900 rounded-full h-2 overflow-hidden">
+                    <div
+                      className="bg-blue-600 h-full transition-all duration-300"
+                      style={{ width: `${streamingProgress}%` }}
+                    />
+                  </div>
+
+                  <p className="text-xs text-blue-600 dark:text-blue-400">
+                    Prospects analyzed: {streamingInsights.length}
                   </p>
                 </div>
               </div>
+            )}
 
-              <div className="flex flex-wrap gap-3">
-                <button
-                  onClick={downloadInsights}
-                  className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors text-sm min-h-12 flex items-center justify-center shadow-md"
-                >
-                  Download as Text
-                </button>
-                <button
-                  onClick={downloadJSON}
-                  className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors text-sm min-h-12 flex items-center justify-center shadow-md"
-                >
-                  Download as JSON
-                </button>
-                <button
-                  onClick={() => {
-                    setInsights(null);
-                    setSelectedFile(null);
-                  }}
-                  className="px-6 py-3 border-2 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white font-bold rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm min-h-12 flex items-center justify-center"
-                >
-                  Upload New File
-                </button>
+            {/* Success Banner */}
+            {insights && (
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-8">
+                <div className="flex gap-4 items-start mb-8">
+                  <svg className="w-6 h-6 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <div>
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                      Analysis Complete
+                    </h2>
+                    <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">
+                      Generated insights for <span className="font-semibold">{insights.prospectInsights.length}</span> prospect{insights.prospectInsights.length !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={downloadInsights}
+                    className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors text-sm min-h-12 flex items-center justify-center shadow-md"
+                  >
+                    Download as Text
+                  </button>
+                  <button
+                    onClick={downloadJSON}
+                    className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors text-sm min-h-12 flex items-center justify-center shadow-md"
+                  >
+                    Download as JSON
+                  </button>
+                  <button
+                    onClick={() => {
+                      setInsights(null);
+                      setStreamingInsights([]);
+                      setSelectedFile(null);
+                    }}
+                    className="px-6 py-3 border-2 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white font-bold rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm min-h-12 flex items-center justify-center"
+                  >
+                    Upload New File
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Results Header */}
             <div className="space-y-2">
@@ -283,16 +382,16 @@ export default function UploadPage() {
                 Prospect Insights
               </h2>
               <p className="text-slate-600 dark:text-slate-300 text-sm">
-                Detailed analysis and recommendations for each prospect
+                {insights ? 'Complete analysis and recommendations for each prospect' : `${streamingInsights.length} prospect${streamingInsights.length !== 1 ? 's' : ''} analyzed so far`}
               </p>
             </div>
 
             {/* Results Grid */}
             <div className="space-y-6">
-              {insights.prospectInsights.map((prospect, idx) => (
+              {(insights?.prospectInsights || streamingInsights).map((prospect, idx) => (
                 <div
                   key={idx}
-                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-8 hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
+                  className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg p-8 hover:border-slate-300 dark:hover:border-slate-700 transition-colors animate-fadeIn"
                 >
                   {/* Prospect Header */}
                   <div className="mb-8 pb-8 border-b border-slate-200 dark:border-slate-800">
@@ -348,6 +447,23 @@ export default function UploadPage() {
           </div>
         )}
       </div>
+
+      {/* Add animation for cards */}
+      <style>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.5s ease-out;
+        }
+      `}</style>
     </div>
   );
 }

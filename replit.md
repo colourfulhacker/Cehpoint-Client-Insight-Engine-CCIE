@@ -11,6 +11,17 @@ Design Philosophy: Enterprise-grade polish with maximum attention to detail—ev
 
 ## Recent Changes
 
+### November 2025 - Progressive Streaming Analysis (v1.2.0)
+- **Real-Time Results Display**: Prospects display progressively as each batch completes
+- **Batch Processing**: Analyzes prospects in batches of 5 for optimal accuracy
+- **Live Progress Tracking**: Shows progress bar and batch completion status (e.g., "Processing batch 1/3")
+- **Streaming API**: New `/api/analyze` route with ReadableStream for server-sent updates
+- **Instant Feedback**: Users see results appearing in real-time instead of waiting for full completion
+- **Better UX**: Smooth fade-in animations for each new prospect card
+- **Improved Responsiveness**: Background processing while frontend displays results progressively
+- **Smart Batch Streaming**: Up to 15 prospects processed, automatically chunked into batches
+- **File Truncation Notification**: Users informed if file exceeds 15-prospect limit
+
 ### November 2025 - Enterprise-Grade Polish & Perfect Design (v1.1.0)
 - **Enterprise-Grade UI**: Completely perfected with professional decorum on every element
 - **Perfect Typography**: Refined line heights, letter-spacing, and font sizing across all sections
@@ -72,21 +83,33 @@ The application uses Next.js App Router architecture with enterprise-grade desig
 
 ### Backend Architecture
 
-**Server-Side Processing**: Next.js Server Actions (`app/upload/actions.ts`)
+**Server-Side Processing**: Hybrid approach with streaming
+- **Server Actions** (`app/upload/actions.ts`): Legacy endpoint for direct processing
+- **Streaming API Route** (`app/api/analyze/route.ts`): New endpoint with progressive batch analysis
 
-The backend follows a pipeline pattern:
+**Streaming Pipeline**:
 1. File validation (type and size checking)
-2. File parsing (Excel/CSV to structured data)
-3. AI processing (generating insights via Google Gemini with key rotation)
-4. Response formatting and error handling
+2. File parsing (Excel/CSV to structured data, max 15 records)
+3. Batch splitting (5 prospects per batch)
+4. Progressive AI analysis (Gemini processing per batch)
+5. Real-time streaming to frontend (JSON-encoded updates)
+6. Client-side rendering (results display as they arrive)
+
+**Batch Processing**:
+- Maximum 15 prospects per file
+- Grouped into batches of 5
+- Streamed results appear immediately after each batch completes
+- Frontend displays progress bar and batch status
 
 **File Processing**: XLSX library
 - Handles Excel (.xlsx, .xls) and CSV files
 - Flexible column mapping for various data formats
+- Automatic filtering of invalid records (missing name/role)
 - Configuration: Marked as external in `next.config.ts`
 
 **Data Validation**: Zod
 - Schema validation for file inputs and outputs
+- Real-time validation during streaming
 
 ### AI Integration
 
@@ -106,10 +129,25 @@ The backend follows a pipeline pattern:
 
 ### Data Flow
 
-**Pipeline**:
+**Sequential Pipeline** (Legacy, via Server Actions):
 ```
-File Upload → Validation → Parsing → AI Analysis (key rotation) → Structured Insights → Display/Download
+File Upload → Validation → Parsing → AI Analysis → Insights → Display/Download
 ```
+
+**Streaming Pipeline** (New, via API Route):
+```
+File Upload → Validation → Parsing → Batch 1 (5) → Stream Results → Display
+                                   ↓
+                           Batch 2 (5) → Stream Results → Display  
+                                   ↓
+                           Batch 3 (5) → Stream Results → Display/Download
+```
+
+**Stream Data Format** (newline-delimited JSON):
+- `status`: Initial message with prospect count and batch info
+- `batch`: Prospect results with progress percentage
+- `complete`: Final report with all accumulated data
+- `error`: Error messages during streaming
 
 ## UI/UX Design Details
 
