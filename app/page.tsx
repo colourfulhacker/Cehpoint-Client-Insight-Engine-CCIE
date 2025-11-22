@@ -35,6 +35,8 @@ export default function HomePage() {
   const [isStillProcessing, setIsStillProcessing] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [copiedPitch, setCopiedPitch] = useState<string | null>(null);
+  const [expandedProspect, setExpandedProspect] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,6 +75,16 @@ export default function HomePage() {
       }
     } else {
       setError('Please upload a valid Excel (.xlsx, .xls) or CSV file');
+    }
+  };
+
+  const copyToClipboard = async (text: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedPitch(id);
+      setTimeout(() => setCopiedPitch(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
     }
   };
 
@@ -229,8 +241,8 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-white to-blue-50">
-      {/* Animated background elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+      {/* Animated background elements - hidden on mobile for performance */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none hidden md:block">
         <motion.div 
           className="absolute top-0 -right-4 w-96 h-96 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl"
           animate={{
@@ -257,25 +269,25 @@ export default function HomePage() {
         />
       </div>
 
-      {/* Navigation */}
+      {/* Navigation - Mobile Responsive */}
       <motion.nav 
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className="sticky top-0 z-50 border-b border-white/20 bg-white/60 backdrop-blur-xl shadow-sm"
+        className="sticky top-0 z-50 border-b border-white/20 bg-white/80 backdrop-blur-xl shadow-sm"
       >
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
           <Logo />
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
-            <span className="text-xs font-semibold text-slate-600 tracking-widest uppercase">
-              Analysis Engine
+            <span className="text-[10px] sm:text-xs font-semibold text-slate-600 tracking-widest uppercase">
+              Engine
             </span>
           </div>
         </div>
       </motion.nav>
 
-      {/* Main Content */}
-      <div className="flex-1 max-w-6xl mx-auto w-full py-12 lg:py-20 px-6 lg:px-8 relative z-10">
+      {/* Main Content - Mobile Responsive */}
+      <div className="flex-1 max-w-6xl mx-auto w-full py-6 sm:py-12 lg:py-20 px-4 sm:px-6 lg:px-8 relative z-10">
         <AnimatePresence mode="wait">
           {!insights && streamingInsights.length === 0 ? (
             <motion.div 
@@ -283,16 +295,16 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="space-y-12"
+              className="space-y-8 sm:space-y-12"
             >
-              {/* Header */}
-              <div className="text-center space-y-6">
+              {/* Header - Mobile Responsive */}
+              <div className="text-center space-y-4 sm:space-y-6">
                 <motion.div
                   initial={{ scale: 0.5, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.2 }}
                 >
-                  <h1 className="text-5xl lg:text-7xl font-bold bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 bg-clip-text text-transparent">
+                  <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 bg-clip-text text-transparent leading-tight">
                     Upload & Analyze
                   </h1>
                 </motion.div>
@@ -300,27 +312,27 @@ export default function HomePage() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.4 }}
-                  className="text-xl lg:text-2xl text-slate-600 max-w-3xl mx-auto"
+                  className="text-base sm:text-xl lg:text-2xl text-slate-600 max-w-3xl mx-auto px-4"
                 >
                   Transform your prospect data into actionable sales intelligence powered by AI
                 </motion.p>
               </div>
 
-              {/* Upload Form */}
+              {/* Upload Form - Mobile Responsive */}
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.6 }}
-                className="bg-white/70 backdrop-blur-xl border border-white/20 shadow-2xl rounded-3xl p-8 lg:p-12"
+                className="bg-white/70 backdrop-blur-xl border border-white/20 shadow-2xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-12"
               >
-                <form onSubmit={handleSubmit} className="space-y-8">
+                <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
                   {/* File Upload */}
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6">
                     <div className="text-center">
-                      <h2 className="text-2xl lg:text-3xl font-bold text-slate-900 mb-2">
+                      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900 mb-2">
                         Select Your Data File
                       </h2>
-                      <p className="text-slate-600">Upload your prospect list in Excel or CSV format</p>
+                      <p className="text-sm sm:text-base text-slate-600">Upload your prospect list in Excel or CSV format</p>
                     </div>
 
                     <input
@@ -342,7 +354,7 @@ export default function HomePage() {
                       onDrop={handleDrop}
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.99 }}
-                      className={`relative flex flex-col items-center justify-center w-full px-8 py-16 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-300 ${
+                      className={`relative flex flex-col items-center justify-center w-full px-6 sm:px-8 py-12 sm:py-16 border-2 border-dashed rounded-xl sm:rounded-2xl cursor-pointer transition-all duration-300 ${
                         isDragging
                           ? "border-blue-500 bg-blue-50/50 scale-105"
                           : selectedFile
@@ -355,7 +367,7 @@ export default function HomePage() {
                         transition={{ duration: 0.2 }}
                       >
                         <svg 
-                          className={`w-16 h-16 mb-4 ${selectedFile ? 'text-green-500' : 'text-slate-400'}`} 
+                          className={`w-12 sm:w-16 h-12 sm:h-16 mb-3 sm:mb-4 ${selectedFile ? 'text-green-500' : 'text-slate-400'}`} 
                           fill="none" 
                           stroke="currentColor" 
                           viewBox="0 0 24 24"
@@ -382,9 +394,9 @@ export default function HomePage() {
                               <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                               </svg>
-                              <p className="font-semibold text-slate-900 text-lg">{selectedFile.name}</p>
+                              <p className="font-semibold text-slate-900 text-base sm:text-lg break-all px-2">{selectedFile.name}</p>
                             </div>
-                            <p className="text-sm text-slate-600">
+                            <p className="text-xs sm:text-sm text-slate-600">
                               {(selectedFile.size / 1024).toFixed(2)} KB
                             </p>
                           </motion.div>
@@ -396,24 +408,24 @@ export default function HomePage() {
                             exit={{ opacity: 0, y: -10 }}
                             className="text-center"
                           >
-                            <p className="text-lg font-semibold text-slate-900 mb-1">
+                            <p className="text-base sm:text-lg font-semibold text-slate-900 mb-1">
                               {isDragging ? "Drop your file here" : "Click to upload or drag & drop"}
                             </p>
-                            <p className="text-sm text-slate-600">Excel (.xlsx, .xls) or CSV • Up to 10 MB</p>
+                            <p className="text-xs sm:text-sm text-slate-600">Excel (.xlsx, .xls) or CSV • Up to 10 MB</p>
                           </motion.div>
                         )}
                       </AnimatePresence>
                     </motion.label>
                   </div>
 
-                  {/* Required Columns */}
-                  <div className="space-y-6">
+                  {/* Required Columns - Mobile Responsive Grid */}
+                  <div className="space-y-4 sm:space-y-6">
                     <div className="text-center">
-                      <h3 className="text-xl font-bold text-slate-900 mb-2">Required Columns</h3>
-                      <p className="text-sm text-slate-600">Make sure your file includes these columns</p>
+                      <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-2">Required Columns</h3>
+                      <p className="text-xs sm:text-sm text-slate-600">Make sure your file includes these columns</p>
                     </div>
                     
-                    <div className="grid md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                       {[
                         { col: "NAME", options: ["name", "full_name"], icon: "👤" },
                         { col: "ROLE", options: ["role", "title"], icon: "💼" },
@@ -425,16 +437,16 @@ export default function HomePage() {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: 0.8 + idx * 0.1 }}
                           whileHover={{ scale: 1.05, y: -5 }}
-                          className="p-6 bg-gradient-to-br from-white to-slate-50 border border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-all"
+                          className="p-4 sm:p-6 bg-gradient-to-br from-white to-slate-50 border border-slate-200 rounded-lg sm:rounded-xl shadow-sm hover:shadow-md transition-all"
                         >
-                          <div className="text-center mb-4">
-                            <span className="text-3xl mb-2 block">{req.icon}</span>
-                            <p className="font-bold text-slate-900 text-sm uppercase tracking-wide">{req.col}</p>
+                          <div className="text-center mb-3 sm:mb-4">
+                            <span className="text-2xl sm:text-3xl mb-2 block">{req.icon}</span>
+                            <p className="font-bold text-slate-900 text-xs sm:text-sm uppercase tracking-wide">{req.col}</p>
                           </div>
                           <div className="space-y-2">
                             {req.options.map((opt, i) => (
                               <div key={i}>
-                                <code className="block px-3 py-2 bg-slate-100 rounded-lg text-sm text-slate-900 font-mono text-center">
+                                <code className="block px-2 sm:px-3 py-1.5 sm:py-2 bg-slate-100 rounded-md sm:rounded-lg text-xs sm:text-sm text-slate-900 font-mono text-center">
                                   {opt}
                                 </code>
                                 {i === 0 && <p className="text-center text-xs text-slate-500 py-1">or</p>}
@@ -449,9 +461,9 @@ export default function HomePage() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 1.1 }}
-                      className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl"
+                      className="p-3 sm:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg sm:rounded-xl"
                     >
-                      <p className="text-sm text-slate-700 text-center">
+                      <p className="text-xs sm:text-sm text-slate-700 text-center">
                         <strong className="text-blue-900">Optional:</strong> location, description, profile
                       </p>
                     </motion.div>
@@ -464,20 +476,20 @@ export default function HomePage() {
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="p-4 bg-red-50 border border-red-200 rounded-xl"
+                        className="p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg sm:rounded-xl"
                       >
-                        <p className="text-sm text-red-700">⚠️ {error}</p>
+                        <p className="text-xs sm:text-sm text-red-700">⚠️ {error}</p>
                       </motion.div>
                     )}
                   </AnimatePresence>
 
-                  {/* Submit */}
+                  {/* Submit Button - Mobile Optimized */}
                   <motion.button
                     type="submit"
                     disabled={isPending || !selectedFile}
                     whileHover={!isPending && selectedFile ? { scale: 1.02 } : {}}
                     whileTap={!isPending && selectedFile ? { scale: 0.98 } : {}}
-                    className="relative w-full py-5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl overflow-hidden group"
+                    className="relative w-full py-4 sm:py-5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-base sm:text-lg rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl overflow-hidden group"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       {isPending ? (
@@ -486,7 +498,7 @@ export default function HomePage() {
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
-                          Analyzing Prospects...
+                          Analyzing...
                         </>
                       ) : (
                         <>
@@ -518,7 +530,7 @@ export default function HomePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="space-y-8"
+              className="space-y-6 sm:space-y-8"
             >
               {/* API Error Handling */}
               <AnimatePresence>
@@ -527,33 +539,33 @@ export default function HomePage() {
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
-                    className="p-4 bg-yellow-50 border border-yellow-300 rounded-xl shadow-sm"
+                    className="p-3 sm:p-4 bg-yellow-50 border border-yellow-300 rounded-lg sm:rounded-xl shadow-sm"
                   >
-                    <p className="text-sm text-yellow-800">{apiError}</p>
+                    <p className="text-xs sm:text-sm text-yellow-800">{apiError}</p>
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              {/* Progress Indicator */}
+              {/* Progress Indicator - Mobile Responsive */}
               <AnimatePresence>
                 {!insights && streamingInsights.length > 0 && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-8 shadow-xl"
+                    className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-xl"
                   >
-                    <div className="flex items-center justify-between mb-6">
-                      <div>
-                        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+                      <div className="flex-1">
+                        <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
                           Analysis In Progress
                         </h2>
-                        <p className="text-sm text-slate-600">
-                          {totalProcessed}/{totalInFile} prospects analyzed • {streamingProgress}% complete
+                        <p className="text-xs sm:text-sm text-slate-600">
+                          {totalProcessed}/{totalInFile} prospects • {streamingProgress}% complete
                         </p>
                       </div>
                       <motion.div 
-                        className="text-5xl font-bold bg-gradient-to-br from-blue-600 to-indigo-600 bg-clip-text text-transparent"
+                        className="text-4xl sm:text-5xl font-bold bg-gradient-to-br from-blue-600 to-indigo-600 bg-clip-text text-transparent"
                         animate={{ scale: [1, 1.1, 1] }}
                         transition={{ duration: 2, repeat: Infinity }}
                       >
@@ -561,7 +573,7 @@ export default function HomePage() {
                       </motion.div>
                     </div>
                     
-                    <div className="relative w-full bg-slate-200 rounded-full h-4 overflow-hidden mb-6 shadow-inner">
+                    <div className="relative w-full bg-slate-200 rounded-full h-3 sm:h-4 overflow-hidden mb-6 shadow-inner">
                       <motion.div
                         className="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500 h-full"
                         initial={{ width: 0 }}
@@ -575,13 +587,13 @@ export default function HomePage() {
                       />
                     </div>
                     
-                    <p className="text-sm text-slate-700 mb-4 flex items-center gap-2">
+                    <p className="text-xs sm:text-sm text-slate-700 mb-4 flex items-center gap-2">
                       <span className="inline-block w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
                       {streamingMessage}
                     </p>
                     
                     {isStillProcessing && (
-                      <div className="flex items-center gap-3 text-sm text-slate-600 bg-white/50 rounded-lg p-3">
+                      <div className="flex items-center gap-3 text-xs sm:text-sm text-slate-600 bg-white/50 rounded-lg p-3">
                         <div className="flex gap-1">
                           {[0, 1, 2].map(i => (
                             <motion.div
@@ -592,65 +604,65 @@ export default function HomePage() {
                             />
                           ))}
                         </div>
-                        <span>Processing additional prospects in batch mode...</span>
+                        <span>Processing additional prospects...</span>
                       </div>
                     )}
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              {/* Export Available Data During Processing */}
+              {/* Export Available - Mobile Responsive */}
               <AnimatePresence>
                 {availableForExport && isStillProcessing && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 20 }}
-                    className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-300 rounded-2xl p-8 shadow-xl"
+                    className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-300 rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-xl"
                   >
-                    <h3 className="text-2xl font-bold text-amber-900 mb-3 flex items-center gap-2">
-                      <svg className="w-6 h-6 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                    <h3 className="text-xl sm:text-2xl font-bold text-amber-900 mb-3 flex items-center gap-2">
+                      <svg className="w-5 sm:w-6 h-5 sm:h-6 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                       {totalProcessed} Prospects Ready
                     </h3>
-                    <p className="text-slate-700 mb-6">
-                      Download insights for {totalProcessed} analyzed prospects while we continue processing the remaining {totalInFile - totalProcessed} in the background.
+                    <p className="text-xs sm:text-sm text-slate-700 mb-4 sm:mb-6">
+                      Download insights for {totalProcessed} analyzed prospects while we process the remaining {totalInFile - totalProcessed}.
                     </p>
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-col sm:flex-row flex-wrap gap-3">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => downloadInsights(availableForExport)}
-                        className="px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white font-semibold rounded-xl hover:from-amber-700 hover:to-orange-700 shadow-lg"
+                        className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white font-semibold rounded-lg sm:rounded-xl hover:from-amber-700 hover:to-orange-700 shadow-lg text-sm sm:text-base"
                       >
-                        Download Available (Text)
+                        Download (Text)
                       </motion.button>
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => downloadJSON(availableForExport)}
-                        className="px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white font-semibold rounded-xl hover:from-amber-700 hover:to-orange-700 shadow-lg"
+                        className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white font-semibold rounded-lg sm:rounded-xl hover:from-amber-700 hover:to-orange-700 shadow-lg text-sm sm:text-base"
                       >
-                        Download Available (JSON)
+                        Download (JSON)
                       </motion.button>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
 
-              {/* Completion */}
+              {/* Completion - Mobile Responsive */}
               <AnimatePresence>
                 {insights && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-300 rounded-2xl p-8 shadow-xl"
+                    className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-300 rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-xl"
                   >
-                    <div className="flex items-center gap-3 mb-4">
+                    <div className="flex items-center gap-2 sm:gap-3 mb-4">
                       <motion.svg 
-                        className="w-8 h-8 text-green-600"
+                        className="w-6 sm:w-8 h-6 sm:h-8 text-green-600"
                         fill="currentColor" 
                         viewBox="0 0 20 20"
                         initial={{ scale: 0 }}
@@ -659,17 +671,17 @@ export default function HomePage() {
                       >
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </motion.svg>
-                      <h2 className="text-3xl font-bold text-green-900">Analysis Complete</h2>
+                      <h2 className="text-2xl sm:text-3xl font-bold text-green-900">Analysis Complete</h2>
                     </div>
-                    <p className="text-slate-700 mb-6">
+                    <p className="text-xs sm:text-sm text-slate-700 mb-4 sm:mb-6">
                       Successfully generated insights for all {insights.prospectInsights.length} prospect{insights.prospectInsights.length !== 1 ? 's' : ''}
                     </p>
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-col sm:flex-row flex-wrap gap-3">
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => downloadInsights()}
-                        className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 shadow-lg"
+                        className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg sm:rounded-xl hover:from-green-700 hover:to-emerald-700 shadow-lg text-sm sm:text-base"
                       >
                         Download Text
                       </motion.button>
@@ -677,7 +689,7 @@ export default function HomePage() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => downloadJSON()}
-                        className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 shadow-lg"
+                        className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg sm:rounded-xl hover:from-green-700 hover:to-emerald-700 shadow-lg text-sm sm:text-base"
                       >
                         Download JSON
                       </motion.button>
@@ -690,8 +702,9 @@ export default function HomePage() {
                           setSelectedFile(null);
                           setAvailableForExport(null);
                           setApiError(null);
+                          setExpandedProspect(null);
                         }}
-                        className="px-6 py-3 border-2 border-slate-300 text-slate-900 font-semibold rounded-xl hover:bg-slate-100 shadow-sm"
+                        className="px-4 sm:px-6 py-2.5 sm:py-3 border-2 border-slate-300 text-slate-900 font-semibold rounded-lg sm:rounded-xl hover:bg-slate-100 shadow-sm text-sm sm:text-base"
                       >
                         Analyze Another
                       </motion.button>
@@ -700,75 +713,146 @@ export default function HomePage() {
                 )}
               </AnimatePresence>
 
-              {/* Results */}
-              <div className="space-y-6">
-                <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent">
+              {/* Results - Mobile Responsive with Copy Features */}
+              <div className="space-y-4 sm:space-y-6">
+                <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-slate-900 to-blue-900 bg-clip-text text-transparent">
                   Prospect Insights
                 </h2>
-                <div className="grid gap-6">
+                <div className="grid gap-4 sm:gap-6">
                   {(insights?.prospectInsights || streamingInsights).map((prospect, idx) => (
                     <motion.div 
                       key={idx}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.1 }}
-                      whileHover={{ scale: 1.01, y: -5 }}
-                      className="bg-white/70 backdrop-blur-xl border border-white/20 rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all"
+                      className="bg-white/70 backdrop-blur-xl border border-white/20 rounded-xl sm:rounded-2xl p-5 sm:p-8 shadow-xl"
                     >
-                      <div className="mb-6">
-                        <h3 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-                          {prospect.name}
-                        </h3>
-                        <p className="text-lg text-slate-600 flex items-center gap-2">
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      {/* Header - Mobile Optimized */}
+                      <div className="mb-5 sm:mb-6">
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <h3 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex-1">
+                            {prospect.name}
+                          </h3>
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => setExpandedProspect(expandedProspect === idx ? null : idx)}
+                            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                            aria-label="Toggle details"
+                          >
+                            <svg className={`w-5 h-5 text-slate-600 transition-transform ${expandedProspect === idx ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </motion.button>
+                        </div>
+                        <p className="text-base sm:text-lg text-slate-600 flex items-center gap-2 flex-wrap">
+                          <svg className="w-4 sm:w-5 h-4 sm:h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M6 6V5a3 3 0 013-3h2a3 3 0 013 3v1h2a2 2 0 012 2v3.57A22.952 22.952 0 0110 13a22.95 22.95 0 01-8-1.43V8a2 2 0 012-2h2zm2-1a1 1 0 011-1h2a1 1 0 011 1v1H8V5zm1 5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
                             <path d="M2 13.692V16a2 2 0 002 2h12a2 2 0 002-2v-2.308A24.974 24.974 0 0110 15c-2.796 0-5.487-.46-8-1.308z" />
                           </svg>
-                          {prospect.role}
+                          <span className="break-words">{prospect.role}</span>
                         </p>
                       </div>
 
-                      <div className="mb-6 pb-6 border-b border-slate-200">
-                        <p className="text-slate-700 leading-relaxed">{prospect.profileNotes}</p>
-                      </div>
+                      <AnimatePresence>
+                        {(expandedProspect === idx || expandedProspect === null) && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.3 }}
+                          >
+                            {/* Profile Notes */}
+                            <div className="mb-5 sm:mb-6 pb-5 sm:pb-6 border-b border-slate-200">
+                              <p className="text-sm sm:text-base text-slate-700 leading-relaxed">{prospect.profileNotes}</p>
+                            </div>
 
-                      <div className="mb-6">
-                        <h4 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                          <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
-                            <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
-                          </svg>
-                          Pitch Suggestions
-                        </h4>
-                        <div className="space-y-3">
-                          {prospect.pitchSuggestions.map((pitch, pIdx) => (
-                            <motion.div
-                              key={pIdx}
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: idx * 0.1 + pIdx * 0.05 }}
-                              className="p-4 bg-gradient-to-r from-slate-50 to-blue-50 border border-slate-200 rounded-xl text-slate-700 hover:shadow-md transition-all"
+                            {/* Pitch Suggestions with Copy Feature */}
+                            <div className="mb-5 sm:mb-6">
+                              <h4 className="text-base sm:text-lg font-bold text-slate-900 mb-3 sm:mb-4 flex items-center gap-2">
+                                <svg className="w-4 sm:w-5 h-4 sm:h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                  <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
+                                  <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
+                                </svg>
+                                Pitch Suggestions
+                              </h4>
+                              <div className="space-y-3">
+                                {prospect.pitchSuggestions.map((pitch, pIdx) => {
+                                  const pitchId = `${idx}-${pIdx}`;
+                                  const isCopied = copiedPitch === pitchId;
+                                  
+                                  return (
+                                    <motion.div
+                                      key={pIdx}
+                                      initial={{ opacity: 0, x: -20 }}
+                                      animate={{ opacity: 1, x: 0 }}
+                                      transition={{ delay: idx * 0.1 + pIdx * 0.05 }}
+                                      className="group relative p-3 sm:p-4 bg-gradient-to-r from-slate-50 to-blue-50 border border-slate-200 rounded-lg sm:rounded-xl hover:shadow-md transition-all"
+                                    >
+                                      <div className="flex items-start gap-2 sm:gap-3">
+                                        <strong className="text-blue-600 font-bold flex-shrink-0 text-sm sm:text-base">{pIdx + 1}.</strong>
+                                        <p className="text-xs sm:text-sm text-slate-700 flex-1 leading-relaxed pr-8">{pitch.pitch}</p>
+                                        <motion.button
+                                          whileHover={{ scale: 1.1 }}
+                                          whileTap={{ scale: 0.9 }}
+                                          onClick={() => copyToClipboard(pitch.pitch, pitchId)}
+                                          className="absolute top-2 sm:top-3 right-2 sm:right-3 p-1.5 sm:p-2 hover:bg-white rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                          title="Copy to clipboard"
+                                        >
+                                          {isCopied ? (
+                                            <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                          ) : (
+                                            <svg className="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                            </svg>
+                                          )}
+                                        </motion.button>
+                                      </div>
+                                    </motion.div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Conversation Starter with Copy */}
+                            <motion.div 
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: idx * 0.1 + 0.3 }}
+                              className="group relative bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg sm:rounded-xl p-4 sm:p-6"
                             >
-                              <strong className="text-blue-600 font-bold">{pIdx + 1}.</strong> {pitch.pitch}
+                              <div className="flex items-start justify-between gap-3 mb-3">
+                                <p className="text-xs font-bold text-blue-900 uppercase tracking-wider flex items-center gap-2">
+                                  <svg className="w-3 sm:w-4 h-3 sm:h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
+                                  </svg>
+                                  Opening Message
+                                </p>
+                                <motion.button
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  onClick={() => copyToClipboard(prospect.conversationStarter, `opener-${idx}`)}
+                                  className="p-1.5 sm:p-2 hover:bg-white rounded-lg transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                  title="Copy to clipboard"
+                                >
+                                  {copiedPitch === `opener-${idx}` ? (
+                                    <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                  ) : (
+                                    <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                  )}
+                                </motion.button>
+                              </div>
+                              <p className="italic text-slate-800 text-sm sm:text-lg leading-relaxed">"{prospect.conversationStarter}"</p>
                             </motion.div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <motion.div 
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: idx * 0.1 + 0.3 }}
-                        className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6"
-                      >
-                        <p className="text-xs font-bold text-blue-900 uppercase tracking-wider mb-3 flex items-center gap-2">
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
-                          </svg>
-                          Opening Message
-                        </p>
-                        <p className="italic text-slate-800 text-lg leading-relaxed">"{prospect.conversationStarter}"</p>
-                      </motion.div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </motion.div>
                   ))}
                 </div>
@@ -778,14 +862,14 @@ export default function HomePage() {
         </AnimatePresence>
       </div>
 
-      {/* Footer */}
+      {/* Footer - Mobile Responsive */}
       <motion.footer 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1 }}
         className="border-t border-white/20 bg-white/40 backdrop-blur-lg relative z-10"
       >
-        <div className="max-w-6xl mx-auto px-6 lg:px-8 py-8 text-center text-sm text-slate-600">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 text-center text-xs sm:text-sm text-slate-600">
           <p>&copy; 2025 Cehpoint. All rights reserved.</p>
         </div>
       </motion.footer>
