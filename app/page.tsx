@@ -723,31 +723,28 @@ export default function HomePage() {
                     className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group"
                   >
                     {/* Premium Header */}
-                    <div className="px-7 py-6 bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 relative overflow-hidden">
-                      <div className="absolute inset-0 opacity-10">
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600" style={{borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%'}}></div>
-                      </div>
-                      <div className="relative z-10 flex items-start justify-between gap-4">
+                    <div className="px-7 py-6 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700">
+                      <div className="flex items-start justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-3">
-                            <span className="px-3 py-1.5 bg-white/20 backdrop-blur-sm text-white rounded-full text-xs font-bold">
+                            <span className="px-3 py-1.5 bg-white/25 text-white rounded-full text-xs font-bold">
                               #{idx + 1}
                             </span>
-                            <span className="px-3 py-1 bg-emerald-500/30 border border-emerald-400/50 text-emerald-100 rounded-full text-xs font-semibold">
+                            <span className="px-3 py-1 bg-emerald-400/90 text-emerald-900 rounded-full text-xs font-bold">
                               Analyzed
                             </span>
                           </div>
-                          <h3 className="text-2xl font-bold text-white mb-1">
+                          <h3 className="text-3xl font-bold text-white mb-2 leading-tight">
                             {prospect.name}
                           </h3>
-                          <div className="flex flex-wrap items-center gap-3">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-400/20 backdrop-blur-sm border border-blue-300/40 rounded-lg text-sm font-semibold text-blue-100">
+                          <div className="flex flex-wrap items-center gap-2.5">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/20 rounded-lg text-sm font-bold text-white">
                               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
                               </svg>
                               {prospect.role}
                             </span>
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-400/20 backdrop-blur-sm border border-purple-300/40 rounded-lg text-sm font-semibold text-purple-100">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/20 rounded-lg text-sm font-bold text-white">
                               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6-4a2 2 0 00-2-2H6a2 2 0 00-2 2v4a2 2 0 002 2h4a2 2 0 002-2V6z"></path>
                               </svg>
