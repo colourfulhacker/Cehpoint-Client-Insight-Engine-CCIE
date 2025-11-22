@@ -87,7 +87,7 @@ export default function UploadPage() {
                 Analyze Prospects
               </h1>
               <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl">
-                Upload your prospect data to generate actionable outreach strategies and personalized recommendations for each contact.
+                Upload your prospect data to generate actionable outreach strategies and personalized recommendations. Each file processes up to 15 prospects for optimal accuracy.
               </p>
             </div>
 

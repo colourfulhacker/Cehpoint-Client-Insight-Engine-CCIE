@@ -1,6 +1,9 @@
 import * as XLSX from "xlsx";
 import { LeadRecord } from "./types";
 
+// Maximum prospects to process per file
+const MAX_PROSPECTS = 15;
+
 export async function parseExcelFile(file: File): Promise<LeadRecord[]> {
   const arrayBuffer = await file.arrayBuffer();
   const workbook = XLSX.read(arrayBuffer, { type: "array" });
@@ -16,7 +19,9 @@ export async function parseExcelFile(file: File): Promise<LeadRecord[]> {
     description: row.description || row.Description || row.DESCRIPTION || row.profile || row.Profile || row.work_positions || row.education || "",
   }));
   
-  return leads.filter(lead => lead.name && lead.role);
+  // Filter for valid leads, then limit to MAX_PROSPECTS
+  const validLeads = leads.filter(lead => lead.name && lead.role);
+  return validLeads.slice(0, MAX_PROSPECTS);
 }
 
 export async function parseCSVFile(file: File): Promise<LeadRecord[]> {
@@ -34,7 +39,9 @@ export async function parseCSVFile(file: File): Promise<LeadRecord[]> {
     description: row.description || row.Description || row.DESCRIPTION || row.profile || row.Profile || row.work_positions || row.education || "",
   }));
   
-  return leads.filter(lead => lead.name && lead.role);
+  // Filter for valid leads, then limit to MAX_PROSPECTS
+  const validLeads = leads.filter(lead => lead.name && lead.role);
+  return validLeads.slice(0, MAX_PROSPECTS);
 }
 
 export function validateFileType(file: File): boolean {

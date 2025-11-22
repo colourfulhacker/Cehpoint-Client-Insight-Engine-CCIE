@@ -9,7 +9,11 @@ export interface UploadResult {
   message?: string;
   insights?: ClientInsightReport;
   error?: string;
+  prospectCount?: number;
+  wasTruncated?: boolean;
 }
+
+const MAX_PROSPECTS_PER_FILE = 15;
 
 export async function processLeadFile(
   formData: FormData
@@ -38,6 +42,8 @@ export async function processLeadFile(
       };
     }
 
+    console.log(`[File Processing] Starting analysis of ${file.name}`);
+
     let leads;
     if (file.name.toLowerCase().endsWith(".csv")) {
       leads = await parseCSVFile(file);
@@ -52,18 +58,34 @@ export async function processLeadFile(
       };
     }
 
+    const wasTruncated = leads.length > MAX_PROSPECTS_PER_FILE;
+    const prospectCount = leads.length;
+    
+    if (wasTruncated) {
+      console.log(`[File Processing] File contains ${prospectCount} prospects. Processing first ${MAX_PROSPECTS_PER_FILE}...`);
+    } else {
+      console.log(`[File Processing] Processing ${prospectCount} prospect(s)`);
+    }
+
     const insights = await generateClientInsights(leads);
+
+    let message = `Successfully analyzed ${insights.prospectInsights.length} prospect(s)`;
+    if (wasTruncated) {
+      message += ` (file contained ${prospectCount} prospects, processed first ${MAX_PROSPECTS_PER_FILE})`;
+    }
 
     return {
       success: true,
-      message: `Successfully analyzed ${leads.length} prospects`,
+      message,
       insights,
+      prospectCount,
+      wasTruncated,
     };
   } catch (error) {
-    console.error("Error processing file:", error);
+    console.error("[File Processing Error]:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "An unexpected error occurred",
+      error: error instanceof Error ? error.message : "An unexpected error occurred while analyzing your file",
     };
   }
 }
