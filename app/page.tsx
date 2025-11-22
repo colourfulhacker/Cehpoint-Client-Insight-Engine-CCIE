@@ -36,6 +36,7 @@ export default function HomePage() {
   const [apiError, setApiError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [copiedPitch, setCopiedPitch] = useState<string | null>(null);
+  const [regeneratingIndex, setRegeneratingIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,6 +85,47 @@ export default function HomePage() {
       setTimeout(() => setCopiedPitch(null), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
+    }
+  };
+
+  const regeneratePitches = async (prospect: ProspectInsight, index: number) => {
+    setRegeneratingIndex(index);
+    try {
+      const response = await fetch("/api/regenerate-pitch", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: prospect.name,
+          role: prospect.role,
+          company: prospect.company,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to regenerate pitches");
+      }
+
+      const updatedProspect: ProspectInsight = await response.json();
+
+      // Update the prospect in both insights and streaming insights
+      if (insights) {
+        const updatedInsights = { ...insights };
+        updatedInsights.prospectInsights[index] = updatedProspect;
+        setInsights(updatedInsights);
+      }
+
+      if (streamingInsights.length > 0) {
+        const updatedStreamingInsights = [...streamingInsights];
+        updatedStreamingInsights[index] = updatedProspect;
+        setStreamingInsights(updatedStreamingInsights);
+      }
+    } catch (err) {
+      console.error("Failed to regenerate pitches:", err);
+      alert("Failed to regenerate pitches. Please try again.");
+    } finally {
+      setRegeneratingIndex(null);
     }
   };
 
@@ -526,9 +568,34 @@ export default function HomePage() {
 
                     {/* Pitch Suggestions */}
                     <div className="mb-5">
-                      <h4 className="text-sm font-semibold text-gray-900 mb-3">
-                        Pitch Suggestions
-                      </h4>
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-semibold text-gray-900">
+                          Pitch Suggestions
+                        </h4>
+                        <button
+                          onClick={() => regeneratePitches(prospect, idx)}
+                          disabled={regeneratingIndex === idx}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          title="Generate new pitch variations"
+                        >
+                          {regeneratingIndex === idx ? (
+                            <>
+                              <svg className="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              <span>Regenerating...</span>
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                              </svg>
+                              <span>Regenerate</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
                       <div className="space-y-2">
                         {prospect.pitchSuggestions.map((pitch, pIdx) => {
                           const pitchId = `${idx}-${pIdx}`;
