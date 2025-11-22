@@ -9,6 +9,7 @@ interface BatchUpdate {
   type: string;
   batchNumber?: number;
   totalBatches?: number;
+  batches?: number;
   prospects?: ProspectInsight[];
   progress?: number;
   message?: string;
@@ -554,7 +555,7 @@ export default function UploadPage() {
                                 Personalized Opening Message
                               </h4>
                               <p className="text-lg text-slate-200 italic leading-relaxed font-light">
-                                "{prospect.conversationStarter}"
+                                &quot;{prospect.conversationStarter}&quot;
                               </p>
                             </div>
                           </div>
