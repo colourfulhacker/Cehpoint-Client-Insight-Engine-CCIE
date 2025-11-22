@@ -47,6 +47,19 @@ export class GeminiClient {
   }
 
   private loadAPIKeys(): void {
+    // Load EXTRA keys first (they're the working ones)
+    for (let i = 1; i <= 5; i++) {
+      const extraKey = process.env[`GEMINI_API_KEY_EXTRA_${i}`];
+      if (extraKey) {
+        this.keys.push({
+          key: extraKey,
+          name: `extra_${i}`,
+          failureCount: 0,
+        });
+      }
+    }
+
+    // Fallback to PRIMARY and SECONDARY
     const primaryKey = process.env.GEMINI_API_KEY_PRIMARY || process.env.GEMINI_API_KEY;
     const secondaryKey = process.env.GEMINI_API_KEY_SECONDARY;
 
@@ -64,17 +77,6 @@ export class GeminiClient {
         name: "secondary",
         failureCount: 0,
       });
-    }
-
-    for (let i = 1; i <= 5; i++) {
-      const extraKey = process.env[`GEMINI_API_KEY_EXTRA_${i}`];
-      if (extraKey) {
-        this.keys.push({
-          key: extraKey,
-          name: `extra_${i}`,
-          failureCount: 0,
-        });
-      }
     }
 
     if (this.keys.length === 0) {
