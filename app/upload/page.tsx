@@ -286,7 +286,13 @@ export default function UploadPage() {
                     className="w-full group relative"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 rounded-xl blur-lg opacity-75 group-hover:enabled:opacity-100 transition-all duration-300 group-active:enabled:blur-md" />
-                    <div className="relative bg-gradient-to-r from-blue-600 to-blue-500 hover:enabled:from-blue-500 hover:enabled:to-blue-400 active:enabled:scale-95 disabled:from-slate-700 disabled:to-slate-600 text-white font-bold py-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 text-base min-h-14 shadow-xl">
+                    <div className={`relative text-white font-bold py-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 text-base min-h-14 shadow-xl ${
+                      isPending 
+                        ? 'bg-gradient-to-r from-blue-600 to-blue-500' 
+                        : selectedFile 
+                          ? 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 active:scale-95'
+                          : 'bg-gradient-to-r from-slate-700 to-slate-600 cursor-not-allowed'
+                    }`}>
                       {isPending ? (
                         <>
                           <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24" aria-hidden="true">
@@ -311,7 +317,7 @@ export default function UploadPage() {
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                           </svg>
-                          <span>ANALYZE PROSPECTS</span>
+                          <span>{selectedFile ? 'ANALYZE PROSPECTS' : 'SELECT A FILE TO START'}</span>
                         </>
                       )}
                     </div>
@@ -426,85 +432,134 @@ export default function UploadPage() {
             )}
 
             {/* Results Header */}
-            <div className="space-y-3">
-              <h2 className="text-4xl font-black text-white">
-                Prospect Intelligence
-              </h2>
-              <p className="text-lg text-slate-400 font-light">
-                {insights ? 'Complete analysis and personalized recommendations for each prospect' : `${streamingInsights.length} prospect${streamingInsights.length !== 1 ? 's' : ''} analyzed so far`}
+            <div className="space-y-4 pb-8 border-b border-slate-700/30">
+              <div className="flex items-center gap-3">
+                <div className="text-3xl">🎯</div>
+                <h2 className="text-4xl font-black bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+                  Prospect Intelligence
+                </h2>
+              </div>
+              <p className="text-lg text-slate-400 font-light pl-12">
+                {insights ? 'AI-powered analysis and personalized recommendations for each prospect' : `${streamingInsights.length} prospect${streamingInsights.length !== 1 ? 's' : ''} analyzed—more coming in real-time`}
               </p>
             </div>
 
             {/* Results Grid */}
-            <div className="space-y-6">
+            <div className="space-y-8">
               {(insights?.prospectInsights || streamingInsights).map((prospect, idx) => (
                 <div
                   key={idx}
                   className="group relative animate-fadeInUp"
                   style={{ animationDelay: `${idx * 50}ms` }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-purple-600/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-300" />
-                  <div className="relative bg-gradient-to-br from-slate-900/60 to-slate-800/40 backdrop-blur-xl border border-slate-700/50 hover:border-slate-600/80 rounded-2xl p-10 hover:shadow-2xl transition-all duration-300">
-                    {/* Prospect Header */}
-                    <div className="mb-10 pb-8 border-b border-slate-700/30">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="text-2xl font-bold text-white mb-2">
-                            {prospect.name}
-                          </h3>
-                          <p className="text-sm text-slate-400">
-                            {prospect.role}
-                          </p>
-                        </div>
-                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/30 flex items-center justify-center text-2xl transform group-hover:scale-110 transition-transform duration-300">
-                          👤
-                        </div>
-                      </div>
-                    </div>
+                  {/* Glow Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-600/15 via-purple-600/10 to-transparent rounded-2xl blur-2xl opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                  
+                  <div className="relative bg-gradient-to-br from-slate-900/70 via-slate-900/50 to-slate-800/30 backdrop-blur-xl border border-slate-700/40 hover:border-slate-600/70 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden">
+                    {/* Gradient Top Border */}
+                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-blue-600/0 via-blue-500/50 to-blue-600/0" />
 
-                    {/* Profile Notes */}
-                    <div className="mb-10 pb-8 border-b border-slate-700/30">
-                      <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <span>📊</span>
-                        Profile Summary
-                      </h4>
-                      <p className="text-base text-slate-300 leading-relaxed">
-                        {prospect.profileNotes}
-                      </p>
-                    </div>
+                    {/* Content Container */}
+                    <div className="p-8 lg:p-12">
+                      {/* Header Section - Enhanced */}
+                      <div className="mb-12">
+                        <div className="flex items-start gap-6 mb-6">
+                          {/* Avatar */}
+                          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500/30 via-purple-500/20 to-pink-500/10 border border-blue-500/40 flex items-center justify-center text-4xl transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 flex-shrink-0">
+                            👤
+                          </div>
+                          
+                          {/* Name & Role */}
+                          <div className="flex-1">
+                            <h3 className="text-3xl font-black text-white mb-2">
+                              {prospect.name}
+                            </h3>
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 rounded-full bg-blue-400" />
+                              <p className="text-base text-slate-400 font-medium">
+                                {prospect.role}
+                              </p>
+                            </div>
+                          </div>
 
-                    {/* Recommendations */}
-                    <div className="mb-10 pb-8 border-b border-slate-700/30">
-                      <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-5 flex items-center gap-2">
-                        <span>🎯</span>
-                        Service Recommendations
-                      </h4>
-                      <div className="space-y-4">
-                        {prospect.pitchSuggestions.map((pitch, pIdx) => (
-                          <div 
-                            key={pIdx} 
-                            className="flex gap-4 p-5 rounded-lg bg-slate-800/30 border border-slate-700/30 hover:border-blue-500/30 hover:bg-blue-500/5 transition-all duration-300 group/item"
-                          >
-                            <span className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-blue-500/30 to-purple-500/30 border border-blue-400/50 flex items-center justify-center text-xs font-bold text-blue-300 group-hover/item:from-blue-500/50 group-hover/item:to-purple-500/50 transition-all">
-                              {pIdx + 1}
-                            </span>
-                            <span className="text-base text-slate-300 leading-relaxed pt-0.5">
-                              {pitch.pitch}
+                          {/* Card Number Badge */}
+                          <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-blue-600/20 to-purple-600/20 border border-blue-500/30 flex items-center justify-center">
+                            <span className="text-lg font-black text-blue-300">
+                              #{idx + 1}
                             </span>
                           </div>
-                        ))}
-                      </div>
-                    </div>
+                        </div>
 
-                    {/* Conversation Starter */}
-                    <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 rounded-xl p-8 hover:border-slate-600/80 transition-all duration-300">
-                      <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <span>💬</span>
-                        Opening Message
-                      </h4>
-                      <p className="text-base text-slate-300 italic leading-relaxed">
-                        "{prospect.conversationStarter}"
-                      </p>
+                        {/* Divider */}
+                        <div className="h-px bg-gradient-to-r from-slate-700/50 via-slate-600/30 to-slate-700/50" />
+                      </div>
+
+                      {/* Profile Notes - Enhanced */}
+                      <div className="mb-12">
+                        <div className="flex items-center gap-2 mb-5">
+                          <span className="text-xl">📊</span>
+                          <h4 className="text-sm font-black text-slate-300 uppercase tracking-widest">
+                            Profile Summary
+                          </h4>
+                        </div>
+                        <p className="text-base text-slate-300 leading-relaxed pl-7">
+                          {prospect.profileNotes}
+                        </p>
+                      </div>
+
+                      {/* Service Recommendations - Premium Layout */}
+                      <div className="mb-12">
+                        <div className="flex items-center gap-2 mb-6">
+                          <span className="text-xl">🎯</span>
+                          <h4 className="text-sm font-black text-slate-300 uppercase tracking-widest">
+                            Service Recommendations
+                          </h4>
+                        </div>
+                        
+                        <div className="space-y-4 pl-1">
+                          {prospect.pitchSuggestions.map((pitch, pIdx) => (
+                            <div 
+                              key={pIdx} 
+                              className="group/pitch relative flex gap-5 p-6 rounded-xl bg-gradient-to-r from-slate-800/40 to-slate-800/20 border border-slate-700/40 hover:border-blue-500/50 hover:bg-blue-500/8 transition-all duration-300"
+                            >
+                              {/* Left border accent */}
+                              <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500/60 to-purple-500/30 rounded-l-xl opacity-0 group-hover/pitch:opacity-100 transition-all duration-300" />
+                              
+                              {/* Number Badge */}
+                              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-600/40 to-purple-600/30 border border-blue-400/60 flex items-center justify-center text-xs font-bold text-blue-200 group-hover/pitch:from-blue-600/60 group-hover/pitch:to-purple-600/50 transition-all duration-300">
+                                {pIdx + 1}
+                              </div>
+                              
+                              {/* Pitch Text */}
+                              <div className="flex-1">
+                                <p className="text-base text-slate-300 leading-relaxed font-medium">
+                                  {pitch.pitch}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Opening Message - Premium Quote Style */}
+                      <div className="relative">
+                        {/* Background accent */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/10 to-teal-600/5 rounded-xl blur opacity-60" />
+                        
+                        <div className="relative bg-gradient-to-br from-slate-800/50 via-slate-800/40 to-slate-900/30 border border-emerald-500/20 rounded-xl p-8 hover:border-emerald-500/40 transition-all duration-300">
+                          <div className="flex items-start gap-4">
+                            <span className="text-3xl flex-shrink-0">💬</span>
+                            <div className="flex-1">
+                              <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">
+                                Personalized Opening Message
+                              </h4>
+                              <p className="text-lg text-slate-200 italic leading-relaxed font-light">
+                                "{prospect.conversationStarter}"
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

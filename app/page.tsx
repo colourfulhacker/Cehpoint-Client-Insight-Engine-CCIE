@@ -17,14 +17,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-20 sm:py-32">
         <div className="max-w-4xl w-full space-y-10">
-          {/* Subtitle */}
-          <div className="text-center">
-            <div className="inline-block px-4 py-2 rounded-full border border-slate-700 bg-slate-900/50 mb-8">
-              <p className="text-xs font-semibold text-blue-400 tracking-widest uppercase">
-                ★ Powered by Advanced AI Analysis
-              </p>
-            </div>
-          </div>
+          {/* Subtitle - Removed AI branding per user preference */}
 
           {/* Main Headline */}
           <div className="space-y-6 text-center">
@@ -56,12 +49,12 @@ export default function HomePage() {
           {/* Stats Row */}
           <div className="grid grid-cols-3 gap-8 pt-16 border-t border-slate-800">
             <div className="text-center">
-              <div className="text-3xl font-bold text-blue-400 mb-2">15+</div>
-              <p className="text-xs text-slate-400 uppercase tracking-widest">Prospects Per Batch</p>
+              <div className="text-3xl font-bold text-blue-400 mb-2">15</div>
+              <p className="text-xs text-slate-400 uppercase tracking-widest">Max Prospects</p>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-blue-400 mb-2">60s</div>
-              <p className="text-xs text-slate-400 uppercase tracking-widest">Analysis Time</p>
+              <div className="text-3xl font-bold text-blue-400 mb-2">5</div>
+              <p className="text-xs text-slate-400 uppercase tracking-widest">Per Batch</p>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-blue-400 mb-2">3</div>
@@ -79,7 +72,7 @@ export default function HomePage() {
               Comprehensive Analysis Engine
             </h2>
             <p className="text-slate-300 max-w-2xl mx-auto text-base">
-              Every prospect receives deep strategic analysis powered by advanced AI
+              Every prospect receives deep strategic analysis with actionable insights
             </p>
           </div>
 
@@ -231,7 +224,7 @@ export default function HomePage() {
               Ready to Gain <span className="text-blue-400">Sales Intelligence?</span>
             </h2>
             <p className="text-slate-300 text-lg max-w-2xl mx-auto">
-              Transform your prospect engagement with AI-powered insights. Start analyzing your pipeline in under a minute.
+              Transform your prospect engagement with actionable insights. Start analyzing your pipeline in under a minute.
             </p>
           </div>
 
