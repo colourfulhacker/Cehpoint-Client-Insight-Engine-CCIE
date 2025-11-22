@@ -24,6 +24,7 @@ interface BatchUpdate {
 }
 
 export default function HomePage() {
+  const [activeSection, setActiveSection] = useState<string>("upload");
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [insights, setInsights] = useState<ClientInsightReport | null>(null);
@@ -38,6 +39,7 @@ export default function HomePage() {
   const [apiError, setApiError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [copiedPitch, setCopiedPitch] = useState<string | null>(null);
+  const [copiedTemplate, setCopiedTemplate] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProspectForRegeneration, setSelectedProspectForRegeneration] = useState<{ prospect: ProspectInsight; index: number } | null>(null);
   const [expandModalOpen, setExpandModalOpen] = useState(false);
@@ -311,10 +313,20 @@ export default function HomePage() {
     URL.revokeObjectURL(url);
   };
 
+  const copyTemplateToClipboard = async (text: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedTemplate(id);
+      setTimeout(() => setCopiedTemplate(null), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
   return (
     <div className="min-h-screen flex bg-gray-50">
       {/* Sidebar Navigation */}
-      <Sidebar />
+      <Sidebar activeSection={activeSection} onNavigate={setActiveSection} />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -336,6 +348,7 @@ export default function HomePage() {
 
         {/* Page Content */}
         <div className="flex-1 overflow-y-auto px-8 py-6">
+        {activeSection === 'upload' && (
         <AnimatePresence mode="wait">
           {!insights && streamingInsights.length === 0 ? (
             <motion.div 
@@ -814,6 +827,316 @@ export default function HomePage() {
             </motion.div>
           )}
         </AnimatePresence>
+        )}
+
+        {/* Templates Section */}
+        {activeSection === 'templates' && (
+          <div className="space-y-6">
+            {/* Header */}
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Outreach Templates</h1>
+              <p className="text-sm text-gray-600 mt-1">Professional messaging templates for your sales outreach</p>
+            </div>
+
+            {/* Template Categories */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Email Templates */}
+              <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                <div className="px-6 py-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-white rounded-lg shadow-sm">
+                      <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900">Email Templates</h2>
+                      <p className="text-sm text-gray-600 mt-0.5">Cold outreach & follow-up emails</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 space-y-4">
+                  {[
+                    {
+                      name: "Cold Outreach - Value First",
+                      subject: "Quick idea for [Company]",
+                      body: `Hi [Name],\n\nI noticed [Company] is [specific observation from their LinkedIn/website]. Many companies in [their industry] struggle with [common pain point].\n\nWe've helped similar companies like [relevant client] achieve [specific result]. I'd love to share a quick idea that could help [Company] [achieve similar outcome].\n\nWould you be open to a brief 15-minute call next week?\n\nBest regards,\n[Your Name]`
+                    },
+                    {
+                      name: "Follow-Up - No Response",
+                      subject: "Re: Quick idea for [Company]",
+                      body: `Hi [Name],\n\nI wanted to follow up on my previous email. I know you're busy, so I'll keep this brief.\n\nI've put together a quick analysis of how [Company] could [specific benefit]. No strings attached - just wanted to share something that might be valuable.\n\nWould you like me to send it over?\n\nBest,\n[Your Name]`
+                    },
+                    {
+                      name: "Introduction After Connection",
+                      subject: "Great connecting with you, [Name]",
+                      body: `Hi [Name],\n\nThanks for accepting my connection request! I'm impressed by your work at [Company], especially [specific achievement or project].\n\nI work with [your company/role], helping [target audience] with [value proposition]. I'd love to learn more about your current priorities at [Company].\n\nWould you be open to a quick virtual coffee chat?\n\nLooking forward to connecting,\n[Your Name]`
+                    }
+                  ].map((template, idx) => (
+                    <div key={idx} className="group relative bg-gray-50 border border-gray-200 rounded-lg p-4 hover:border-blue-200 transition-all">
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="text-sm font-bold text-gray-900">{template.name}</h4>
+                        <button
+                          onClick={() => copyTemplateToClipboard(`Subject: ${template.subject}\n\n${template.body}`, `email-${idx}`)}
+                          className="p-1.5 bg-white border border-gray-200 opacity-0 group-hover:opacity-100 hover:bg-blue-50 rounded-lg transition-all shadow-sm"
+                          title="Copy template"
+                        >
+                          {copiedTemplate === `email-${idx}` ? (
+                            <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          ) : (
+                            <svg className="w-4 h-4 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                      <p className="text-xs font-semibold text-blue-700 mb-2">Subject: {template.subject}</p>
+                      <pre className="text-xs text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">{template.body}</pre>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* LinkedIn Templates */}
+              <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                <div className="px-6 py-5 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-white rounded-lg shadow-sm">
+                      <svg className="w-6 h-6 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900">LinkedIn Messages</h2>
+                      <p className="text-sm text-gray-600 mt-0.5">Connection requests & InMails</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 space-y-4">
+                  {[
+                    {
+                      name: "Connection Request - Personalized",
+                      body: `Hi [Name],\n\nI came across your profile and was impressed by your work in [specific area/achievement]. I'm in [your role/industry] and would love to connect and exchange insights on [relevant topic].\n\nLooking forward to connecting!`
+                    },
+                    {
+                      name: "InMail - Value Proposition",
+                      body: `Hi [Name],\n\nI hope this message finds you well. I've been following [Company]'s growth in [industry/market] and wanted to reach out.\n\nWe work with [similar companies/roles] to [value proposition]. For example, we recently helped [client example] achieve [specific result].\n\nI'd love to explore if there's a fit for [Company]. Would you be open to a quick 15-minute call?\n\nBest regards,\n[Your Name]`
+                    },
+                    {
+                      name: "Follow-Up After Connection",
+                      body: `Hi [Name],\n\nThanks for connecting! I noticed you're working on [specific project/initiative]. I'd love to learn more about your goals and see if there's any way I can add value.\n\nWould you be open to a brief call next week?\n\nCheers,\n[Your Name]`
+                    }
+                  ].map((template, idx) => (
+                    <div key={idx} className="group relative bg-gray-50 border border-gray-200 rounded-lg p-4 hover:border-purple-200 transition-all">
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="text-sm font-bold text-gray-900">{template.name}</h4>
+                        <button
+                          onClick={() => copyTemplateToClipboard(template.body, `linkedin-${idx}`)}
+                          className="p-1.5 bg-white border border-gray-200 opacity-0 group-hover:opacity-100 hover:bg-purple-50 rounded-lg transition-all shadow-sm"
+                          title="Copy template"
+                        >
+                          {copiedTemplate === `linkedin-${idx}` ? (
+                            <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          ) : (
+                            <svg className="w-4 h-4 text-purple-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                      <pre className="text-xs text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">{template.body}</pre>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Cold Call Scripts */}
+              <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                <div className="px-6 py-5 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-white rounded-lg shadow-sm">
+                      <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900">Cold Call Scripts</h2>
+                      <p className="text-sm text-gray-600 mt-0.5">Phone outreach frameworks</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 space-y-4">
+                  {[
+                    {
+                      name: "Opening - Permission Based",
+                      body: `Hi [Name], this is [Your Name] from [Company].\n\nI know I'm calling out of the blue - do you have 30 seconds for me to explain why I'm calling?\n\n[Wait for response]\n\nGreat! I've been working with [similar companies] to help them [value proposition]. I thought there might be an opportunity to do something similar for [their Company].\n\nDoes [pain point/challenge] sound familiar to you?`
+                    },
+                    {
+                      name: "Handling Gatekeepers",
+                      body: `Hi, this is [Your Name] calling from [Company]. Could you help me?\n\nI'm trying to reach the person who handles [responsibility/department]. Would that be [Name], or should I speak with someone else?\n\n[If asked what it's regarding]\n\nIt's regarding [brief value statement]. I wanted to share some insights that could help with [specific outcome].`
+                    },
+                    {
+                      name: "Voicemail Script",
+                      body: `Hi [Name], this is [Your Name] from [Company].\n\nI'm reaching out because we've been helping companies like [yours/competitor] with [specific challenge]. I have a quick idea that could help [Company] [achieve benefit].\n\nI'll send you a brief email with more details. My number is [XXX-XXX-XXXX] if you'd like to chat.\n\nThanks!`
+                    }
+                  ].map((template, idx) => (
+                    <div key={idx} className="group relative bg-gray-50 border border-gray-200 rounded-lg p-4 hover:border-green-200 transition-all">
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="text-sm font-bold text-gray-900">{template.name}</h4>
+                        <button
+                          onClick={() => copyTemplateToClipboard(template.body, `call-${idx}`)}
+                          className="p-1.5 bg-white border border-gray-200 opacity-0 group-hover:opacity-100 hover:bg-green-50 rounded-lg transition-all shadow-sm"
+                          title="Copy script"
+                        >
+                          {copiedTemplate === `call-${idx}` ? (
+                            <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          ) : (
+                            <svg className="w-4 h-4 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                      <pre className="text-xs text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">{template.body}</pre>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Value Proposition Frameworks */}
+              <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                <div className="px-6 py-5 bg-gradient-to-r from-orange-50 to-yellow-50 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-white rounded-lg shadow-sm">
+                      <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900">Value Frameworks</h2>
+                      <p className="text-sm text-gray-600 mt-0.5">Proven messaging structures</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-6 space-y-4">
+                  {[
+                    {
+                      name: "Problem-Agitate-Solve (PAS)",
+                      body: `PROBLEM: [Target audience] struggles with [specific pain point]\n\nAGITATE: This leads to [negative consequences] and costs [time/money/resources]\n\nSOLVE: Our [solution] helps you [achieve outcome] by [key differentiator]\n\nRESULT: Companies like [client example] achieved [specific measurable result]`
+                    },
+                    {
+                      name: "Before-After-Bridge (BAB)",
+                      body: `BEFORE: Right now, you're experiencing [current situation/pain]\n\nAFTER: Imagine if you could [desired outcome/benefit]\n\nBRIDGE: Here's how we help you get there:\n• [Key benefit 1]\n• [Key benefit 2]\n• [Key benefit 3]\n\nProof: [Client example + result]`
+                    },
+                    {
+                      name: "Feature-Advantage-Benefit (FAB)",
+                      body: `FEATURE: We offer [specific feature/capability]\n\nADVANTAGE: This means you can [what it enables]\n\nBENEFIT: So you'll achieve [business outcome]\n\nExample: [Real customer success story]`
+                    }
+                  ].map((template, idx) => (
+                    <div key={idx} className="group relative bg-gray-50 border border-gray-200 rounded-lg p-4 hover:border-orange-200 transition-all">
+                      <div className="flex items-start justify-between mb-2">
+                        <h4 className="text-sm font-bold text-gray-900">{template.name}</h4>
+                        <button
+                          onClick={() => copyTemplateToClipboard(template.body, `framework-${idx}`)}
+                          className="p-1.5 bg-white border border-gray-200 opacity-0 group-hover:opacity-100 hover:bg-orange-50 rounded-lg transition-all shadow-sm"
+                          title="Copy framework"
+                        >
+                          {copiedTemplate === `framework-${idx}` ? (
+                            <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          ) : (
+                            <svg className="w-4 h-4 text-orange-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                      <pre className="text-xs text-gray-700 whitespace-pre-wrap font-sans leading-relaxed">{template.body}</pre>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Pro Tips */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6">
+              <div className="flex items-start gap-3">
+                <svg className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+                <div className="flex-1">
+                  <h3 className="text-sm font-bold text-blue-900 mb-2">Pro Tips for Using Templates</h3>
+                  <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+                    <li>Always personalize templates with specific details about the prospect</li>
+                    <li>Use insights from the AI analysis to customize your messaging</li>
+                    <li>Test different templates and track which ones perform best</li>
+                    <li>Keep messages concise - aim for under 150 words for cold outreach</li>
+                    <li>Include a clear, single call-to-action in every message</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Placeholder sections for other navigation items */}
+        {activeSection === 'dashboard' && (
+          <div className="text-center py-20">
+            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Dashboard Coming Soon</h2>
+            <p className="text-gray-600">Campaign analytics and performance metrics will appear here</p>
+          </div>
+        )}
+
+        {activeSection === 'campaigns' && (
+          <div className="text-center py-20">
+            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+            </svg>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Campaign Management Coming Soon</h2>
+            <p className="text-gray-600">Organize and track your outreach campaigns here</p>
+          </div>
+        )}
+
+        {activeSection === 'learning' && (
+          <div className="text-center py-20">
+            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Learning Hub Coming Soon</h2>
+            <p className="text-gray-600">Tutorials and best practices for sales intelligence</p>
+          </div>
+        )}
+
+        {activeSection === 'settings' && (
+          <div className="text-center py-20">
+            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Settings Coming Soon</h2>
+            <p className="text-gray-600">Customize your workspace and preferences</p>
+          </div>
+        )}
+
+        {activeSection === 'help' && (
+          <div className="text-center py-20">
+            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Help & Support Coming Soon</h2>
+            <p className="text-gray-600">Documentation and support resources</p>
+          </div>
+        )}
         </div>
       </div>
 
