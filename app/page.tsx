@@ -65,7 +65,8 @@ export default function HomePage() {
       try {
         setCampaigns(JSON.parse(savedCampaigns));
       } catch (e) {
-        console.error("Failed to load campaigns:", e);
+        // Failed to parse saved campaigns, reset to empty
+        localStorage.removeItem("ccie_campaigns");
       }
     }
   }, []);
@@ -124,7 +125,8 @@ export default function HomePage() {
       setCopiedPitch(id);
       setTimeout(() => setCopiedPitch(null), 2000);
     } catch (err) {
-      console.error('Failed to copy:', err);
+      // Clipboard API failed, likely due to permissions or browser support
+      setError('Unable to copy to clipboard. Please copy manually.');
     }
   };
 
@@ -242,7 +244,6 @@ export default function HomePage() {
           // Check if the response is HTML instead of JSON
           const trimmedLine = line.trim();
           if (trimmedLine.startsWith('<') || trimmedLine.startsWith('<!DOCTYPE')) {
-            console.error("Received HTML response instead of JSON:", trimmedLine.substring(0, 100));
             setApiError("API Configuration Error: The server returned an unexpected response. Please check your API key configuration or contact support.");
             setIsPending(false);
             break; // Exit loop immediately to prevent repeated errors
@@ -304,12 +305,10 @@ export default function HomePage() {
             }
 
             if (update.type === "error") {
-              console.error("API Error:", update.message);
               setApiError(`${update.message}. System will continue batch-wise processing.`);
               setIsStillProcessing(true);
             }
           } catch (parseError) {
-            console.error("JSON Parse Error:", parseError, "Line:", trimmedLine.substring(0, 100));
             setApiError("Data Processing Error: Unable to parse server response. The analysis may continue with partial results.");
           }
         }
@@ -364,7 +363,8 @@ export default function HomePage() {
       setCopiedTemplate(id);
       setTimeout(() => setCopiedTemplate(null), 2000);
     } catch (err) {
-      console.error('Failed to copy:', err);
+      // Clipboard API not available, user can copy manually
+      setError('Unable to copy to clipboard. Please copy the text manually.');
     }
   };
 
@@ -1220,7 +1220,7 @@ export default function HomePage() {
                         </div>
                         <p className="text-sm text-gray-700 mb-3">{prospect.profileNotes}</p>
                         <div className="text-sm text-gray-600">
-                          <strong>Opening:</strong> "{prospect.conversationStarter}"
+                          <strong>Opening:</strong> &quot;{prospect.conversationStarter}&quot;
                         </div>
                       </div>
                     ))}
@@ -1351,38 +1351,272 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Cehpoint Expertise */}
-              <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+              {/* Cehpoint Expertise - Full Width */}
+              <div className="bg-white border border-gray-200 rounded-xl overflow-hidden lg:col-span-2">
                 <div className="px-6 py-5 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-200">
                   <div className="flex items-center gap-3">
                     <div className="p-2.5 bg-white rounded-lg shadow-sm">
                       <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                       </svg>
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold text-gray-900">Cybersecurity & IT Services</h2>
-                      <p className="text-sm text-gray-600 mt-0.5">Cehpoint-specific knowledge</p>
+                      <h2 className="text-lg font-bold text-gray-900">Cehpoint Platform Overview</h2>
+                      <p className="text-sm text-gray-600 mt-0.5">Complete technical capabilities and service strengths</p>
                     </div>
                   </div>
                 </div>
-                <div className="p-6 space-y-3">
-                  <div className="p-4 bg-purple-50 rounded-lg">
-                    <h3 className="font-semibold text-gray-900 text-sm mb-2">Understanding Client Pain Points</h3>
-                    <ul className="text-xs text-gray-700 space-y-1.5">
-                      <li className="flex gap-2"><span className="text-purple-600">•</span> Data breach prevention and incident response</li>
-                      <li className="flex gap-2"><span className="text-purple-600">•</span> Regulatory compliance (GDPR, HIPAA, SOC 2)</li>
-                      <li className="flex gap-2"><span className="text-purple-600">•</span> Cloud security and infrastructure protection</li>
-                      <li className="flex gap-2"><span className="text-purple-600">•</span> Endpoint security and threat detection</li>
-                    </ul>
-                  </div>
-                  <div className="p-4 bg-pink-50 rounded-lg">
-                    <h3 className="font-semibold text-gray-900 text-sm mb-2">Value Propositions</h3>
-                    <ul className="text-xs text-gray-700 space-y-1.5">
-                      <li className="flex gap-2"><span className="text-pink-600">•</span> 24/7 security operations center (SOC)</li>
-                      <li className="flex gap-2"><span className="text-pink-600">•</span> Proactive threat hunting and monitoring</li>
-                      <li className="flex gap-2"><span className="text-pink-600">•</span> Customized security assessments</li>
-                    </ul>
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {/* 1. Custom Software Development */}
+                    <div className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg border border-blue-100">
+                      <h3 className="font-bold text-gray-900 text-sm mb-3 flex items-center gap-2">
+                        <span className="w-6 h-6 bg-blue-600 text-white rounded flex items-center justify-center text-xs">1</span>
+                        Custom Software Development
+                      </h3>
+                      <div className="space-y-2 text-xs text-gray-700">
+                        <div>
+                          <p className="font-semibold text-blue-900 mb-1">Frontend:</p>
+                          <p className="text-gray-600">React.js, Next.js, Vue.js, TailwindCSS</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-blue-900 mb-1">Backend:</p>
+                          <p className="text-gray-600">Node.js, Python, PHP, Golang APIs</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-blue-900 mb-1">Mobile:</p>
+                          <p className="text-gray-600">Flutter, React Native, Android</p>
+                        </div>
+                        <div className="pt-2 border-t border-blue-200">
+                          <p className="font-semibold text-blue-700 text-xs">Value: Scalable architecture, fast delivery</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 2. Cybersecurity Services */}
+                    <div className="p-4 bg-gradient-to-br from-red-50 to-rose-50 rounded-lg border border-red-100">
+                      <h3 className="font-bold text-gray-900 text-sm mb-3 flex items-center gap-2">
+                        <span className="w-6 h-6 bg-red-600 text-white rounded flex items-center justify-center text-xs">2</span>
+                        Cybersecurity Services
+                      </h3>
+                      <div className="space-y-2 text-xs text-gray-700">
+                        <div>
+                          <p className="font-semibold text-red-900 mb-1">Testing:</p>
+                          <p className="text-gray-600">Penetration Testing, VAPT, Code Review</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-red-900 mb-1">Incident Response:</p>
+                          <p className="text-gray-600">Breach detection, forensics, malware analysis</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-red-900 mb-1">Compliance:</p>
+                          <p className="text-gray-600">SOC 2, ISO 27001, HIPAA, GDPR</p>
+                        </div>
+                        <div className="pt-2 border-t border-red-200">
+                          <p className="font-semibold text-red-700 text-xs">Value: End-to-end protection, rapid response</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 3. Automation & Process Engineering */}
+                    <div className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg border border-amber-100">
+                      <h3 className="font-bold text-gray-900 text-sm mb-3 flex items-center gap-2">
+                        <span className="w-6 h-6 bg-amber-600 text-white rounded flex items-center justify-center text-xs">3</span>
+                        Automation & Process Engineering
+                      </h3>
+                      <div className="space-y-2 text-xs text-gray-700">
+                        <div>
+                          <p className="font-semibold text-amber-900 mb-1">BPA:</p>
+                          <p className="text-gray-600">ERP, HR, payroll, finance workflows</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-amber-900 mb-1">RPA:</p>
+                          <p className="text-gray-600">UI automation, bot execution</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-amber-900 mb-1">Tools:</p>
+                          <p className="text-gray-600">Zapier, Make.com, N8N, API triggers</p>
+                        </div>
+                        <div className="pt-2 border-t border-amber-200">
+                          <p className="font-semibold text-amber-700 text-xs">Value: Reduced overhead, higher accuracy</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 4. AI, ML & Intelligent Systems */}
+                    <div className="p-4 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-purple-100">
+                      <h3 className="font-bold text-gray-900 text-sm mb-3 flex items-center gap-2">
+                        <span className="w-6 h-6 bg-purple-600 text-white rounded flex items-center justify-center text-xs">4</span>
+                        AI, ML & Intelligent Systems
+                      </h3>
+                      <div className="space-y-2 text-xs text-gray-700">
+                        <div>
+                          <p className="font-semibold text-purple-900 mb-1">AI Integration:</p>
+                          <p className="text-gray-600">Chatbots, support agents, lead scoring</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-purple-900 mb-1">Custom LLMs:</p>
+                          <p className="text-gray-600">Gemini, document intelligence, voice AI</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-purple-900 mb-1">ML Engineering:</p>
+                          <p className="text-gray-600">Predictive modeling, NLP, classification</p>
+                        </div>
+                        <div className="pt-2 border-t border-purple-200">
+                          <p className="font-semibold text-purple-700 text-xs">Value: Smart automation, better decisions</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 5. DevOps, CI/CD & Cloud Systems */}
+                    <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg border border-green-100">
+                      <h3 className="font-bold text-gray-900 text-sm mb-3 flex items-center gap-2">
+                        <span className="w-6 h-6 bg-green-600 text-white rounded flex items-center justify-center text-xs">5</span>
+                        DevOps, CI/CD & Cloud
+                      </h3>
+                      <div className="space-y-2 text-xs text-gray-700">
+                        <div>
+                          <p className="font-semibold text-green-900 mb-1">DevOps:</p>
+                          <p className="text-gray-600">CI/CD pipelines, Docker, Kubernetes</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-green-900 mb-1">Cloud (GCP):</p>
+                          <p className="text-gray-600">VM, Functions, Firestore, Load Balancers</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-green-900 mb-1">Monitoring:</p>
+                          <p className="text-gray-600">Prometheus, Grafana, Sentry, ELK</p>
+                        </div>
+                        <div className="pt-2 border-t border-green-200">
+                          <p className="font-semibold text-green-700 text-xs">Value: Zero downtime, fast cycles</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 6. Enterprise IT & Digital Infrastructure */}
+                    <div className="p-4 bg-gradient-to-br from-indigo-50 to-blue-50 rounded-lg border border-indigo-100">
+                      <h3 className="font-bold text-gray-900 text-sm mb-3 flex items-center gap-2">
+                        <span className="w-6 h-6 bg-indigo-600 text-white rounded flex items-center justify-center text-xs">6</span>
+                        Enterprise IT & Infrastructure
+                      </h3>
+                      <div className="space-y-2 text-xs text-gray-700">
+                        <div>
+                          <p className="font-semibold text-indigo-900 mb-1">Infrastructure:</p>
+                          <p className="text-gray-600">Server setup, network architecture, firewalls</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-indigo-900 mb-1">Security:</p>
+                          <p className="text-gray-600">VPN, secure remote access</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-indigo-900 mb-1">Disaster Recovery:</p>
+                          <p className="text-gray-600">Backup automation, failover strategy</p>
+                        </div>
+                        <div className="pt-2 border-t border-indigo-200">
+                          <p className="font-semibold text-indigo-700 text-xs">Value: Reliable continuity, professional IT</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 7. SaaS & Product Engineering */}
+                    <div className="p-4 bg-gradient-to-br from-teal-50 to-cyan-50 rounded-lg border border-teal-100">
+                      <h3 className="font-bold text-gray-900 text-sm mb-3 flex items-center gap-2">
+                        <span className="w-6 h-6 bg-teal-600 text-white rounded flex items-center justify-center text-xs">7</span>
+                        SaaS & Product Engineering
+                      </h3>
+                      <div className="space-y-2 text-xs text-gray-700">
+                        <div>
+                          <p className="font-semibold text-teal-900 mb-1">Product Development:</p>
+                          <p className="text-gray-600">Multi-tenant SaaS, billing integration</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-teal-900 mb-1">API Development:</p>
+                          <p className="text-gray-600">RESTful, GraphQL, 3rd-party integrations</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-teal-900 mb-1">Dashboards:</p>
+                          <p className="text-gray-600">Custom analytics and reporting</p>
+                        </div>
+                        <div className="pt-2 border-t border-teal-200">
+                          <p className="font-semibold text-teal-700 text-xs">Value: End-to-end execution, scalability</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 8. Website & Digital Experience */}
+                    <div className="p-4 bg-gradient-to-br from-pink-50 to-rose-50 rounded-lg border border-pink-100">
+                      <h3 className="font-bold text-gray-900 text-sm mb-3 flex items-center gap-2">
+                        <span className="w-6 h-6 bg-pink-600 text-white rounded flex items-center justify-center text-xs">8</span>
+                        Website & Digital Experience
+                      </h3>
+                      <div className="space-y-2 text-xs text-gray-700">
+                        <div>
+                          <p className="font-semibold text-pink-900 mb-1">Services:</p>
+                          <p className="text-gray-600">Corporate sites, landing pages, e-commerce</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-pink-900 mb-1">Technology:</p>
+                          <p className="text-gray-600">Next.js high-speed websites</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-pink-900 mb-1">Optimization:</p>
+                          <p className="text-gray-600">SEO, page speed, conversion-focused UI</p>
+                        </div>
+                        <div className="pt-2 border-t border-pink-200">
+                          <p className="font-semibold text-pink-700 text-xs">Value: Professional brand, high performance</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 9. CRM & Sales Automation */}
+                    <div className="p-4 bg-gradient-to-br from-violet-50 to-purple-50 rounded-lg border border-violet-100">
+                      <h3 className="font-bold text-gray-900 text-sm mb-3 flex items-center gap-2">
+                        <span className="w-6 h-6 bg-violet-600 text-white rounded flex items-center justify-center text-xs">9</span>
+                        CRM & Sales Automation
+                      </h3>
+                      <div className="space-y-2 text-xs text-gray-700">
+                        <div>
+                          <p className="font-semibold text-violet-900 mb-1">CRM Platforms:</p>
+                          <p className="text-gray-600">Zoho, HubSpot, Salesforce customization</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-violet-900 mb-1">Sales Automation:</p>
+                          <p className="text-gray-600">Outreach automation, lead enrichment</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-violet-900 mb-1">Email Systems:</p>
+                          <p className="text-gray-600">Sequencing systems, tracking</p>
+                        </div>
+                        <div className="pt-2 border-t border-violet-200">
+                          <p className="font-semibold text-violet-700 text-xs">Value: Faster leads, higher conversions</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 10. Legacy System Modernization */}
+                    <div className="p-4 bg-gradient-to-br from-slate-50 to-gray-50 rounded-lg border border-slate-100">
+                      <h3 className="font-bold text-gray-900 text-sm mb-3 flex items-center gap-2">
+                        <span className="w-6 h-6 bg-slate-600 text-white rounded flex items-center justify-center text-xs">10</span>
+                        Legacy System Modernization
+                      </h3>
+                      <div className="space-y-2 text-xs text-gray-700">
+                        <div>
+                          <p className="font-semibold text-slate-900 mb-1">Modernization:</p>
+                          <p className="text-gray-600">Old apps to modern stacks</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-slate-900 mb-1">Migration:</p>
+                          <p className="text-gray-600">PHP monoliths to modern frameworks</p>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-slate-900 mb-1">Refactoring:</p>
+                          <p className="text-gray-600">React to Next.js, API improvements</p>
+                        </div>
+                        <div className="pt-2 border-t border-slate-200">
+                          <p className="font-semibold text-slate-700 text-xs">Value: Reduced debt, better performance</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1513,7 +1747,10 @@ export default function HomePage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Default Export Format
                     </label>
-                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                    <select 
+                      defaultValue="JSON (Recommended)"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    >
                       <option>JSON (Recommended)</option>
                       <option>Text (.txt)</option>
                       <option>CSV</option>
@@ -1524,9 +1761,12 @@ export default function HomePage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Analysis Batch Size
                     </label>
-                    <select className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500">
+                    <select 
+                      defaultValue="10 prospects (Balanced)"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    >
                       <option>5 prospects (Faster)</option>
-                      <option selected>10 prospects (Balanced)</option>
+                      <option>10 prospects (Balanced)</option>
                       <option>15 prospects (Slower)</option>
                     </select>
                     <p className="text-xs text-gray-600 mt-1">Larger batches may take longer but use fewer API calls</p>

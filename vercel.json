@@ -3,14 +3,5 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "regions": ["iad1"],
-  "env": {
-    "GEMINI_API_KEY_PRIMARY": "AIzaSyDyib_HLvpwt7W1RWBYslHu46ysDzRYvSQ",
-    "GEMINI_API_KEY_SECONDARY": "AIzaSyDw8lC4aLapTIC_D5j5mCI_rMyMcd6vnXE",
-    "GEMINI_API_KEY_EXTRA_1": "AIzaSyC_SmO5178fdkcisaV-K4yE4VH5NPRStkU",
-    "GEMINI_API_KEY_EXTRA_2": "AIzaSyC_SmO5178fdkcisaV-K4yE4VH5NPRStkU",
-    "GEMINI_API_KEY_EXTRA_3": "AIzaSyC_SmO5178fdkcisaV-K4yE4VH5NPRStkU",
-    "GEMINI_API_KEY_EXTRA_4": "AIzaSyC_SmO5178fdkcisaV-K4yE4VH5NPRStkU",
-    "GEMINI_API_KEY_EXTRA_5": "AIzaSyC_SmO5178fdkcisaV-K4yE4VH5NPRStkU"
-  }
+  "regions": ["iad1"]
 }
