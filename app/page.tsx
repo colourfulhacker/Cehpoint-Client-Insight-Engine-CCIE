@@ -13,7 +13,7 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <main className="flex-1 flex flex-col items-center justify-center px-6 py-32 sm:py-48">
-        <div className="max-w-3xl w-full text-center space-y-12">
+        <div className="max-w-3xl w-full text-center space-y-16">
           <div className="space-y-8">
             <h1 className="text-slate-900 dark:text-white">
               Identify & Engage Your Ideal Prospects
@@ -24,14 +24,12 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div>
-            <Link
-              href="/upload"
-              className="inline-flex items-center justify-center bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold px-10 py-3.5 rounded-lg hover:bg-slate-800 dark:hover:bg-slate-100 active:bg-slate-700 dark:active:bg-slate-200 transition-colors shadow-sm hover:shadow-md focus-visible:outline-2 focus-visible:outline-slate-900 dark:focus-visible:outline-white focus-visible:outline-offset-2 min-h-12"
-            >
-              Start Analyzing
-            </Link>
-          </div>
+          <Link
+            href="/upload"
+            className="inline-block bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold px-12 py-5 rounded-lg shadow-lg hover:shadow-xl transition-all text-lg min-h-16 flex items-center justify-center"
+          >
+            START ANALYZING
+          </Link>
         </div>
       </main>
 
@@ -67,7 +65,7 @@ export default function HomePage() {
             ].map((item, idx) => (
               <div
                 key={idx}
-                className="bg-white dark:bg-slate-800 p-8 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-sm transition-all"
+                className="bg-white dark:bg-slate-800 p-8 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md transition-all"
               >
                 <div className="text-4xl font-bold text-slate-300 dark:text-slate-600 mb-6">
                   {item.number}
@@ -116,7 +114,7 @@ export default function HomePage() {
             ].map((item, idx) => (
               <div key={idx} className="flex gap-8 items-start pb-8 border-b border-slate-200 dark:border-slate-800 last:border-b-0 last:pb-0">
                 <div className="flex-shrink-0 pt-1">
-                  <div className="w-12 h-12 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-lg flex items-center justify-center font-bold text-base">
+                  <div className="w-12 h-12 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-base">
                     {item.step}
                   </div>
                 </div>
@@ -135,21 +133,21 @@ export default function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="px-6 lg:px-8 py-24 bg-slate-900 dark:bg-slate-900 text-white">
+      <section className="px-6 lg:px-8 py-24 bg-blue-600 text-white">
         <div className="max-w-4xl mx-auto text-center space-y-10">
           <div className="space-y-4">
             <h2 className="text-white text-3xl sm:text-4xl font-bold">
               Ready to Transform Your Sales Process?
             </h2>
-            <p className="text-slate-300 text-lg max-w-2xl mx-auto">
+            <p className="text-blue-100 text-lg max-w-2xl mx-auto">
               Begin analyzing your prospect list today and unlock data-driven outreach strategies
             </p>
           </div>
           <Link
             href="/upload"
-            className="inline-flex items-center justify-center bg-white text-slate-900 font-semibold px-10 py-3.5 rounded-lg hover:bg-slate-100 active:bg-slate-200 transition-colors shadow-lg hover:shadow-xl focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 min-h-12"
+            className="inline-block bg-white text-blue-600 font-bold px-12 py-5 rounded-lg hover:bg-blue-50 active:bg-blue-100 transition-colors shadow-lg hover:shadow-xl text-lg min-h-16 flex items-center justify-center"
           >
-            Start Analyzing
+            GET STARTED
           </Link>
         </div>
       </section>

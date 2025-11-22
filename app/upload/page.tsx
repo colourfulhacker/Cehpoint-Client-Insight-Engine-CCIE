@@ -116,13 +116,13 @@ export default function UploadPage() {
                       htmlFor="file"
                       className={`flex flex-col items-center justify-center w-full px-8 py-16 border-2 border-dashed rounded-lg cursor-pointer transition-all ${
                         selectedFile
-                          ? "border-slate-400 bg-slate-50 dark:bg-slate-800 dark:border-slate-500"
-                          : "border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-600 bg-slate-50 dark:bg-slate-800/50"
+                          ? "border-blue-400 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-500"
+                          : "border-slate-300 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500 bg-slate-50 dark:bg-slate-800/50"
                       } ${isPending ? "opacity-50 cursor-not-allowed" : ""}`}
                     >
                       <svg
                         className={`w-12 h-12 mb-4 ${
-                          selectedFile ? "text-slate-600 dark:text-slate-400" : "text-slate-400 dark:text-slate-500"
+                          selectedFile ? "text-blue-600 dark:text-blue-400" : "text-slate-400 dark:text-slate-500"
                         }`}
                         fill="none"
                         stroke="currentColor"
@@ -198,11 +198,11 @@ export default function UploadPage() {
                 <button
                   type="submit"
                   disabled={isPending || !selectedFile}
-                  className="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold py-3.5 rounded-lg hover:enabled:bg-slate-800 dark:hover:enabled:bg-slate-100 active:enabled:bg-slate-700 dark:active:enabled:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-3 text-base min-h-12"
+                  className="w-full bg-blue-600 hover:enabled:bg-blue-700 active:enabled:bg-blue-800 disabled:bg-blue-300 text-white font-bold py-5 rounded-lg transition-colors flex items-center justify-center gap-3 text-lg min-h-16 shadow-lg hover:enabled:shadow-xl"
                 >
                   {isPending ? (
                     <>
-                      <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                      <svg className="animate-spin h-6 w-6" fill="none" viewBox="0 0 24 24" aria-hidden="true">
                         <circle
                           className="opacity-25"
                           cx="12"
@@ -217,16 +217,16 @@ export default function UploadPage() {
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         />
                       </svg>
-                      <span>Processing...</span>
+                      <span>PROCESSING...</span>
                     </>
                   ) : (
-                    "Analyze Prospects"
+                    "ANALYZE PROSPECTS"
                   )}
                 </button>
 
                 {isPending && (
-                  <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 text-center">
-                    <p className="text-sm text-slate-600 dark:text-slate-300">
+                  <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-center">
+                    <p className="text-sm text-blue-700 dark:text-blue-300">
                       Analyzing your prospects. This typically takes 30-60 seconds.
                     </p>
                   </div>
@@ -237,9 +237,9 @@ export default function UploadPage() {
         ) : (
           <div className="space-y-12">
             {/* Success Banner */}
-            <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-8">
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-8">
               <div className="flex gap-4 items-start mb-8">
-                <svg className="w-6 h-6 text-slate-900 dark:text-white flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                <svg className="w-6 h-6 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
                 <div>
@@ -255,13 +255,13 @@ export default function UploadPage() {
               <div className="flex flex-wrap gap-3">
                 <button
                   onClick={downloadInsights}
-                  className="px-6 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold rounded-lg hover:bg-slate-800 dark:hover:bg-slate-100 active:bg-slate-700 dark:active:bg-slate-200 transition-colors text-sm min-h-10"
+                  className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors text-sm min-h-12 flex items-center justify-center shadow-md"
                 >
                   Download as Text
                 </button>
                 <button
                   onClick={downloadJSON}
-                  className="px-6 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold rounded-lg hover:bg-slate-800 dark:hover:bg-slate-100 active:bg-slate-700 dark:active:bg-slate-200 transition-colors text-sm min-h-10"
+                  className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition-colors text-sm min-h-12 flex items-center justify-center shadow-md"
                 >
                   Download as JSON
                 </button>
@@ -270,7 +270,7 @@ export default function UploadPage() {
                     setInsights(null);
                     setSelectedFile(null);
                   }}
-                  className="px-6 py-2.5 border-2 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white font-semibold rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 active:bg-slate-200 dark:active:bg-slate-600 transition-colors text-sm min-h-10"
+                  className="px-6 py-3 border-2 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white font-bold rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm min-h-12 flex items-center justify-center"
                 >
                   Upload New File
                 </button>
