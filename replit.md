@@ -4,18 +4,54 @@
 
 The Cehpoint Client Insight Engine is a premium, production-ready B2B sales enablement platform designed for marketing and sales teams. It transforms raw LinkedIn prospect data from Excel/CSV files into personalized, actionable outreach strategies. The platform generates client categorization, three tailored pitch suggestions per prospect, and conversation starters optimized for B2B sales conversations. Features include real-time batch processing, progressive streaming results, time-based pagination (15 prospects initially, then 15 every minute), mid-process export, and comprehensive data export options.
 
-## Key Updates (Current Session - v5.1)
-- ✅ **NEW: Expand Pitch Feature** - Generate full detailed pitches (200-250 words) for each pitch suggestion
+## Key Updates (Current Session - v5.2)
+- ✅ **NEW: Production-Grade Error Handling** - Comprehensive error classification, retry logic, and multi-API-key fallback
+- ✅ **Multi-Key Rotation** - Automatic failover between PRIMARY, SECONDARY, and EXTRA Gemini API keys
+- ✅ **Intelligent Retry System** - Exponential backoff (1s → 60s max) with 5 max attempts
+- ✅ **Error Classification** - RateLimitError, AuthError, ValidationError, TransientAPIError, FatalAPIError
+- ✅ **Key Cooldown Management** - Failed keys enter cooldown period, preventing cascading failures
+- ✅ **Enhanced Error Messages** - User-friendly error messages with actionable guidance
+- ✅ **Expand Pitch Feature** - Generate full detailed pitches (200-250 words) for each pitch suggestion
 - ✅ **Professional Modal UI** - Enterprise-grade popup with loading, error handling, and copy functionality
 - ✅ **Pitch Regeneration** - Regenerate all pitches for individual prospects with complete data preservation
-- ✅ Enhanced error handling: API failures trigger batch-wise processing continuation
-- ✅ Improved response handling: 5-second timeout notification, graceful degradation
-- ✅ Perfected Gemini prompt: laser-focused buyer personas, specific pain points, quality checklist
-- ✅ All exports (Text/JSON) work during processing and at completion
 
-## Latest Improvements (v5.1 - Expand Pitch Feature + Complete Enterprise Redesign)
+## Latest Improvements (v5.2 - Production-Grade Error Handling + Reliability)
 
-### NEW: Pitch Expansion & Regeneration (v5.1)
+### NEW: Comprehensive Error Handling Infrastructure (v5.2)
+- ✅ **Error Classification System** (lib/errors.ts):
+  - RateLimitError: API rate limit exceeded (includes retryAfter metadata)
+  - AuthError: API authentication failed (triggers key rotation)
+  - ValidationError: Request/response validation errors
+  - TransientAPIError: Temporary failures (500, 502, 503, 504, timeouts)
+  - FatalAPIError: Non-retryable errors (400, malformed requests)
+  
+- ✅ **Retry Utilities** (lib/retry.ts):
+  - Exponential backoff: 1s → 2s → 4s → 8s → 16s (max 60s)
+  - Configurable jitter to prevent thundering herd
+  - Maximum 5 retry attempts per request
+  - Custom delay support for rate limit headers
+  
+- ✅ **GeminiClient with Multi-Key Rotation** (lib/gemini-client.ts):
+  - Primary key failover: GEMINI_API_KEY_PRIMARY → GEMINI_API_KEY_SECONDARY
+  - Support for up to 5 extra keys: GEMINI_API_KEY_EXTRA_1 through GEMINI_API_KEY_EXTRA_5
+  - Intelligent key cooldown: Failed keys enter 60s (auth errors: 5min) cooldown
+  - Automatic key rotation on auth failures
+  - Per-key failure tracking and recovery
+  - Retry telemetry callback for monitoring
+  
+- ✅ **Enhanced API Routes**:
+  - All routes (analyze, expand-pitch, regenerate-pitch) now use GeminiClient
+  - Comprehensive error responses with HTTP status codes
+  - Rate limit responses include retryAfter header
+  - Graceful degradation for transient errors
+  
+- ✅ **Production-Ready Reliability**:
+  - Complete file processing regardless of size
+  - Automatic retry on rate limits with exponential backoff
+  - Multi-key fallback prevents single point of failure
+  - Clear error messages guide users on resolution
+
+### Pitch Expansion & Regeneration (v5.1)
 - ✅ **Expand Pitch Modal**: Click "Expand" on any pitch suggestion to generate a full 200-250 word detailed pitch
 - ✅ **Automatic Generation**: Modal automatically generates expanded pitch using Gemini AI on open
 - ✅ **Professional UI**: Loading skeleton, error handling with retry, copy-to-clipboard functionality
@@ -101,7 +137,7 @@ The Cehpoint Client Insight Engine is a premium, production-ready B2B sales enab
 
 ### AI Integration
 
-**Service**: Google Gemini 2.5 Flash via `@google/genai` SDK.
+**Service**: Google Gemini 2.5 Flash via custom GeminiClient wrapper.
 **Intelligence**: 
   - Ideal Client Framework with 4 buyer personas
   - Generates category classification and prospect-level insights
@@ -113,7 +149,11 @@ The Cehpoint Client Insight Engine is a premium, production-ready B2B sales enab
   - User: Prospect data batch with CRITICAL REQUIREMENTS and output format
   - Output: Strict JSON with idealClientFramework + prospectInsights
 
-**API Key Management**: Server-side environment variables with rotation support.
+**API Key Management**: 
+  - Multi-key rotation: PRIMARY → SECONDARY → EXTRA_1-5
+  - Automatic failover on auth errors
+  - Per-key cooldown and failure tracking
+  - Environment variables: GEMINI_API_KEY_PRIMARY, GEMINI_API_KEY_SECONDARY, GEMINI_API_KEY_EXTRA_1 through GEMINI_API_KEY_EXTRA_5
 
 ## Design Standards
 
