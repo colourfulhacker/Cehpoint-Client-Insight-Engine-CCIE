@@ -694,105 +694,114 @@ export default function HomePage() {
                 </div>
               )}
 
-              {/* Results Header */}
-              <div className="flex items-center justify-between mb-6">
+              {/* Results Header with KPI Cards */}
+              <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Prospect Insights</h2>
-                  <p className="text-sm text-gray-600 mt-1">
-                    {(insights?.prospectInsights || streamingInsights).length} prospect{(insights?.prospectInsights || streamingInsights).length !== 1 ? 's' : ''} analyzed
+                  <h2 className="text-3xl font-bold text-gray-900">Analysis Results</h2>
+                  <p className="text-sm text-gray-600 mt-2">
+                    {(insights?.prospectInsights || streamingInsights).length} prospect{(insights?.prospectInsights || streamingInsights).length !== 1 ? 's' : ''} analyzed with personalized insights
                   </p>
                 </div>
                 {insights && (
-                  <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-lg">
-                    <svg className="w-5 h-5 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                  <div className="flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-xl shadow-sm">
+                    <svg className="w-6 h-6 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
-                    <span className="text-sm font-semibold text-emerald-700">Complete</span>
+                    <div>
+                      <p className="text-xs font-semibold text-emerald-700 uppercase tracking-wider">Analysis Complete</p>
+                      <p className="text-xs text-emerald-600">{insights.prospectInsights.length} prospects ready</p>
+                    </div>
                   </div>
                 )}
               </div>
 
-              {/* Results Grid */}
-              <div className="space-y-5">
+              {/* Results Grid - Modern Card Layout */}
+              <div className="space-y-6">
                 {(insights?.prospectInsights || streamingInsights).map((prospect, idx) => (
                   <div 
                     key={idx}
-                    className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+                    className="bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group"
                   >
-                    {/* Card Header */}
-                    <div className="px-6 py-5 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex items-start gap-3 flex-1">
-                          <div className="p-2.5 bg-white rounded-lg shadow-sm">
-                            <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
+                    {/* Premium Header */}
+                    <div className="px-7 py-6 bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 relative overflow-hidden">
+                      <div className="absolute inset-0 opacity-10">
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600" style={{borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%'}}></div>
+                      </div>
+                      <div className="relative z-10 flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-3">
+                            <span className="px-3 py-1.5 bg-white/20 backdrop-blur-sm text-white rounded-full text-xs font-bold">
+                              #{idx + 1}
+                            </span>
+                            <span className="px-3 py-1 bg-emerald-500/30 border border-emerald-400/50 text-emerald-100 rounded-full text-xs font-semibold">
+                              Analyzed
+                            </span>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">
-                              {prospect.name}
-                            </h3>
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700">
-                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                </svg>
-                                {prospect.role}
-                              </span>
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700">
-                                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                </svg>
-                                {prospect.company}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex-shrink-0">
-                          <div className="px-3 py-1.5 bg-blue-100 rounded-full">
-                            <span className="text-xs font-bold text-blue-700">#{idx + 1}</span>
+                          <h3 className="text-2xl font-bold text-white mb-1">
+                            {prospect.name}
+                          </h3>
+                          <div className="flex flex-wrap items-center gap-3">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-400/20 backdrop-blur-sm border border-blue-300/40 rounded-lg text-sm font-semibold text-blue-100">
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
+                              </svg>
+                              {prospect.role}
+                            </span>
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-400/20 backdrop-blur-sm border border-purple-300/40 rounded-lg text-sm font-semibold text-purple-100">
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6-4a2 2 0 00-2-2H6a2 2 0 00-2 2v4a2 2 0 002 2h4a2 2 0 002-2V6z"></path>
+                              </svg>
+                              {prospect.company}
+                            </span>
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Card Content */}
-                    <div className="p-6 space-y-5">
+                    {/* Card Content - Premium Layout */}
+                    <div className="px-7 py-8 space-y-7">
 
-                      {/* Profile Notes */}
-                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                        <div className="flex items-center gap-2 mb-2.5">
-                          <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                          <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wide">Profile Intelligence</h4>
+                      {/* Profile Intelligence Box */}
+                      <div className="relative">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-blue-600 opacity-0 group-hover:opacity-10 rounded-xl transition-all duration-300" />
+                        <div className="relative bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100/50 rounded-xl p-5">
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="p-2 bg-blue-600 rounded-lg">
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm14 0H4v2h12V5zM2 13a2 2 0 012-2h12a2 2 0 012 2v2a2 2 0 01-2 2H4a2 2 0 01-2-2v-2zm14 0H4v2h12v-2z"></path>
+                              </svg>
+                            </div>
+                            <h4 className="text-xs font-bold text-blue-900 uppercase tracking-wider">Profile Intelligence</h4>
+                          </div>
+                          <p className="text-sm text-gray-800 leading-relaxed font-medium">{prospect.profileNotes}</p>
                         </div>
-                        <p className="text-sm text-gray-700 leading-relaxed">{prospect.profileNotes}</p>
                       </div>
 
-                      {/* Pitch Suggestions */}
+                      {/* Pitch Suggestions - Premium Cards */}
                       <div>
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-2">
-                            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
+                            <div className="p-2.5 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg">
+                              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"></path>
+                              </svg>
+                            </div>
                             <h4 className="text-sm font-bold text-gray-900">
                               Value Propositions
                             </h4>
                           </div>
                           <button
                             onClick={() => openRegenerateModal(prospect, idx)}
-                            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg active:scale-95"
                             title="Generate new pitch variations"
                           >
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                             </svg>
                             <span>Regenerate</span>
                           </button>
                         </div>
-                        <div className="space-y-2.5">
+                        <div className="space-y-3">
                           {prospect.pitchSuggestions.map((pitch, pIdx) => {
                             const pitchId = `${idx}-${pIdx}`;
                             const isCopied = copiedPitch === pitchId;
@@ -800,25 +809,25 @@ export default function HomePage() {
                             return (
                               <div
                                 key={pIdx}
-                                className="group relative p-4 bg-gradient-to-r from-white to-gray-50 border border-gray-200 rounded-lg hover:shadow-sm hover:border-blue-200 transition-all"
+                                className="group/pitch relative p-5 bg-gradient-to-br from-white to-gray-50 border border-gray-200 rounded-xl hover:border-blue-300 hover:shadow-md transition-all duration-300"
                               >
-                                <div className="flex gap-3 pr-24">
-                                  <div className="flex-shrink-0 w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <span className="text-xs font-bold text-blue-700">{pIdx + 1}</span>
+                                <div className="flex gap-4 pr-28">
+                                  <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-sm">
+                                    {pIdx + 1}
                                   </div>
-                                  <p className="text-sm text-gray-800 leading-relaxed">{pitch.pitch}</p>
+                                  <p className="text-sm text-gray-800 leading-relaxed font-medium pt-0.5">{pitch.pitch}</p>
                                 </div>
-                                <div className="absolute top-3 right-3 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="absolute top-4 right-4 flex items-center gap-2 opacity-0 group-hover/pitch:opacity-100 transition-opacity duration-200">
                                   <button
                                     onClick={() => openExpandModal(prospect, pitch.pitch)}
-                                    className="px-2.5 py-1.5 text-xs font-semibold text-blue-700 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors shadow-sm"
+                                    className="px-3 py-2 text-xs font-bold text-blue-700 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-all shadow-sm hover:shadow-md"
                                     title="Generate full pitch"
                                   >
                                     Expand
                                   </button>
                                   <button
                                     onClick={() => copyToClipboard(pitch.pitch, pitchId)}
-                                    className="p-1.5 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition-all shadow-sm"
+                                    className="p-2 bg-white border border-gray-200 hover:bg-blue-50 hover:border-blue-300 rounded-lg transition-all shadow-sm"
                                     title="Copy"
                                   >
                                     {isCopied ? (
@@ -826,7 +835,7 @@ export default function HomePage() {
                                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                       </svg>
                                     ) : (
-                                      <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                       </svg>
                                     )}
@@ -838,32 +847,37 @@ export default function HomePage() {
                         </div>
                       </div>
 
-                      {/* Conversation Starter */}
-                      <div className="group relative bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-5">
-                        <div className="flex items-center gap-2 mb-3">
-                          <svg className="w-4 h-4 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                          </svg>
-                          <p className="text-xs font-bold text-blue-900 uppercase tracking-wide">
-                            Opening Message
-                          </p>
+                      {/* Conversation Starter - Premium Style */}
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-400 opacity-0 group-hover:opacity-5 rounded-xl transition-all duration-300" />
+                        <div className="relative group/opener bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200/70 rounded-xl p-6">
+                          <div className="flex items-center gap-2 mb-4">
+                            <div className="p-2 bg-amber-600 rounded-lg">
+                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0L10 9.414l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"></path>
+                              </svg>
+                            </div>
+                            <p className="text-xs font-bold text-amber-900 uppercase tracking-wider">
+                              Opening Message
+                            </p>
+                          </div>
+                          <p className="text-base text-gray-900 font-semibold italic leading-relaxed pl-8">&quot;{prospect.conversationStarter}&quot;</p>
+                          <button
+                            onClick={() => copyToClipboard(prospect.conversationStarter, `opener-${idx}`)}
+                            className="absolute top-5 right-5 p-2 bg-white border border-amber-200 opacity-0 group-hover/opener:opacity-100 hover:bg-amber-50 rounded-lg transition-all shadow-sm hover:shadow-md"
+                            title="Copy"
+                          >
+                            {copiedPitch === `opener-${idx}` ? (
+                              <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                              </svg>
+                            ) : (
+                              <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                              </svg>
+                            )}
+                          </button>
                         </div>
-                        <p className="text-sm text-gray-900 font-medium italic pr-10 leading-relaxed">&quot;{prospect.conversationStarter}&quot;</p>
-                        <button
-                          onClick={() => copyToClipboard(prospect.conversationStarter, `opener-${idx}`)}
-                          className="absolute top-4 right-4 p-1.5 bg-white border border-blue-200 opacity-0 group-hover:opacity-100 hover:bg-blue-50 rounded-lg transition-all shadow-sm"
-                          title="Copy"
-                        >
-                          {copiedPitch === `opener-${idx}` ? (
-                            <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          ) : (
-                            <svg className="w-4 h-4 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                          )}
-                        </button>
                       </div>
                     </div>
                   </div>
