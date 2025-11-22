@@ -94,23 +94,31 @@ export class GeminiClient {
     }
   }
 
-  private getNextAvailableKey(): APIKey | null {
+  private getAvailableKeys(): APIKey[] {
     const now = Date.now();
-    const startIndex = this.currentKeyIndex;
+    return this.keys.filter((key) => !key.cooldownUntil || key.cooldownUntil <= now);
+  }
 
-    for (let i = 0; i < this.keys.length; i++) {
-      const index = (startIndex + i) % this.keys.length;
-      const key = this.keys[index];
+  private getRandomAvailableKey(): APIKey | null {
+    const availableKeys = this.getAvailableKeys();
+    if (availableKeys.length === 0) return null;
 
-      if (key.cooldownUntil && key.cooldownUntil > now) {
-        continue;
-      }
+    // Weighted random selection: prioritize keys with fewer failures
+    const totalWeight = availableKeys.reduce((sum, key) => sum + (10 - Math.min(key.failureCount, 9)), 0);
+    let random = Math.random() * totalWeight;
 
-      this.currentKeyIndex = index;
-      return key;
+    for (const key of availableKeys) {
+      const weight = 10 - Math.min(key.failureCount, 9);
+      random -= weight;
+      if (random <= 0) return key;
     }
 
-    return null;
+    return availableKeys[0];
+  }
+
+  private getNextAvailableKey(): APIKey | null {
+    // Use random selection with weighted distribution
+    return this.getRandomAvailableKey();
   }
 
   private markKeyFailed(key: APIKey, cooldownMs: number = 60000): void {
