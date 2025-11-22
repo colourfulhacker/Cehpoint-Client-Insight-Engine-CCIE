@@ -77,40 +77,35 @@ export default function UploadPage() {
           try {
             const update: BatchUpdate = JSON.parse(line);
 
-            if (update.type === "status") {
-              setStreamingMessage(update.message || "");
-              setTotalBatches(update.batches || 0);
-            } else if (update.type === "batch" && update.prospects) {
-              setStreamingInsights((prev) => [...prev, ...update.prospects!]);
-              setStreamingProgress(update.progress || 0);
-              setStreamingMessage(`Processing batch ${update.batchNumber}/${update.totalBatches}...`);
-            } else if (update.type === "complete" && update.report) {
-              setInsights(update.report);
-              setStreamingMessage("Analysis complete!");
-              setStreamingProgress(100);
-            } else if (update.type === "error") {
-              throw new Error(update.message || "Unknown error during streaming");
+            if (update.type === "batch_complete" && update.prospects) {
+              setStreamingInsights(prev => [...prev, ...update.prospects!]);
             }
-          } catch (parseError) {
-            console.error("Failed to parse streaming update:", line, parseError);
+            if (update.type === "progress") {
+              setStreamingProgress(update.progress || 0);
+              setStreamingMessage(update.message || "Processing...");
+              setTotalBatches(update.totalBatches || 0);
+            }
+            if (update.type === "complete" && update.report) {
+              setInsights(update.report);
+              setIsPending(false);
+            }
+          } catch {
+            // Continue parsing
           }
         }
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "An unexpected error occurred";
-      setError(errorMessage);
-      setStreamingInsights([]);
-      setStreamingProgress(0);
-      setStreamingMessage("");
-    } finally {
+      setError(err instanceof Error ? err.message : "An error occurred");
       setIsPending(false);
     }
   };
 
   const downloadInsights = () => {
     if (!insights) return;
-    const content = formatInsightsAsText(insights);
-    const blob = new Blob([content], { type: "text/plain" });
+    const text = insights.prospectInsights
+      .map(p => `${p.name} (${p.role})\n${p.profileNotes}\n\nPitches:\n${p.pitchSuggestions.map((s, i) => `${i + 1}. ${s.pitch}`).join("\n")}\n\nOpening:\n"${p.conversationStarter}"\n`)
+      .join("\n---\n");
+    const blob = new Blob([text], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -135,438 +130,209 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+    <div className="min-h-screen flex flex-col bg-white text-slate-950">
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 border-b border-slate-800/50 bg-slate-950/80 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link href="/" className="hover:opacity-70 transition-opacity duration-300">
+      <nav className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-md">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
+          <Link href="/" className="hover:opacity-70 transition-opacity">
             <Logo />
           </Link>
-          <div className="text-xs font-semibold text-slate-400 tracking-widest uppercase">
+          <div className="text-xs font-semibold text-slate-500 tracking-widest uppercase">
             Analysis Engine
           </div>
         </div>
       </nav>
 
       {/* Main Content */}
-      <div className="flex-1 max-w-5xl mx-auto w-full py-20 px-6 lg:px-8">
+      <div className="flex-1 max-w-4xl mx-auto w-full py-20 px-6 lg:px-8">
         {!insights && streamingInsights.length === 0 ? (
-          <div className="space-y-20 animate-fadeInDown">
+          <div className="space-y-16">
             {/* Header */}
-            <div className="space-y-8 text-center">
-              <h1 className="text-5xl md:text-6xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
+            <div className="text-center space-y-4">
+              <h1 className="text-5xl lg:text-6xl font-bold text-slate-950">
                 Upload & Analyze
               </h1>
-              <p className="text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed font-light">
-                Share your prospect data and receive personalized, actionable sales intelligence. Results display in real-time as our system analyzes each batch.
+              <p className="text-xl text-slate-600 max-w-2xl mx-auto">
+                Share your prospect data and receive personalized sales intelligence instantly
               </p>
             </div>
 
-            {/* Upload Form Card */}
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-2xl blur-2xl opacity-50" />
-              <div className="relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-10 lg:p-16 shadow-2xl">
-                <form onSubmit={handleSubmit} className="space-y-10">
-                  {/* File Upload */}
-                  <div className="space-y-6 pb-6 border-b border-slate-700/30">
-                    <div>
-                      <label htmlFor="file" className="block text-2xl font-black text-white mb-2">
-                        📂 Select Your Data File
-                      </label>
-                      <p className="text-sm text-slate-400">Upload your prospect list (Excel or CSV format)</p>
-                    </div>
-
-                    <input
-                      type="file"
-                      id="file"
-                      name="file"
-                      accept=".xlsx,.xls,.csv"
-                      required
-                      disabled={isPending}
-                      onChange={handleFileChange}
-                      className="hidden"
-                      aria-label="Upload prospect data file"
-                    />
-                    <label
-                      htmlFor="file"
-                      className={`flex flex-col items-center justify-center w-full px-8 py-16 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-300 group ${
-                        selectedFile
-                          ? "border-emerald-400/80 bg-emerald-500/10 shadow-lg shadow-emerald-500/10"
-                          : "border-blue-400/60 hover:border-blue-300/80 hover:bg-blue-500/10 bg-slate-800/40 hover:shadow-lg hover:shadow-blue-500/10"
-                      } ${isPending ? "opacity-50 cursor-not-allowed" : ""}`}
-                    >
-                      <svg
-                        className={`w-16 h-16 mb-6 transition-all duration-300 ${
-                          selectedFile ? "text-emerald-400 scale-110" : "text-slate-500 group-hover:text-blue-400 group-hover:scale-110"
-                        }`}
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33A3 3 0 0116.5 19.5H6.75z"
-                        />
-                      </svg>
-
-                      {selectedFile ? (
-                        <div className="text-center animate-scaleIn">
-                          <p className="font-semibold text-white text-lg">
-                            ✓ {selectedFile.name}
-                          </p>
-                          <p className="text-sm text-slate-400 mt-2">
-                            {(selectedFile.size / 1024).toFixed(2)} KB
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="text-center space-y-2">
-                          <p className="font-black text-white text-xl">
-                            Click to upload or drag & drop
-                          </p>
-                          <p className="text-sm text-slate-400">
-                            Excel (.xlsx, .xls) or CSV • Up to 10 MB
-                          </p>
-                        </div>
-                      )}
+            {/* Upload Form */}
+            <div className="bg-slate-50 border-2 border-slate-200 rounded-2xl p-12 lg:p-16">
+              <form onSubmit={handleSubmit} className="space-y-8">
+                {/* File Upload */}
+                <div className="space-y-6 pb-8 border-b border-slate-200">
+                  <div>
+                    <label htmlFor="file" className="block text-2xl font-bold text-slate-950 mb-2">
+                      Select Your Data File
                     </label>
+                    <p className="text-slate-600">Upload your prospect list (Excel or CSV)</p>
                   </div>
 
-                  {/* Requirements Grid */}
-                  <div className="pt-6 space-y-8">
-                    <div className="bg-gradient-to-r from-slate-700/30 to-slate-800/20 border border-slate-600/40 rounded-xl p-6 shadow-md shadow-slate-900/20">
-                      <h4 className="font-black text-white text-2xl flex items-center gap-4">
-                        <span className="text-3xl">📋</span>
-                        Required Columns
-                      </h4>
-                    </div>
-                    <div className="grid md:grid-cols-3 gap-6">
-                      <div className="space-y-6 p-7 bg-gradient-to-br from-blue-900/35 to-slate-900/30 rounded-xl border-2 border-blue-500/60 hover:border-blue-500/90 transition-all shadow-lg shadow-blue-500/5">
-                        <p className="text-2xl text-blue-100 uppercase tracking-wider font-black">👤 Name</p>
-                        <div className="flex flex-col gap-5">
-                          <code className="px-5 py-4 bg-blue-950/70 rounded-lg text-lg text-blue-50 font-mono border-l-4 border-blue-300 hover:bg-blue-950/90 transition-all">name</code>
-                          <span className="text-blue-200 text-lg font-black text-center">— OR —</span>
-                          <code className="px-5 py-4 bg-blue-950/70 rounded-lg text-lg text-blue-50 font-mono border-l-4 border-blue-300 hover:bg-blue-950/90 transition-all">full_name</code>
-                        </div>
-                      </div>
-                      <div className="space-y-6 p-7 bg-gradient-to-br from-purple-900/35 to-slate-900/30 rounded-xl border-2 border-purple-500/60 hover:border-purple-500/90 transition-all shadow-lg shadow-purple-500/5">
-                        <p className="text-2xl text-purple-100 uppercase tracking-wider font-black">💼 Role</p>
-                        <div className="flex flex-col gap-5">
-                          <code className="px-5 py-4 bg-purple-950/70 rounded-lg text-lg text-purple-50 font-mono border-l-4 border-purple-300 hover:bg-purple-950/90 transition-all">role</code>
-                          <span className="text-purple-200 text-lg font-black text-center">— OR —</span>
-                          <code className="px-5 py-4 bg-purple-950/70 rounded-lg text-lg text-purple-50 font-mono border-l-4 border-purple-300 hover:bg-purple-950/90 transition-all">title</code>
-                        </div>
-                      </div>
-                      <div className="space-y-6 p-7 bg-gradient-to-br from-cyan-900/35 to-slate-900/30 rounded-xl border-2 border-cyan-500/60 hover:border-cyan-500/90 transition-all shadow-lg shadow-cyan-500/5">
-                        <p className="text-2xl text-cyan-100 uppercase tracking-wider font-black">🏢 Company</p>
-                        <div className="flex flex-col gap-5">
-                          <code className="px-5 py-4 bg-cyan-950/70 rounded-lg text-lg text-cyan-50 font-mono border-l-4 border-cyan-300 hover:bg-cyan-950/90 transition-all">company</code>
-                          <span className="text-cyan-200 text-lg font-black text-center">— OR —</span>
-                          <code className="px-5 py-4 bg-cyan-950/70 rounded-lg text-lg text-cyan-50 font-mono border-l-4 border-cyan-300 hover:bg-cyan-950/90 transition-all">org</code>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-5 shadow-md shadow-slate-900/20">
-                      <p className="text-base text-slate-200 font-semibold">
-                        💡 <strong className="text-slate-100">Optional columns:</strong> location, description, profile
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Error Message */}
-                  {error && (
-                    <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-5 backdrop-blur-sm animate-shake" role="alert">
-                      <p className="text-sm text-red-300 font-medium flex items-center gap-2">
-                        <span>⚠️</span>
-                        {error}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Submit Button */}
-                  <button
-                    type="submit"
-                    disabled={isPending || !selectedFile}
-                    className="w-full group relative"
+                  <input
+                    type="file"
+                    id="file"
+                    name="file"
+                    accept=".xlsx,.xls,.csv"
+                    required
+                    disabled={isPending}
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="file"
+                    className={`flex flex-col items-center justify-center w-full px-8 py-12 border-2 border-dashed rounded-xl cursor-pointer transition-all ${
+                      selectedFile
+                        ? "border-green-500 bg-green-50"
+                        : "border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-50"
+                    }`}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 rounded-xl blur-xl opacity-80 group-hover:enabled:opacity-100 transition-all duration-300 group-active:enabled:scale-95" />
-                    <div className={`relative text-white font-black py-5 rounded-xl transition-all duration-300 flex items-center justify-center gap-3 text-lg min-h-16 shadow-2xl ${
-                      isPending 
-                        ? 'bg-gradient-to-r from-blue-600 to-blue-500 shadow-blue-600/50' 
-                        : selectedFile 
-                          ? 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 active:scale-95 shadow-blue-600/50'
-                          : 'bg-gradient-to-r from-blue-500/50 to-blue-400/50 cursor-not-allowed shadow-blue-500/30 hover:from-blue-500/60 hover:to-blue-400/60'
-                    }`}>
-                      {isPending ? (
-                        <>
-                          <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24" aria-hidden="true">
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            />
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                            />
-                          </svg>
-                          <span>ANALYZING...</span>
-                        </>
-                      ) : (
-                        <>
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                          </svg>
-                          <span>{selectedFile ? 'ANALYZE PROSPECTS' : 'SELECT A FILE TO START'}</span>
-                        </>
-                      )}
+                    <svg className="w-12 h-12 mb-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33A3 3 0 0116.5 19.5H6.75z" />
+                    </svg>
+                    {selectedFile ? (
+                      <p className="font-semibold text-slate-950">✓ {selectedFile.name}</p>
+                    ) : (
+                      <div className="text-center">
+                        <p className="font-semibold text-slate-950">Click to upload or drag & drop</p>
+                        <p className="text-sm text-slate-600 mt-1">Excel or CSV • Up to 10 MB</p>
+                      </div>
+                    )}
+                  </label>
+                </div>
+
+                {/* Required Columns */}
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-950 mb-4">Required Columns</h3>
+                    <div className="grid md:grid-cols-3 gap-4">
+                      {[
+                        { col: "NAME", options: ["name", "full_name"] },
+                        { col: "ROLE", options: ["role", "title"] },
+                        { col: "COMPANY", options: ["company", "org"] }
+                      ].map((req, idx) => (
+                        <div key={idx} className="p-4 bg-white border border-slate-200 rounded-lg">
+                          <p className="font-semibold text-slate-950 mb-3 text-sm uppercase">{req.col}</p>
+                          <div className="space-y-2">
+                            {req.options.map((opt, i) => (
+                              <div key={i}>
+                                <code className="block px-3 py-2 bg-slate-100 rounded text-sm text-slate-950 font-mono">{opt}</code>
+                                {i === 0 && <p className="text-center text-xs text-slate-500 py-1">or</p>}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </button>
-                </form>
-              </div>
+                  </div>
+
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-slate-700">
+                      <strong>Optional:</strong> location, description, profile
+                    </p>
+                  </div>
+                </div>
+
+                {/* Error */}
+                {error && (
+                  <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-sm text-red-700">⚠️ {error}</p>
+                  </div>
+                )}
+
+                {/* Submit */}
+                <button
+                  type="submit"
+                  disabled={isPending || !selectedFile}
+                  className="w-full py-4 bg-slate-950 text-white font-semibold rounded-lg hover:bg-slate-900 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  {isPending ? "Analyzing..." : "Analyze Prospects"}
+                </button>
+              </form>
             </div>
           </div>
         ) : (
-          <div className="space-y-16 animate-fadeInDown">
-            {/* Progress Section */}
+          <div className="space-y-12">
+            {/* Progress */}
             {!insights && streamingInsights.length > 0 && (
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 rounded-2xl blur-2xl" />
-                <div className="relative bg-gradient-to-br from-blue-600/10 to-cyan-600/5 backdrop-blur-xl border border-blue-500/30 rounded-2xl p-10 shadow-2xl animate-scaleIn">
-                  <div className="space-y-8">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-3">
-                        <h2 className="text-3xl font-bold text-white flex items-center gap-3">
-                          <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-500/20 border border-blue-500/50 animate-pulse">
-                            <svg className="w-5 h-5 text-blue-300" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
-                          </span>
-                          Analysis In Progress
-                        </h2>
-                        <p className="text-base text-blue-200/80">
-                          {streamingMessage}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-5xl font-black bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">
-                          {streamingProgress}%
-                        </p>
-                        <p className="text-sm text-slate-400 mt-2">
-                          {streamingInsights.length} prospect{streamingInsights.length !== 1 ? 's' : ''}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Premium Progress Bar */}
-                    <div className="space-y-3">
-                      <div className="w-full bg-slate-800/50 rounded-full h-1.5 overflow-hidden border border-slate-700/30">
-                        <div
-                          className="bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-400 h-full transition-all duration-700 rounded-full shadow-lg shadow-blue-500/50"
-                          style={{ width: `${streamingProgress}%` }}
-                        />
-                      </div>
-                      <div className="flex justify-between text-xs text-slate-500 font-medium">
-                        <span>Processing</span>
-                        <span>Batch {Math.ceil((streamingInsights.length / 5) || 1)}/{totalBatches}</span>
-                      </div>
-                    </div>
-                  </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-8">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-2xl font-bold text-slate-950">Analysis In Progress</h2>
+                  <div className="text-4xl font-bold text-slate-950">{streamingProgress}%</div>
                 </div>
+                <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden mb-4">
+                  <div
+                    className="bg-blue-600 h-full transition-all"
+                    style={{ width: `${streamingProgress}%` }}
+                  />
+                </div>
+                <p className="text-sm text-slate-600">{streamingMessage}</p>
               </div>
             )}
 
-            {/* Success Banner */}
+            {/* Success */}
             {insights && (
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/20 to-teal-600/20 rounded-2xl blur-2xl" />
-                <div className="relative bg-gradient-to-br from-emerald-600/10 to-teal-600/5 backdrop-blur-xl border border-emerald-500/30 rounded-2xl p-10 shadow-2xl animate-scaleIn">
-                  <div className="flex gap-6 items-start">
-                    <div className="flex-shrink-0 w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center animate-bounce" style={{ animationDelay: '0s' }}>
-                      <svg className="w-6 h-6 text-emerald-300" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h2 className="text-3xl font-bold text-white">
-                        Analysis Complete
-                      </h2>
-                      <p className="text-emerald-200/80 text-base mt-2">
-                        Generated insights for <span className="font-bold text-emerald-300">{insights.prospectInsights.length}</span> prospect{insights.prospectInsights.length !== 1 ? 's' : ''}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-3 mt-8">
-                    <button
-                      onClick={downloadInsights}
-                      className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white font-bold rounded-lg transition-all text-sm flex items-center gap-2 shadow-lg hover:shadow-xl"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                      </svg>
-                      Download as Text
-                    </button>
-                    <button
-                      onClick={downloadJSON}
-                      className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white font-bold rounded-lg transition-all text-sm flex items-center gap-2 shadow-lg hover:shadow-xl"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                      </svg>
-                      Download as JSON
-                    </button>
-                    <button
-                      onClick={() => {
-                        setInsights(null);
-                        setStreamingInsights([]);
-                        setSelectedFile(null);
-                      }}
-                      className="px-6 py-3 border-2 border-slate-700/50 hover:border-slate-600 text-white font-bold rounded-lg hover:bg-slate-800/20 active:scale-95 transition-all text-sm"
-                    >
-                      Analyze Another File
-                    </button>
-                  </div>
+              <div className="bg-green-50 border border-green-200 rounded-2xl p-8">
+                <h2 className="text-2xl font-bold text-slate-950 mb-4">✓ Analysis Complete</h2>
+                <p className="text-slate-700 mb-6">Generated insights for {insights.prospectInsights.length} prospect{insights.prospectInsights.length !== 1 ? 's' : ''}</p>
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={downloadInsights}
+                    className="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 text-sm"
+                  >
+                    Download Text
+                  </button>
+                  <button
+                    onClick={downloadJSON}
+                    className="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 text-sm"
+                  >
+                    Download JSON
+                  </button>
+                  <button
+                    onClick={() => {
+                      setInsights(null);
+                      setStreamingInsights([]);
+                      setSelectedFile(null);
+                    }}
+                    className="px-4 py-2 border border-slate-300 text-slate-950 font-semibold rounded-lg hover:bg-slate-50 text-sm"
+                  >
+                    Analyze Another
+                  </button>
                 </div>
               </div>
             )}
 
-            {/* Results Header */}
-            <div className="space-y-4 pb-8 border-b border-slate-700/30">
-              <div className="flex items-center gap-3">
-                <div className="text-3xl">🎯</div>
-                <h2 className="text-4xl font-black bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-                  Prospect Intelligence
-                </h2>
-              </div>
-              <p className="text-lg text-slate-400 font-light pl-12">
-                {insights ? 'AI-powered analysis and personalized recommendations for each prospect' : `${streamingInsights.length} prospect${streamingInsights.length !== 1 ? 's' : ''} analyzed—more coming in real-time`}
-              </p>
-            </div>
-
-            {/* Results Grid */}
-            <div className="space-y-8">
+            {/* Results */}
+            <div className="space-y-6">
+              <h2 className="text-3xl font-bold text-slate-950">Insights</h2>
               {(insights?.prospectInsights || streamingInsights).map((prospect, idx) => (
-                <div
+                <div 
                   key={idx}
-                  className="group relative animate-fadeInUp"
-                  style={{ animationDelay: `${idx * 50}ms` }}
+                  className="bg-white border border-slate-200 rounded-xl p-8 hover:shadow-md transition-all"
                 >
-                  {/* Glow Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-600/15 via-purple-600/10 to-transparent rounded-2xl blur-2xl opacity-0 group-hover:opacity-100 transition-all duration-500" />
-                  
-                  <div className="relative bg-gradient-to-br from-slate-900/70 via-slate-900/50 to-slate-800/30 backdrop-blur-xl border border-slate-700/40 hover:border-slate-600/70 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden">
-                    {/* Gradient Top Border */}
-                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-blue-600/0 via-blue-500/50 to-blue-600/0" />
+                  <div className="mb-6">
+                    <h3 className="text-2xl font-bold text-slate-950">{prospect.name}</h3>
+                    <p className="text-slate-600">{prospect.role}</p>
+                  </div>
 
-                    {/* Content Container */}
-                    <div className="p-8 lg:p-12">
-                      {/* Header Section - Enhanced */}
-                      <div className="mb-12">
-                        <div className="flex items-start gap-6 mb-6">
-                          {/* Avatar */}
-                          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500/30 via-purple-500/20 to-pink-500/10 border border-blue-500/40 flex items-center justify-center text-4xl transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 flex-shrink-0">
-                            👤
-                          </div>
-                          
-                          {/* Name & Role */}
-                          <div className="flex-1">
-                            <h3 className="text-3xl font-black text-white mb-2">
-                              {prospect.name}
-                            </h3>
-                            <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 rounded-full bg-blue-400" />
-                              <p className="text-base text-slate-400 font-medium">
-                                {prospect.role}
-                              </p>
-                            </div>
-                          </div>
+                  <div className="mb-6 pb-6 border-b border-slate-200">
+                    <p className="text-slate-700">{prospect.profileNotes}</p>
+                  </div>
 
-                          {/* Card Number Badge */}
-                          <div className="flex-shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-blue-600/20 to-purple-600/20 border border-blue-500/30 flex items-center justify-center">
-                            <span className="text-lg font-black text-blue-300">
-                              #{idx + 1}
-                            </span>
-                          </div>
+                  <div className="mb-6">
+                    <h4 className="font-semibold text-slate-950 mb-3">Pitch Suggestions</h4>
+                    <div className="space-y-3">
+                      {prospect.pitchSuggestions.map((pitch, pIdx) => (
+                        <div key={pIdx} className="p-3 bg-slate-50 rounded-lg text-slate-700 text-sm">
+                          <strong className="text-slate-950">{pIdx + 1}.</strong> {pitch.pitch}
                         </div>
-
-                        {/* Divider */}
-                        <div className="h-px bg-gradient-to-r from-slate-700/50 via-slate-600/30 to-slate-700/50" />
-                      </div>
-
-                      {/* Profile Notes - Enhanced */}
-                      <div className="mb-12">
-                        <div className="flex items-center gap-2 mb-5">
-                          <span className="text-xl">📊</span>
-                          <h4 className="text-sm font-black text-slate-300 uppercase tracking-widest">
-                            Profile Summary
-                          </h4>
-                        </div>
-                        <p className="text-base text-slate-300 leading-relaxed pl-7">
-                          {prospect.profileNotes}
-                        </p>
-                      </div>
-
-                      {/* Service Recommendations - Premium Layout */}
-                      <div className="mb-12">
-                        <div className="flex items-center gap-2 mb-6">
-                          <span className="text-xl">🎯</span>
-                          <h4 className="text-sm font-black text-slate-300 uppercase tracking-widest">
-                            Service Recommendations
-                          </h4>
-                        </div>
-                        
-                        <div className="space-y-4 pl-1">
-                          {prospect.pitchSuggestions.map((pitch, pIdx) => (
-                            <div 
-                              key={pIdx} 
-                              className="group/pitch relative flex gap-5 p-6 rounded-xl bg-gradient-to-r from-slate-800/40 to-slate-800/20 border border-slate-700/40 hover:border-blue-500/50 hover:bg-blue-500/8 transition-all duration-300"
-                            >
-                              {/* Left border accent */}
-                              <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500/60 to-purple-500/30 rounded-l-xl opacity-0 group-hover/pitch:opacity-100 transition-all duration-300" />
-                              
-                              {/* Number Badge */}
-                              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-blue-600/40 to-purple-600/30 border border-blue-400/60 flex items-center justify-center text-xs font-bold text-blue-200 group-hover/pitch:from-blue-600/60 group-hover/pitch:to-purple-600/50 transition-all duration-300">
-                                {pIdx + 1}
-                              </div>
-                              
-                              {/* Pitch Text */}
-                              <div className="flex-1">
-                                <p className="text-base text-slate-300 leading-relaxed font-medium">
-                                  {pitch.pitch}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Opening Message - Premium Quote Style */}
-                      <div className="relative">
-                        {/* Background accent */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/10 to-teal-600/5 rounded-xl blur opacity-60" />
-                        
-                        <div className="relative bg-gradient-to-br from-slate-800/50 via-slate-800/40 to-slate-900/30 border border-emerald-500/20 rounded-xl p-8 hover:border-emerald-500/40 transition-all duration-300">
-                          <div className="flex items-start gap-4">
-                            <span className="text-3xl flex-shrink-0">💬</span>
-                            <div className="flex-1">
-                              <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">
-                                Personalized Opening Message
-                              </h4>
-                              <p className="text-lg text-slate-200 italic leading-relaxed font-light">
-                                &quot;{prospect.conversationStarter}&quot;
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      ))}
                     </div>
+                  </div>
+
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-xs font-semibold text-slate-600 uppercase mb-2">Opening Message</p>
+                    <p className="italic text-slate-800">"{prospect.conversationStarter}"</p>
                   </div>
                 </div>
               ))}
@@ -575,98 +341,12 @@ export default function UploadPage() {
         )}
       </div>
 
-      {/* Premium Animation Styles */}
-      <style>{`
-        @keyframes fadeInDown {
-          from {
-            opacity: 0;
-            transform: translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes scaleIn {
-          from {
-            opacity: 0;
-            transform: scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-10px); }
-          75% { transform: translateX(10px); }
-        }
-
-        .animate-fadeInDown {
-          animation: fadeInDown 0.6s ease-out;
-        }
-
-        .animate-fadeInUp {
-          animation: fadeInUp 0.6s ease-out forwards;
-          opacity: 0;
-        }
-
-        .animate-scaleIn {
-          animation: scaleIn 0.5s ease-out;
-        }
-
-        .animate-shake {
-          animation: shake 0.4s ease-in-out;
-        }
-      `}</style>
+      {/* Footer */}
+      <footer className="border-t border-slate-200 bg-white">
+        <div className="max-w-6xl mx-auto px-6 lg:px-8 py-8 text-center text-sm text-slate-600">
+          <p>&copy; 2025 Cehpoint. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
-}
-
-function formatInsightsAsText(insights: ClientInsightReport): string {
-  let text = "CEHPOINT CLIENT INSIGHTS REPORT\n";
-  text += `Generated: ${new Date(insights.generatedAt).toLocaleString()}\n`;
-  text += "=".repeat(80) + "\n\n";
-
-  text += "CLIENT CATEGORIES\n";
-  text += "-".repeat(80) + "\n";
-  insights.idealClientFramework.forEach((framework) => {
-    text += `\n${framework.category}\n`;
-    text += `${framework.description}\n`;
-    text += "Strategic Needs:\n";
-    framework.needs.forEach((need) => {
-      text += `  • ${need}\n`;
-    });
-  });
-
-  text += "\n\n" + "=".repeat(80) + "\n";
-  text += "PROSPECT INSIGHTS & RECOMMENDATIONS\n";
-  text += "=".repeat(80) + "\n";
-
-  insights.prospectInsights.forEach((prospect, idx) => {
-    text += `\n${idx + 1}. ${prospect.name}\n`;
-    text += `   Role: ${prospect.role}\n`;
-    text += `   Profile: ${prospect.profileNotes}\n`;
-    text += "   Service Recommendations:\n";
-    prospect.pitchSuggestions.forEach((pitch, pIdx) => {
-      text += `     ${pIdx + 1}. ${pitch.pitch}\n`;
-    });
-    text += `   Opening Message: "${prospect.conversationStarter}"\n`;
-  });
-
-  return text;
 }

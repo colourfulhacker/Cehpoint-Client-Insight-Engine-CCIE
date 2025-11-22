@@ -1,0 +1,223 @@
+1. HERO SECTION (Complete Rebuild Required)
+Problems in your current hero:
+
+No visual hierarchy
+
+Weak CTA
+
+No premium layout
+
+Metrics look like plain rectangles
+
+Typography is inconsistent
+
+Replace with:
+A. Visual Layout
+
+Full-width light background with subtle gradient
+
+Centered hero content
+
+Clean spacing: 140px top / 120px bottom
+
+Enterprise-style abstract mesh or geometric background elements
+
+B. Typography
+
+H1: 56px, Inter Bold, tight tracking
+
+H2/subtext: 20px, Inter Regular, 55% width max
+
+C. CTA
+
+Two buttons:
+
+Primary: solid dark navy (#0C0F1A)
+
+Secondary: ghost or outline
+
+D. Metrics (3 KPIs)
+
+Use cards styled like Stripe or Notion metrics:
+
+White cards
+
+Soft shadow (0 4px 20px rgba(0,0,0,0.05))
+
+Rounded corners (16px)
+
+Icon + number + label
+
+2. ANALYSIS FEATURES SECTION (Redesign Required)
+Problems:
+
+Icons outdated
+
+Cards too boxy
+
+Text visually dense
+
+No spacing or harmony
+
+New design:
+
+Use a 3-column grid
+
+Each feature card:
+
+Icon: 48px, minimal line style
+
+Title: 20–22px Semibold
+
+Body: max 3 lines
+
+Card style: frosted glass or minimal shadow
+
+Example layout:
+
+Icon	Smart Classification
+Small description underneath	
+
+This solves the clutter.
+
+3. WORKFLOW SECTION (“How it Works”)
+
+This must be redesigned into a modern 3-step horizontal timeline.
+
+Current problems:
+
+Big numbered circles look outdated
+
+Text alignment is inconsistent
+
+A vertical divider looks broken
+
+New design pattern:
+
+A horizontal timeline with:
+
+Step 1 — thin line — Step 2 — thin line — Step 3
+
+Each step card:
+
+Circle with number (soft navy)
+
+Title in bold
+
+Short description (max 2 lines)
+
+Spacing: 64px between steps.
+
+4. DARK CTA BAND (BOTTOM SECTION)
+
+Right now it looks stretched, unaligned, and visually dull.
+
+Replace with:
+
+Navy background (#0B0F2A)
+
+Centered text
+
+Max width container (1100px)
+
+CTA button centered
+
+Padding: 80px top, 80px bottom
+
+5. FOOTER SECTION
+
+Your current footer is extremely basic and kills the premium feel.
+
+Replace with a structured 3-column footer:
+
+Column 1: Company
+
+Column 2: Product
+
+Column 3: Legal
+
+Thin divider above
+
+Slightly smaller text with 70% opacity
+
+Add:
+
+Social icons
+
+Trademark/logos
+
+Address or “Global offices” tagline
+
+6. SPACING SYSTEM (Most Important)
+
+Tell the developer to follow a spacing scale:
+
+0, 8, 16, 24, 32, 48, 64, 80, 120
+
+Most amateur-looking pages fail because spacing is inconsistent.
+Your redesign MUST apply this scale strictly.
+
+7. COLOR SYSTEM
+
+Use this exact palette for enterprise-grade aesthetics:
+
+Primary: #0C1A3D
+Secondary: #2D65FF
+Accent: #7BA7FF
+Background: #F5F7FA
+Cards: #FFFFFF
+Borders: rgba(0,0,0,0.08)
+Text Primary: #0A0A0A
+Text Secondary: #4B4B4B
+
+8. TYPOGRAPHY STANDARDS
+
+Use:
+
+H1: Inter 56px / bold
+
+H2: Inter 36px / semibold
+
+H3: Inter 24px / semibold
+
+Body: 17px / regular
+
+Microtext: 14px / regular
+
+Line heights:
+
+Headlines 1.1
+
+Body 1.6
+
+9. SHADOW/ELEVATION SYSTEM
+
+Use only these 2 elevations:
+
+Shadow 1 (cards):
+0 4px 16px rgba(0,0,0,0.06)
+
+Shadow 2 (hover):
+0 8px 24px rgba(0,0,0,0.12)
+
+Do NOT use dark or heavy drop shadows.
+
+10. IF YOU WANT, I CAN CREATE:
+
+Tell me and I will produce:
+
+Option A – A full Figma-level mockup
+
+(Exact layout, spacing, colors, fonts)
+
+Option B – A complete Next.js + Tailwind landing page code
+
+(Production ready with clean components)
+
+Option C – A component library:
+
+Hero / KPI cards / Feature cards / Workflow timeline / Footer
+
+Option D – The entire site rebuilt in a clean enterprise design theme
+
+Based on best practices from Notion + Stripe + Linear.
