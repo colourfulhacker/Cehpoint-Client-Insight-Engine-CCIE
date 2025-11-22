@@ -14,6 +14,8 @@ export interface ProspectInsight {
   name: string;
   role: string;
   company: string;
+  location?: string;
+  description?: string;
   profileNotes: string;
   pitchSuggestions: PitchSuggestion[];
   conversationStarter: string;

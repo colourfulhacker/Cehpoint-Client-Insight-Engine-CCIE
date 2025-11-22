@@ -20,6 +20,8 @@ const ProspectInsightSchema = z.object({
   name: z.string(),
   role: z.string(),
   company: z.string(),
+  location: z.string().optional(),
+  description: z.string().optional(),
   profileNotes: z.string(),
   pitchSuggestions: z.array(PitchSuggestionSchema).length(3),
   conversationStarter: z.string(),
@@ -118,7 +120,14 @@ Return ONLY valid JSON with this exact structure:
     const parsedResponse = JSON.parse(cleanedJson);
     const validatedInsight = ProspectInsightSchema.parse(parsedResponse);
 
-    return NextResponse.json(validatedInsight);
+    // Preserve optional fields from the request
+    const enrichedInsight = {
+      ...validatedInsight,
+      location: prospect.location,
+      description: prospect.description,
+    };
+
+    return NextResponse.json(enrichedInsight);
   } catch (error) {
     console.error("Regenerate pitch error:", error);
     

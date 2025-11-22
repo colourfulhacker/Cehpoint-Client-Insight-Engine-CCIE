@@ -44,11 +44,7 @@ export default function RegeneratePitchModal({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          name: prospect.name,
-          role: prospect.role,
-          company: prospect.company,
-        }),
+        body: JSON.stringify(prospect),
       });
 
       if (!response.ok) {
