@@ -1,0 +1,176 @@
+1. Visual Identity & Layout Architecture
+A. Replace the Dark Theme With a Modern Enterprise Palette
+
+Current palette looks flat and generic. Move to a professional, high-contrast palette.
+
+Recommended:
+
+Primary: Deep Sapphire (#0C1A3D)
+
+Secondary: Royal Blue (#2D65FF)
+
+Accents: Bright Azure (#4D9BFF), Ultramarine (#2957FF)
+
+Background: Off-White (#F7F8FA)
+
+Text: Charcoal Black (#141414)
+
+B. Introduce a Grid-based Layout (12-column)
+
+Your current layout is cluttered and lacks spacing hierarchy.
+
+Adopt:
+
+12-column grid
+
+80–100px section spacing
+
+24–32px internal padding
+
+Use clear vertical rhythm and grouping
+
+C. Reduce the Number of Boxes
+
+Right now everything is packed into boxes, which makes it look crowded.
+Move to:
+
+Section dividers
+
+Icon + heading strip
+
+2–3 cards only where necessary
+
+2. Typography System
+
+Replace all the current fonts with a premium, enterprise-grade type system.
+
+Recommended stack:
+
+Headings: Inter Semibold
+
+Body: Inter Regular
+
+Metrics/Values: Inter Bold
+
+Hierarchy:
+
+H1: 48–56px
+
+H2: 32–36px
+
+H3: 24–28px
+
+Body: 16–18px
+
+3. Hero Section Redesign
+
+Current hero area is text-heavy and visually dull.
+
+A. Fix the hero to a clean, high-impact enterprise hero:
+
+Large bold headline
+
+Subheading with 2 lines max
+
+Only one CTA button
+
+Decorative abstract background (gradient wave, bokeh, mesh, or geometric shapes)
+
+B. Replace the 3 KPI boxes (15, 5, 3)
+
+Use a horizontal card strip with:
+
+Glassmorphism or soft shadow
+
+Icon + metric + label
+
+Make it visually premium.
+
+4. Component Redesign
+A. Smart Classification / Targeted Recommendations / Personalized Outreach
+
+Replace those cards with:
+
+Minimalist soft-shadow cards
+
+Professional iconography (Lucide / Feather / Material Symbols Outlined)
+
+Shorter text (3 lines max)
+
+Hover elevation
+
+B. Workflow Section (Upload, Process, Export)
+
+Create a 3-step timeline with iconography, not “big circles with numbers”.
+
+C. Advanced Capabilities Section
+
+Right now it's cluttered and poorly spaced.
+
+Use:
+
+A 2-column grid
+
+Minimalist pill tags or small cards
+
+Uniform iconography
+
+5. Micro-Interaction & Motion Design
+
+Introduce motion primitives:
+
+Fade-in hero & metric counters
+
+Hover elevation on cards
+
+Slide-in workflow steps
+
+Use Framer Motion or GSAP.
+
+6. Spacing, Whitespace, and Hierarchy
+
+Right now the page looks cramped.
+
+Fix:
+
+Increase whitespace by 40–60%
+
+Increase top/bottom padding for each block
+
+Ensure at least 24px spacing between elements
+
+Maintain consistent margins
+
+7. Replace the Button Styles
+
+Current buttons are old-styled.
+
+Use:
+
+Pill or rounded-medium corners
+
+12–16px vertical padding
+
+Slight gradient or subtle glow on hover
+
+Icons inside buttons
+
+8. Replace the Footer
+
+Your footer looks outdated. Build a minimal enterprise footer:
+
+Flat background
+
+3-columns: Company | Product | Legal
+
+Simple, thin separators
+
+9. Content Refinement
+
+Simplify the language:
+
+Replace long paragraphs with concise enterprise copy
+
+Use strong verbs and value-driven messaging
+
+Add micro-descriptions under each capability
