@@ -78,8 +78,9 @@ export async function POST(request: NextRequest) {
           for (let i = 0; i < leadsToProcess.length; i += BATCH_SIZE) {
             const batch = leadsToProcess.slice(i, i + BATCH_SIZE);
             const batchNumber = Math.floor(i / BATCH_SIZE) + 1;
+            const totalBatches = Math.ceil(leadsToProcess.length / BATCH_SIZE);
 
-            console.log(`[Streaming Analysis] Processing batch ${batchNumber}: ${batch.length} prospects`);
+            console.log(`[Streaming Analysis] Processing batch ${batchNumber}/${totalBatches}: ${batch.length} prospects`);
 
             try {
               // Analyze this batch
@@ -88,22 +89,27 @@ export async function POST(request: NextRequest) {
               // Add prospects to accumulated list
               allProspects.push(...batchInsights.prospectInsights);
 
-              // Send batch results with progress
-              controller.enqueue(
-                encoder.encode(
-                  JSON.stringify({
-                    type: "batch",
-                    batchNumber,
-                    totalBatches: Math.ceil(leadsToProcess.length / BATCH_SIZE),
-                    prospects: batchInsights.prospectInsights,
-                    progress: Math.round((allProspects.length / leadsToProcess.length) * 100),
-                  }) + "\n"
-                )
-              );
+              const progress = Math.round((allProspects.length / leadsToProcess.length) * 100);
 
-              console.log(`[Streaming Analysis] Batch ${batchNumber} complete: ${batchInsights.prospectInsights.length} prospects analyzed`);
+              // Send batch results with progress
+              const batchMessage = JSON.stringify({
+                type: "batch",
+                batchNumber,
+                totalBatches,
+                prospects: batchInsights.prospectInsights,
+                progress,
+              }) + "\n";
+
+              console.log(`[Streaming Analysis] ✓ Batch ${batchNumber}/${totalBatches} complete - sending to client (${progress}%)`);
+              controller.enqueue(encoder.encode(batchMessage));
+
+              // Small delay to ensure streaming works properly between batches
+              // This allows the client to receive and render the batch before the next one starts
+              if (i + BATCH_SIZE < leadsToProcess.length) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+              }
             } catch (batchError) {
-              console.error(`[Streaming Analysis] Batch ${batchNumber} failed:`, batchError);
+              console.error(`[Streaming Analysis] ✗ Batch ${batchNumber} failed:`, batchError);
               controller.enqueue(
                 encoder.encode(
                   JSON.stringify({
@@ -154,8 +160,11 @@ export async function POST(request: NextRequest) {
 
     return new NextResponse(stream, {
       headers: {
-        "Content-Type": "text/plain; charset=utf-8",
+        "Content-Type": "text/event-stream; charset=utf-8",
         "Transfer-Encoding": "chunked",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "X-Accel-Buffering": "no",
       },
     });
   } catch (error) {
