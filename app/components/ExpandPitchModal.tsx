@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { ProspectInsight } from "@/lib/types";
 
 interface ExpandPitchModalProps {
@@ -21,32 +21,7 @@ export default function ExpandPitchModal({
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-      generateExpandedPitch();
-
-      const handleEscape = (e: KeyboardEvent) => {
-        if (e.key === "Escape") {
-          onClose();
-        }
-      };
-
-      document.addEventListener("keydown", handleEscape);
-
-      return () => {
-        document.body.style.overflow = "unset";
-        document.removeEventListener("keydown", handleEscape);
-      };
-    } else {
-      document.body.style.overflow = "unset";
-      setExpandedPitch("");
-      setError(null);
-      setCopied(false);
-    }
-  }, [isOpen, onClose]);
-
-  const generateExpandedPitch = async () => {
+  const generateExpandedPitch = useCallback(async () => {
     setIsGenerating(true);
     setError(null);
 
@@ -81,7 +56,32 @@ export default function ExpandPitchModal({
     } finally {
       setIsGenerating(false);
     }
-  };
+  }, [prospect, shortPitch]);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+      generateExpandedPitch();
+
+      const handleEscape = (e: KeyboardEvent) => {
+        if (e.key === "Escape") {
+          onClose();
+        }
+      };
+
+      document.addEventListener("keydown", handleEscape);
+
+      return () => {
+        document.body.style.overflow = "unset";
+        document.removeEventListener("keydown", handleEscape);
+      };
+    } else {
+      document.body.style.overflow = "unset";
+      setExpandedPitch("");
+      setError(null);
+      setCopied(false);
+    }
+  }, [isOpen, onClose, generateExpandedPitch, prospect, shortPitch]);
 
   const handleCopy = async () => {
     if (expandedPitch) {

@@ -97,7 +97,7 @@ export default function UploadPage() {
               setTotalProcessed(update.totalProcessed || 0);
               setTotalInFile(update.totalInFile || 0);
               const progressPercent = update.totalInFile 
-                ? Math.round((update.totalProcessed / update.totalInFile) * 100) 
+                ? Math.round(((update.totalProcessed ?? 0) / update.totalInFile) * 100) 
                 : 0;
               setStreamingProgress(progressPercent);
               setIsStillProcessing(update.isProcessing === true);
@@ -110,7 +110,7 @@ export default function UploadPage() {
               setStreamingMessage(update.message || "Processing more data...");
               setIsStillProcessing(update.isProcessing === true);
               const progressPercent = update.totalInFile 
-                ? Math.round((update.totalProcessed / update.totalInFile) * 100) 
+                ? Math.round(((update.totalProcessed ?? 0) / update.totalInFile) * 100) 
                 : 0;
               setStreamingProgress(progressPercent);
             }
@@ -413,7 +413,7 @@ export default function UploadPage() {
 
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <p className="text-xs font-semibold text-slate-600 uppercase mb-2">Opening Message</p>
-                    <p className="italic text-slate-800">"{prospect.conversationStarter}"</p>
+                    <p className="italic text-slate-800">&quot;{prospect.conversationStarter}&quot;</p>
                   </div>
                 </div>
               ))}

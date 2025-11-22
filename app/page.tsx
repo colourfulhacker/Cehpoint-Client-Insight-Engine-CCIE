@@ -636,7 +636,7 @@ export default function HomePage() {
                       <p className="text-xs font-semibold text-blue-900 uppercase tracking-wide mb-2">
                         Opening Message
                       </p>
-                      <p className="text-sm text-gray-800 italic pr-8">"{prospect.conversationStarter}"</p>
+                      <p className="text-sm text-gray-800 italic pr-8">&quot;{prospect.conversationStarter}&quot;</p>
                       <button
                         onClick={() => copyToClipboard(prospect.conversationStarter, `opener-${idx}`)}
                         className="absolute top-3 right-3 p-1.5 opacity-0 group-hover:opacity-100 hover:bg-white rounded transition-all"
