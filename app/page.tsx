@@ -32,24 +32,25 @@ export default function HomePage() {
       <nav className="sticky top-0 z-50 border-b border-slate-100 bg-white/80 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
           <Logo />
-          <div className="text-xs font-semibold text-slate-500 tracking-widest uppercase">
+          <div className="text-xs font-semibold text-slate-600 tracking-widest uppercase">
             Enterprise Sales Intelligence
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 py-20 sm:py-32 lg:py-40">
-        <div className="max-w-5xl w-full">
+      {/* Hero Section - Complete Redesign */}
+      <section className="px-6 lg:px-8 py-32 lg:py-40" style={{ paddingTop: "140px", paddingBottom: "120px" }}>
+        <div className="max-w-5xl mx-auto">
           <motion.div 
-            className="space-y-8 text-center"
+            className="text-center space-y-8"
             initial="initial"
             animate="animate"
             variants={staggerContainer}
           >
-            {/* Main Headline */}
+            {/* Headline */}
             <motion.h1 
-              className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-slate-950"
+              className="text-5xl lg:text-7xl font-bold leading-tight text-slate-950"
+              style={{ fontSize: "3.5rem", fontWeight: 700, letterSpacing: "-0.02em" }}
               variants={fadeInDown}
             >
               Transform Your Prospect Data
@@ -57,71 +58,79 @@ export default function HomePage() {
 
             {/* Subheading */}
             <motion.p 
-              className="text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto leading-relaxed font-medium"
+              className="text-lg lg:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed"
+              style={{ fontSize: "1.0625rem", maxWidth: "55%" }}
               variants={fadeInUp}
             >
-              Upload your list and instantly receive personalized pitch strategies and conversation starters
+              Upload your prospect list and instantly receive personalized pitch strategies and conversation starters
             </motion.p>
 
-            {/* CTA Button */}
+            {/* Dual CTA Buttons */}
             <motion.div 
-              className="flex justify-center pt-6"
+              className="flex justify-center gap-4 pt-4"
               variants={fadeInUp}
             >
               <Link href="/upload">
-                <motion.button 
-                  className="px-8 py-4 bg-gradient-to-r from-slate-950 to-slate-800 text-white font-semibold rounded-full transition-all hover:shadow-lg hover:shadow-slate-950/20 active:scale-95"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                <button 
+                  className="px-8 py-3 bg-slate-950 text-white font-semibold rounded-lg transition-all hover:shadow-md active:scale-95"
+                  style={{ backgroundColor: "#0C1A3D" }}
                 >
                   Start Analyzing
-                </motion.button>
+                </button>
               </Link>
+              <button 
+                className="px-8 py-3 border-2 border-slate-300 text-slate-950 font-semibold rounded-lg hover:bg-slate-50 active:scale-95 transition-all"
+              >
+                Learn More
+              </button>
             </motion.div>
           </motion.div>
 
-          {/* KPI Strip - Horizontal Card */}
+          {/* KPI Cards - Metrics Strip */}
           <motion.div 
-            className="mt-20 pt-16 border-t border-slate-200"
+            className="mt-24 pt-16 border-t border-slate-200"
             variants={fadeInUp}
             initial="initial"
             animate="animate"
           >
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 gap-6">
               {[
-                { metric: "15", label: "Max Prospects" },
-                { metric: "5", label: "Per Batch" },
-                { metric: "3", label: "Pitches Each" }
+                { icon: "📊", metric: "15", label: "Max Prospects" },
+                { icon: "⚡", metric: "5", label: "Per Batch" },
+                { icon: "🎯", metric: "3", label: "Pitches Each" }
               ].map((item, idx) => (
-                <motion.div 
+                <div 
                   key={idx}
-                  className="p-6 bg-slate-50 border border-slate-200 rounded-xl hover:border-slate-300 transition-all"
-                  whileHover={{ y: -4 }}
-                  transition={{ duration: 0.3 }}
+                  className="p-6 bg-white border border-slate-200 rounded-2xl transition-all hover:shadow-sm"
+                  style={{
+                    boxShadow: "0 4px 16px rgba(0, 0, 0, 0.06)",
+                    borderRadius: "16px"
+                  }}
                 >
-                  <div className="text-4xl font-bold text-slate-950 mb-2">{item.metric}</div>
+                  <div className="text-3xl mb-3">{item.icon}</div>
+                  <div className="text-3xl font-bold text-slate-950 mb-2" style={{ fontSize: "1.875rem" }}>{item.metric}</div>
                   <p className="text-sm font-medium text-slate-600">{item.label}</p>
-                </motion.div>
+                </div>
               ))}
             </div>
           </motion.div>
         </div>
-      </main>
+      </section>
 
-      {/* Capabilities Section */}
-      <section className="px-6 lg:px-8 py-20 lg:py-28 bg-slate-50 border-y border-slate-200">
+      {/* Features Section - Redesigned */}
+      <section className="px-6 lg:px-8 py-32 bg-white border-b border-slate-200">
         <div className="max-w-6xl mx-auto">
           <motion.div 
-            className="text-center mb-16"
+            className="text-center mb-20"
             initial="initial"
             whileInView="animate"
             variants={fadeInDown}
             viewport={{ once: true }}
           >
             <h2 className="text-4xl lg:text-5xl font-bold text-slate-950 mb-4">
-              Comprehensive Analysis
+              Comprehensive Analysis Engine
             </h2>
-            <p className="text-lg text-slate-600">
+            <p className="text-lg text-slate-600 max-width-2xl mx-auto">
               Every prospect receives deep strategic analysis with actionable insights
             </p>
           </motion.div>
@@ -152,24 +161,31 @@ export default function HomePage() {
             ].map((item, idx) => (
               <motion.div 
                 key={idx}
-                className="p-8 bg-white border border-slate-200 rounded-xl hover:shadow-md transition-all"
+                className="p-8 bg-white border border-slate-200 rounded-2xl transition-all hover:shadow-md"
                 variants={fadeInUp}
-                whileHover={{ y: -4 }}
+                style={{
+                  borderRadius: "16px",
+                  boxShadow: "0 4px 16px rgba(0, 0, 0, 0.06)"
+                }}
               >
                 <div className="text-4xl mb-4">{item.icon}</div>
-                <h3 className="text-xl font-semibold text-slate-950 mb-3">{item.title}</h3>
-                <p className="text-slate-600 text-sm leading-relaxed">{item.desc}</p>
+                <h3 className="text-xl lg:text-2xl font-semibold text-slate-950 mb-3">
+                  {item.title}
+                </h3>
+                <p className="text-slate-600 leading-relaxed" style={{ fontSize: "0.9375rem" }}>
+                  {item.desc}
+                </p>
               </motion.div>
             ))}
           </motion.div>
         </div>
       </section>
 
-      {/* Workflow Timeline Section */}
-      <section className="px-6 lg:px-8 py-20 lg:py-28 bg-white">
-        <div className="max-w-4xl mx-auto">
+      {/* Workflow Section - Horizontal Timeline */}
+      <section className="px-6 lg:px-8 py-32 bg-white">
+        <div className="max-w-5xl mx-auto">
           <motion.div 
-            className="text-center mb-16"
+            className="text-center mb-20"
             initial="initial"
             whileInView="animate"
             variants={fadeInDown}
@@ -183,58 +199,77 @@ export default function HomePage() {
             </p>
           </motion.div>
 
-          <div className="space-y-12">
+          {/* Horizontal Timeline */}
+          <motion.div 
+            className="flex items-center justify-between gap-8"
+            initial="initial"
+            whileInView="animate"
+            variants={fadeInUp}
+            viewport={{ once: true }}
+          >
             {[
               {
                 step: 1,
                 title: "Upload & Validate",
-                desc: "Import prospect data via Excel or CSV with intelligent column mapping"
+                desc: "Import prospect data via Excel or CSV"
               },
               {
                 step: 2,
                 title: "Smart Processing",
-                desc: "Prospects analyzed in batches with real-time progress tracking"
+                desc: "Prospects analyzed with real-time tracking"
               },
               {
                 step: 3,
                 title: "Export Results",
-                desc: "Download insights as text or JSON for CRM integration"
+                desc: "Download insights for CRM integration"
               }
             ].map((item, idx) => (
-              <motion.div 
-                key={idx}
-                className="flex gap-8 items-start"
-                initial="initial"
-                whileInView="animate"
-                variants={fadeInUp}
-                viewport={{ once: true }}
-              >
-                {/* Timeline line */}
+              <div key={idx} className="flex-1 flex flex-col items-center gap-4 relative">
+                {/* Connecting line */}
                 {idx < 2 && (
-                  <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-20 bg-gradient-to-b from-slate-950 to-slate-200 mt-24" />
+                  <div 
+                    className="absolute top-7 left-1/2 w-1/2 h-px bg-slate-300"
+                    style={{ left: "50%" }}
+                  />
                 )}
 
-                {/* Step number */}
-                <div className="flex-shrink-0 pt-1 relative z-10">
-                  <div className="w-14 h-14 bg-slate-950 text-white rounded-full flex items-center justify-center font-bold text-lg shadow-md">
-                    {item.step}
-                  </div>
+                {/* Circle with number */}
+                <div 
+                  className="w-14 h-14 rounded-full flex items-center justify-center font-bold text-white text-lg relative z-10"
+                  style={{
+                    backgroundColor: "#0C1A3D",
+                    width: "56px",
+                    height: "56px"
+                  }}
+                >
+                  {item.step}
                 </div>
 
-                {/* Content */}
-                <div className="flex-1 pt-2">
-                  <h3 className="text-2xl font-semibold text-slate-950 mb-2">{item.title}</h3>
-                  <p className="text-slate-600 text-lg">{item.desc}</p>
+                {/* Title & Desc */}
+                <div className="text-center">
+                  <h3 className="text-lg lg:text-xl font-semibold text-slate-950">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-slate-600 mt-2" style={{ fontSize: "0.875rem" }}>
+                    {item.desc}
+                  </p>
                 </div>
-              </motion.div>
+              </div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="px-6 lg:px-8 py-20 lg:py-28 bg-slate-950 text-white">
-        <div className="max-w-3xl mx-auto text-center">
+      {/* Dark CTA Band */}
+      <section 
+        className="px-6 lg:px-8 py-32 text-white"
+        style={{
+          backgroundColor: "#0B0F2A",
+          paddingTop: "80px",
+          paddingBottom: "80px"
+        }}
+      >
+        <div className="max-w-4xl mx-auto text-center">
           <motion.h2 
             className="text-4xl lg:text-5xl font-bold mb-6"
             initial="initial"
@@ -245,7 +280,7 @@ export default function HomePage() {
             Ready to Transform Your Sales Process?
           </motion.h2>
           <motion.p 
-            className="text-xl text-slate-300 mb-10"
+            className="text-lg text-white/80 mb-8 max-w-2xl mx-auto"
             initial="initial"
             whileInView="animate"
             variants={fadeInUp}
@@ -260,37 +295,44 @@ export default function HomePage() {
             viewport={{ once: true }}
           >
             <Link href="/upload">
-              <motion.button 
-                className="px-8 py-4 bg-white text-slate-950 font-semibold rounded-full transition-all active:scale-95"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+              <button 
+                className="px-8 py-3 bg-white text-slate-950 font-semibold rounded-lg hover:shadow-md active:scale-95 transition-all"
               >
                 Begin Analysis
-              </motion.button>
+              </button>
             </Link>
           </motion.div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="px-6 lg:px-8 py-12 border-t border-slate-200 bg-white">
+      <footer className="px-6 lg:px-8 py-16 bg-white border-t border-slate-200">
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8 mb-8">
+          <div className="grid md:grid-cols-3 gap-16 mb-12">
             <div>
-              <h4 className="font-semibold text-slate-950 mb-4">Company</h4>
-              <p className="text-sm text-slate-600">Leading B2B sales intelligence platform</p>
+              <h4 className="font-semibold text-slate-950 mb-3">Company</h4>
+              <p className="text-sm text-slate-600" style={{ opacity: 0.7 }}>
+                Leading B2B sales intelligence platform powered by advanced analytics
+              </p>
             </div>
             <div>
-              <h4 className="font-semibold text-slate-950 mb-4">Product</h4>
-              <p className="text-sm text-slate-600">AI-powered prospect analysis and insights</p>
+              <h4 className="font-semibold text-slate-950 mb-3">Product</h4>
+              <p className="text-sm text-slate-600" style={{ opacity: 0.7 }}>
+                AI-powered prospect analysis, personalized recommendations, and conversation starters
+              </p>
             </div>
             <div>
-              <h4 className="font-semibold text-slate-950 mb-4">Legal</h4>
-              <p className="text-sm text-slate-600">Privacy • Terms • Security</p>
+              <h4 className="font-semibold text-slate-950 mb-3">Legal</h4>
+              <p className="text-sm text-slate-600" style={{ opacity: 0.7 }}>
+                Privacy Policy • Terms of Service • Security
+              </p>
             </div>
           </div>
-          <div className="border-t border-slate-200 pt-8 text-center text-sm text-slate-600">
-            <p>&copy; 2025 Cehpoint. All rights reserved.</p>
+
+          <div className="border-t border-slate-200 pt-8 text-center">
+            <p className="text-sm text-slate-600" style={{ opacity: 0.7 }}>
+              &copy; 2025 Cehpoint. All rights reserved. | Global Offices
+            </p>
           </div>
         </div>
       </footer>
