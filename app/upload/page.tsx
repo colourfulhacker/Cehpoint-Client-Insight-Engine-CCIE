@@ -236,41 +236,41 @@ export default function UploadPage() {
 
                   {/* Requirements Grid */}
                   <div className="pt-6 space-y-8">
-                    <div className="bg-gradient-to-br from-slate-800/40 to-slate-900/20 border border-slate-700/40 rounded-lg p-6">
-                      <h4 className="font-black text-white text-lg flex items-center gap-3">
-                        <span className="text-2xl">📋</span>
+                    <div className="bg-gradient-to-r from-slate-700/30 to-slate-800/20 border border-slate-600/40 rounded-xl p-6 shadow-md shadow-slate-900/20">
+                      <h4 className="font-black text-white text-2xl flex items-center gap-4">
+                        <span className="text-3xl">📋</span>
                         Required Columns
                       </h4>
                     </div>
                     <div className="grid md:grid-cols-3 gap-6">
-                      <div className="space-y-5 p-6 bg-gradient-to-br from-blue-900/25 to-slate-900/30 rounded-lg border-2 border-blue-500/50 hover:border-blue-500/80 transition-all">
-                        <p className="text-lg text-blue-200 uppercase tracking-wider font-bold">👤 Name</p>
-                        <div className="flex flex-col gap-4">
-                          <code className="px-4 py-3 bg-blue-950/50 rounded-md text-base text-blue-100 font-mono border-l-4 border-blue-400 hover:bg-blue-950/70 transition-all">name</code>
-                          <span className="text-blue-300 text-base font-bold text-center">— or —</span>
-                          <code className="px-4 py-3 bg-blue-950/50 rounded-md text-base text-blue-100 font-mono border-l-4 border-blue-400 hover:bg-blue-950/70 transition-all">full_name</code>
+                      <div className="space-y-6 p-7 bg-gradient-to-br from-blue-900/35 to-slate-900/30 rounded-xl border-2 border-blue-500/60 hover:border-blue-500/90 transition-all shadow-lg shadow-blue-500/5">
+                        <p className="text-2xl text-blue-100 uppercase tracking-wider font-black">👤 Name</p>
+                        <div className="flex flex-col gap-5">
+                          <code className="px-5 py-4 bg-blue-950/70 rounded-lg text-lg text-blue-50 font-mono border-l-4 border-blue-300 hover:bg-blue-950/90 transition-all">name</code>
+                          <span className="text-blue-200 text-lg font-black text-center">— OR —</span>
+                          <code className="px-5 py-4 bg-blue-950/70 rounded-lg text-lg text-blue-50 font-mono border-l-4 border-blue-300 hover:bg-blue-950/90 transition-all">full_name</code>
                         </div>
                       </div>
-                      <div className="space-y-5 p-6 bg-gradient-to-br from-purple-900/25 to-slate-900/30 rounded-lg border-2 border-purple-500/50 hover:border-purple-500/80 transition-all">
-                        <p className="text-lg text-purple-200 uppercase tracking-wider font-bold">💼 Role</p>
-                        <div className="flex flex-col gap-4">
-                          <code className="px-4 py-3 bg-purple-950/50 rounded-md text-base text-purple-100 font-mono border-l-4 border-purple-400 hover:bg-purple-950/70 transition-all">role</code>
-                          <span className="text-purple-300 text-base font-bold text-center">— or —</span>
-                          <code className="px-4 py-3 bg-purple-950/50 rounded-md text-base text-purple-100 font-mono border-l-4 border-purple-400 hover:bg-purple-950/70 transition-all">title</code>
+                      <div className="space-y-6 p-7 bg-gradient-to-br from-purple-900/35 to-slate-900/30 rounded-xl border-2 border-purple-500/60 hover:border-purple-500/90 transition-all shadow-lg shadow-purple-500/5">
+                        <p className="text-2xl text-purple-100 uppercase tracking-wider font-black">💼 Role</p>
+                        <div className="flex flex-col gap-5">
+                          <code className="px-5 py-4 bg-purple-950/70 rounded-lg text-lg text-purple-50 font-mono border-l-4 border-purple-300 hover:bg-purple-950/90 transition-all">role</code>
+                          <span className="text-purple-200 text-lg font-black text-center">— OR —</span>
+                          <code className="px-5 py-4 bg-purple-950/70 rounded-lg text-lg text-purple-50 font-mono border-l-4 border-purple-300 hover:bg-purple-950/90 transition-all">title</code>
                         </div>
                       </div>
-                      <div className="space-y-5 p-6 bg-gradient-to-br from-cyan-900/25 to-slate-900/30 rounded-lg border-2 border-cyan-500/50 hover:border-cyan-500/80 transition-all">
-                        <p className="text-lg text-cyan-200 uppercase tracking-wider font-bold">🏢 Company</p>
-                        <div className="flex flex-col gap-4">
-                          <code className="px-4 py-3 bg-cyan-950/50 rounded-md text-base text-cyan-100 font-mono border-l-4 border-cyan-400 hover:bg-cyan-950/70 transition-all">company</code>
-                          <span className="text-cyan-300 text-base font-bold text-center">— or —</span>
-                          <code className="px-4 py-3 bg-cyan-950/50 rounded-md text-base text-cyan-100 font-mono border-l-4 border-cyan-400 hover:bg-cyan-950/70 transition-all">org</code>
+                      <div className="space-y-6 p-7 bg-gradient-to-br from-cyan-900/35 to-slate-900/30 rounded-xl border-2 border-cyan-500/60 hover:border-cyan-500/90 transition-all shadow-lg shadow-cyan-500/5">
+                        <p className="text-2xl text-cyan-100 uppercase tracking-wider font-black">🏢 Company</p>
+                        <div className="flex flex-col gap-5">
+                          <code className="px-5 py-4 bg-cyan-950/70 rounded-lg text-lg text-cyan-50 font-mono border-l-4 border-cyan-300 hover:bg-cyan-950/90 transition-all">company</code>
+                          <span className="text-cyan-200 text-lg font-black text-center">— OR —</span>
+                          <code className="px-5 py-4 bg-cyan-950/70 rounded-lg text-lg text-cyan-50 font-mono border-l-4 border-cyan-300 hover:bg-cyan-950/90 transition-all">org</code>
                         </div>
                       </div>
                     </div>
-                    <div className="bg-slate-800/30 border border-slate-700/30 rounded-lg p-4">
-                      <p className="text-sm text-slate-300 font-medium">
-                        💡 <strong>Optional columns:</strong> location, description, profile
+                    <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-5 shadow-md shadow-slate-900/20">
+                      <p className="text-base text-slate-200 font-semibold">
+                        💡 <strong className="text-slate-100">Optional columns:</strong> location, description, profile
                       </p>
                     </div>
                   </div>
