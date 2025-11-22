@@ -83,77 +83,45 @@ Respond with a JSON object following this exact structure:
         config: {
           systemInstruction: systemPrompt,
           responseMimeType: "application/json",
-          responseSchema: {
-            type: "object",
-            properties: {
-              idealClientFramework: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    category: { type: "string" },
-                    description: { type: "string" },
-                    needs: { type: "array", items: { type: "string" } },
-                  },
-                  required: ["category", "description", "needs"],
-                },
-              },
-              prospectInsights: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    name: { type: "string" },
-                    role: { type: "string" },
-                    profileNotes: { type: "string" },
-                    pitchSuggestions: {
-                      type: "array",
-                      items: {
-                        type: "object",
-                        properties: {
-                          pitch: { type: "string" },
-                        },
-                        required: ["pitch"],
-                      },
-                    },
-                    conversationStarter: { type: "string" },
-                  },
-                  required: ["name", "role", "profileNotes", "pitchSuggestions", "conversationStarter"],
-                },
-              },
-              generatedAt: { type: "string" },
-            },
-            required: ["idealClientFramework", "prospectInsights", "generatedAt"],
-          },
         },
-        contents: userPrompt,
+        contents: [{ role: "user", parts: [{ text: userPrompt }] }],
       });
 
-      const rawJson = response.text;
+      // Extract text from response - handle different response formats
+      let rawJson: string | null = null;
       
-      console.log("Gemini API response received successfully");
+      // Try multiple ways to access the response text
+      if ((response as any)?.text) {
+        rawJson = (response as any).text;
+      } else if ((response as any)?.response?.text) {
+        rawJson = (response as any).response.text;
+      } else if ((response as any)?.candidates?.[0]?.content?.parts?.[0]?.text) {
+        rawJson = (response as any).candidates[0].content.parts[0].text;
+      }
       
       if (!rawJson) {
-        throw new Error("Empty response from Gemini API");
-      }
-
-      let insights: ClientInsightReport;
-      try {
-        insights = JSON.parse(rawJson);
-      } catch (parseError) {
-        console.error("Failed to parse JSON response:", rawJson.substring(0, 200));
-        throw new Error(`Invalid JSON response from Gemini: ${parseError instanceof Error ? parseError.message : "Parse error"}`);
+        console.error("Failed to extract text from response:", {
+          hasText: !!(response as any)?.text,
+          hasResponseText: !!(response as any)?.response?.text,
+          hasCandidates: !!(response as any)?.candidates,
+          keys: Object.keys(response || {}),
+        });
+        throw new Error("Could not extract text from Gemini API response");
       }
       
+      console.log("Extracted response, parsing JSON...");
+      
+      // Parse the JSON
+      const insights: ClientInsightReport = JSON.parse(rawJson);
       insights.generatedAt = new Date().toISOString();
       
       console.log(`Successfully generated insights for ${insights.prospectInsights.length} prospects`);
-      
       return insights;
-      
     } catch (error) {
-      console.error(`API Key ${attempt + 1} failed:`, error);
-      lastError = error instanceof Error ? error : new Error("Unknown error");
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      console.error(`API Key ${attempt + 1} failed:`, errorMsg);
+      console.error("Full error:", error);
+      lastError = error instanceof Error ? error : new Error(errorMsg);
       
       if (attempt < API_KEYS.length - 1) {
         console.log("Trying next API key...");

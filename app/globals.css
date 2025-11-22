@@ -20,40 +20,17 @@ html {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0f172a;
+    --foreground: #f1f5f9;
     color-scheme: dark;
   }
 }
 
-html[class~="dark"] {
-  color-scheme: dark;
-}
-
 body {
   color: var(--foreground);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
-  background-size: 400% 400%;
-  animation: gradient-shift 15s ease infinite;
-  background-attachment: fixed;
+  background: var(--background);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.6;
-  letter-spacing: -0.3px;
-}
-
-@media (prefers-color-scheme: dark) {
-  body {
-    background: linear-gradient(135deg, #1a1a3e 0%, #16213e 25%, #0f3460 50%, #533483 75%, #2d1b69 100%);
-    background-size: 400% 400%;
-    animation: gradient-shift 15s ease infinite;
-    background-attachment: fixed;
-    color: #ededed;
-  }
-}
-
-body,
-body * {
-  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 a {
@@ -64,87 +41,20 @@ a {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible {
-  outline: 2px solid #667eea;
+  outline: 2px solid #1e293b;
   outline-offset: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible {
+    outline: 2px solid #f1f5f9;
+  }
 }
 
 input[type="file"]::-webkit-file-upload-button {
   cursor: pointer;
-}
-
-.gradient-text {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes gradient-shift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-@keyframes glow-pulse {
-  0%, 100% {
-    filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.6));
-  }
-  50% {
-    filter: drop-shadow(0 0 30px rgba(240, 147, 251, 0.8));
-  }
-}
-
-.fade-in {
-  animation: fade-in 0.3s ease-out;
-}
-
-.slide-up {
-  animation: slide-up 0.3s ease-out;
-}
-
-.gradient-shift {
-  background-size: 200% 200%;
-  animation: gradient-shift 8s ease infinite;
-}
-
-.float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.glow-pulse {
-  animation: glow-pulse 2s ease-in-out infinite;
 }
 
 ::-webkit-scrollbar {
@@ -157,82 +67,20 @@ input[type="file"]::-webkit-file-upload-button {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #667eea;
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #764ba2;
+  background: #94a3b8;
 }
 
 @media (prefers-color-scheme: dark) {
   ::-webkit-scrollbar-thumb {
-    background: #667eea;
+    background: #475569;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #764ba2;
+    background: #64748b;
   }
-}
-
-@media print {
-  body {
-    background: white;
-    color: black;
-  }
-}
-
-@media (max-width: 768px) {
-  input,
-  textarea,
-  select {
-    font-size: 16px;
-  }
-}
-
-/* Vibrant gradient utilities */
-.gradient-blue-purple {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.gradient-green-cyan {
-  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-}
-
-.gradient-pink-purple {
-  background: linear-gradient(135deg, #f093fb 0%, #764ba2 100%);
-}
-
-.gradient-purple-pink {
-  background: linear-gradient(135deg, #667eea 0%, #f093fb 100%);
-}
-
-.gradient-cyan-blue {
-  background: linear-gradient(135deg, #00f2fe 0%, #667eea 100%);
-}
-
-/* Neon glow effect */
-.neon-glow {
-  box-shadow: 0 0 20px rgba(102, 126, 234, 0.5), 0 0 40px rgba(240, 147, 251, 0.3), 0 0 60px rgba(79, 172, 254, 0.2);
-}
-
-.neon-glow-pink {
-  box-shadow: 0 0 20px rgba(240, 147, 251, 0.5), 0 0 40px rgba(118, 75, 162, 0.3);
-}
-
-.neon-glow-cyan {
-  box-shadow: 0 0 20px rgba(79, 172, 254, 0.5), 0 0 40px rgba(0, 242, 254, 0.3);
-}
-
-/* Glass morphism */
-.glass {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.glass-dark {
-  background: rgba(15, 23, 42, 0.3);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(102, 126, 234, 0.3);
 }

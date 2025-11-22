@@ -10,17 +10,24 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### November 2025 - Production Ready Release (v1.0.0)
-- **API Key Rotation**: Implemented intelligent rotation system for `GEMINI_API_KEY` and `GEMINI_API_KEY_2` to bypass free tier rate limits
-- **Modern UI/UX**: Completely redesigned interface with gradient backgrounds, dark mode support, and professional branding
-- **Favicon & Logo**: Added custom SVG favicon and text-based logo component
-- **Vercel Ready**: Configured for serverless deployment with `vercel.json` and proper serverless optimizations
-- **Enhanced File Parsing**: Improved column mapping to support `full_name`, `occupation`, and other common variants
-- **Comprehensive Documentation**: Added `DEVELOPER_DOCUMENTATION.md` and updated `README.md` for developers
-- **Better Error Handling**: Enhanced Gemini API error handling with retry logic and clear user-facing messages
-- **Download Options**: Implemented formatted TXT and structured JSON export functionality
-- **Mobile Responsive**: Full mobile optimization with responsive design
-- **Testing Data**: Included real LinkedIn prospect CSV file for comprehensive testing
+### November 2025 - UI Redesign & Bug Fixes (v1.0.1)
+- **Complete UI Redesign**: Simplified, modern, professional design replacing overly complex gradients
+- **Clean Homepage**: Professional layout with hero section, feature cards, and clear value proposition
+- **Improved Upload Page**: Streamlined form with better visual hierarchy and error messages
+- **Better Error Handling**: Enhanced Gemini API response parsing with detailed logging for debugging
+- **Color Scheme**: Updated to light blue/purple gradients with clean, readable text
+- **Professional Typography**: Improved font sizing, spacing, and hierarchy throughout
+- **Mobile Optimized**: Responsive design that works beautifully on all devices
+- **Fixed CSS**: Proper Tailwind v4 configuration with correct `@import "tailwindcss"` syntax
+- **Improved Logging**: Added detailed console logging for API responses to aid debugging
+
+### Previous - Production Ready Release (v1.0.0)
+- API Key Rotation: Implemented intelligent rotation system for `GEMINI_API_KEY` and `GEMINI_API_KEY_2`
+- Modern UI/UX: Completely redesigned interface with gradient backgrounds and dark mode support
+- Favicon & Logo: Added custom SVG favicon and text-based logo component
+- Vercel Ready: Configured for serverless deployment
+- Enhanced File Parsing: Improved column mapping for multiple data formats
+- Comprehensive Documentation: Added detailed developer documentation
 
 ## System Architecture
 
@@ -28,50 +35,45 @@ Preferred communication style: Simple, everyday language.
 
 **Framework**: Next.js 15 with React 19 and TypeScript
 
-The application uses Next.js App Router architecture with a modern, professional design:
-- **Landing page** (`app/page.tsx`): Feature-rich marketing page with gradient hero, feature cards, and responsive layout
-- **Upload page** (`app/upload/page.tsx`): Enhanced file upload interface with drag-and-drop, loading states, and results display
-- **Components** (`app/components/`): Reusable Logo component with gradient styling
+The application uses Next.js App Router architecture with a clean, professional design:
+- **Landing page** (`app/page.tsx`): Professional hero section with feature cards and clear CTA
+- **Upload page** (`app/upload/page.tsx`): Simple file upload form with status displays
+- **Components** (`app/components/`): Reusable Logo component
 
 **Design Pattern**: Server Actions pattern for form processing
-- Rationale: Next.js Server Actions provide a type-safe way to handle file uploads and server-side processing without creating explicit API routes
-- Alternative considered: Traditional API routes in `pages/api`
-- Pros: Simplified data flow, automatic request/response handling, better TypeScript integration
-- Cons: Less flexibility for complex API scenarios
 
-**Styling**: Tailwind CSS 4.0
-- Rationale: Utility-first CSS with dark mode support and minimal configuration
-- Features: Gradient backgrounds, glass morphism effects, responsive grid layouts
-- The application supports system-based dark/light mode theming via CSS variables
+**Styling**: Tailwind CSS v4.0
+- Clean, minimal aesthetic with professional color scheme
+- Responsive design with mobile-first approach
+- Dark mode support via CSS
+- Simple, legible typography
 
 ### Backend Architecture
 
 **Server-Side Processing**: Next.js Server Actions (`app/upload/actions.ts`)
 
-The backend logic follows a pipeline pattern:
+The backend follows a pipeline pattern:
 1. File validation (type and size checking)
-2. File parsing (Excel/CSV to structured data with flexible column mapping)
+2. File parsing (Excel/CSV to structured data)
 3. AI processing (generating insights via Google Gemini with key rotation)
 4. Response formatting
 
 **File Processing**: XLSX library
-- Handles both Excel (`.xlsx`, `.xls`) and CSV files
-- Flexible column mapping to handle various data formats (case-insensitive matching for: name/full_name, role/title/occupation, company/organization, work_positions, education)
-- Rationale: XLSX provides universal spreadsheet parsing without requiring different parsers for different formats
-- Configuration: Marked as external package in `next.config.ts` to prevent serverless bundling issues
+- Handles Excel (.xlsx, .xls) and CSV files
+- Flexible column mapping for various data formats
+- Configuration: Marked as external in `next.config.ts`
 
 **Data Validation**: Zod (v4.1.12)
 - Installed for future runtime type validation
-- Could be integrated for stronger input validation
 
 ### AI Integration
 
 **Service**: Google Gemini AI via `@google/genai` SDK
 
 **Architecture Pattern**: Prompt-based structured output generation with API key rotation
-- System prompt defines Cehpoint's services and desired output format
-- JSON schema-based responses for consistent data structure (responseSchema)
-- Structured output ensures reliable parsing and UI rendering
+- System prompt defines Cehpoint's services and output format
+- JSON schema-based responses for consistent data
+- Structured output ensures reliable parsing
 - **Key Rotation Logic**: Cycles through multiple API keys automatically on each request
 
 **API Key Rotation System**:
@@ -90,16 +92,13 @@ function getNextApiKey(): string {
 }
 ```
 
-**Benefits of Key Rotation**:
-- Bypass free tier rate limits (1,500 requests/day → 3,000+ with 2 keys)
-- Automatic failover if one key hits limits
-- Zero downtime for users
-- Scalable: add more keys (`GEMINI_API_KEY_3`, etc.) as needed
+**Error Handling Improvements**:
+- Enhanced response parsing with multiple fallback methods
+- Detailed logging of API responses for debugging
+- Better error messages returned to frontend
+- Proper handling of empty or malformed responses
 
-**Problem Addressed**: Converting raw prospect data into actionable sales intelligence
-- Solution: Template-based prompting with domain-specific context about Cehpoint's services
-- The AI analyzes prospect roles, companies, and descriptions to categorize clients and generate tailored outreach strategies
-- Model: `gemini-2.5-flash` (faster, cheaper than Pro)
+**Model**: `gemini-2.5-flash` (faster, cheaper than Pro)
 
 **API Key Management**: Environment variables (`GEMINI_API_KEY`, `GEMINI_API_KEY_2`)
 - Server-side only access for security
@@ -113,52 +112,38 @@ File Upload → Validation → Parsing → AI Analysis (with key rotation) → S
 ```
 
 **Type System**: Comprehensive TypeScript interfaces in `lib/types/index.ts`
-- `LeadRecord`: Input data structure from uploaded files
-- `ProspectInsight`: Individual prospect analysis with pitch suggestions
-- `ClientInsightReport`: Complete output structure with framework categorization
 
 ### Output Generation
 
 **Multiple Export Formats**:
 - Plain text report (formatted for human reading, email templates)
-- JSON export (structured data for CRM integration, further processing)
+- JSON export (structured data for CRM integration)
 
 **Client-Side Download**: Blob URLs with dynamic filename generation
-- Rationale: No server storage required, instant download experience
-- Files generated on-demand in browser memory
-- Filenames include date: `client-insights-2025-11-22.txt`
 
 ## External Dependencies
 
 ### Third-Party Services
 
 **Google Gemini AI** (via `@google/genai` v1.30.0)
-- Purpose: Generate AI-powered client insights and personalized outreach recommendations
+- Purpose: Generate AI-powered client insights
 - Authentication: API key via environment variable (with rotation)
-- Critical dependency: Application cannot function without valid API key(s)
 - Rate Limits: 1,500 requests/day per free key, 60 requests/min
 
 ### Key NPM Packages
 
 **XLSX** (v0.18.5)
 - Purpose: Parse Excel and CSV files
-- Configuration: Externalized in Next.js config (`serverExternalPackages: ["xlsx"]`) to prevent serverless bundling issues
-- Handles multiple spreadsheet formats with unified API
-
-**Zod** (v4.1.12)
-- Purpose: Runtime type validation
-- Status: Installed but not actively used
-- Future use: Input validation, API response validation
+- Configuration: Externalized in Next.js config
 
 **Tailwind CSS** (v4.0.15)
 - Purpose: Utility-first styling framework
-- Configuration: Minimal setup with CSS imports in `app/globals.css`
-- Features: Dark mode, responsive design, gradient utilities
+- Features: Clean, professional design, dark mode, responsive
 
 ### Development Dependencies
 
-- **TypeScript** (v5.8.2): Type safety and developer experience
-- **ESLint** (v9.23.0): Code quality with Next.js configuration
+- **TypeScript** (v5.8.2): Type safety
+- **ESLint** (v9.23.0): Code quality
 - **Next.js type definitions**: Auto-generated type support
 
 ### Runtime Environment
@@ -166,25 +151,18 @@ File Upload → Validation → Parsing → AI Analysis (with key rotation) → S
 **Node.js Configuration**:
 - Target: ES2017 for broader compatibility
 - Module system: ESNext with bundler resolution
-- Path aliases: `@/*` maps to project root for clean imports
 
 **Server Configuration**:
-- Development: Port 5000, hostname 0.0.0.0 (for Replit compatibility)
+- Development: Port 5000, hostname 0.0.0.0
 - Production: Next.js start server on same port
-- Serverless optimized for Vercel deployment
+- Serverless optimized for Vercel
 
 ### Database
 
 **Current State**: No database integration
 - All processing is stateless and ephemeral
-- Results are generated on-demand and downloaded by users
+- Results are generated on-demand
 - No data persistence between sessions
-- Rationale: Simplifies deployment, reduces costs, ensures privacy
-
-**Future Consideration**: Could add database for:
-- Storing historical analyses
-- User authentication and saved reports
-- Analytics on prospect categorization patterns
 
 ## Deployment
 
@@ -205,21 +183,21 @@ File Upload → Validation → Parsing → AI Analysis (with key rotation) → S
 
 ### Test Files
 - `test_data/sample_prospects.csv` - 5 sample prospects for quick testing
-- `test_data/real_prospects.csv` - 20 real LinkedIn profiles for comprehensive testing
+- `test_data/real_prospects.csv` - 20 real LinkedIn profiles
 
-### Testing Checklist
-- [x] File upload (CSV, Excel)
-- [x] API key rotation functionality
-- [x] AI insight generation
-- [x] TXT download export
-- [x] JSON download export
-- [x] Error handling (invalid files, API errors)
-- [x] Dark mode toggle
-- [x] Mobile responsiveness
+### Column Requirements
+**Required**:
+- `name` or `full_name`
+- `role` or `occupation`
+- `company` or `organization`
+
+**Optional**:
+- `location`
+- `description` or `profile`
 
 ## Security
 
-- API keys stored server-side only (never exposed to client)
+- API keys stored server-side only
 - File validation (type, size limits)
 - Input sanitization and filtering
 - No data persistence (stateless processing)
@@ -230,7 +208,7 @@ File Upload → Validation → Parsing → AI Analysis (with key rotation) → S
 - File size limit: 10MB
 - Processing time: 30-60 seconds per batch
 - Serverless cold start: ~2-3 seconds
-- API response caching: Not implemented (stateless)
+- No API response caching (stateless)
 
 ## Future Enhancements
 
@@ -240,3 +218,5 @@ File Upload → Validation → Parsing → AI Analysis (with key rotation) → S
 - Integrate with CRM systems (Salesforce, HubSpot)
 - User authentication and saved reports
 - Analytics dashboard for team insights
+- Custom prompt templates
+- Batch processing with progress tracking
