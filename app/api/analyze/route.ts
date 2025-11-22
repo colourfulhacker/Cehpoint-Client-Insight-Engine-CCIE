@@ -1,9 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
 import { parseExcelFile, parseCSVFile, validateFileType, validateFileSize } from "@/lib/files";
 import { generateClientInsights } from "@/lib/gemini";
-import { ClientInsightReport, ProspectInsight } from "@/lib/types";
+import { ClientInsightReport, ProspectInsight, LeadRecord } from "@/lib/types";
 
 const BATCH_SIZE = 5;
+
+// Helper function to augment prospect insights with company data from lead records
+// Uses index-based matching since Gemini returns prospects in the same order as input
+function augmentProspectsWithCompany(
+  prospects: ProspectInsight[],
+  leads: LeadRecord[]
+): ProspectInsight[] {
+  return prospects.map((prospect, index) => {
+    // Get corresponding lead by index (Gemini preserves order)
+    const correspondingLead = leads[index];
+    
+    // Always ensure company field exists, prioritizing existing data
+    const company = prospect.company || correspondingLead?.company || "Unknown Company";
+    
+    return {
+      ...prospect,
+      company,
+    };
+  });
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -86,7 +106,14 @@ export async function POST(request: NextRequest) {
 
             try {
               const batchInsights = await generateClientInsights(batch);
-              allProspects.push(...batchInsights.prospectInsights);
+              
+              // Augment prospects with company data from lead records
+              const augmentedProspects = augmentProspectsWithCompany(
+                batchInsights.prospectInsights,
+                batch
+              );
+              
+              allProspects.push(...augmentedProspects);
 
               const progress = Math.round((allProspects.length / originalCount) * 100);
 
@@ -97,7 +124,7 @@ export async function POST(request: NextRequest) {
                     type: "batch",
                     batchNumber,
                     totalBatches,
-                    prospects: batchInsights.prospectInsights,
+                    prospects: augmentedProspects,
                     progress,
                     totalProcessed: allProspects.length,
                     totalInFile: originalCount,
@@ -173,7 +200,14 @@ export async function POST(request: NextRequest) {
                 
                 try {
                   const batchInsights = await generateClientInsights(subBatch);
-                  allProspects.push(...batchInsights.prospectInsights);
+                  
+                  // Augment prospects with company data from lead records
+                  const augmentedProspects = augmentProspectsWithCompany(
+                    batchInsights.prospectInsights,
+                    subBatch
+                  );
+                  
+                  allProspects.push(...augmentedProspects);
 
                   const progress = Math.round((allProspects.length / originalCount) * 100);
 
@@ -182,7 +216,7 @@ export async function POST(request: NextRequest) {
                     encoder.encode(
                       JSON.stringify({
                         type: "batch",
-                        prospects: batchInsights.prospectInsights,
+                        prospects: augmentedProspects,
                         progress,
                         totalProcessed: allProspects.length,
                         totalInFile: originalCount,
