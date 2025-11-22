@@ -10,18 +10,21 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0f172a;
+  --text-secondary: #475569;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0f172a;
-    --foreground: #f1f5f9;
+    --foreground: #f8fafc;
+    --text-secondary: #cbd5e1;
     color-scheme: dark;
   }
 }
@@ -30,17 +33,47 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
   line-height: 1.6;
+  letter-spacing: 0;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 a {
   color: inherit;
   text-decoration: none;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+a:hover {
+  opacity: 0.85;
+}
+
+/* Button Styles */
+button {
+  transition: all 0.2s ease;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9375rem;
+  border: none;
+  font-family: inherit;
+}
+
+button:active:enabled {
+  transform: scale(0.98);
+}
+
+button:disabled {
+  cursor: not-allowed;
 }
 
 button:focus-visible,
 a:focus-visible,
-input:focus-visible {
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
   outline: 2px solid #1e293b;
   outline-offset: 2px;
 }
@@ -48,8 +81,78 @@ input:focus-visible {
 @media (prefers-color-scheme: dark) {
   button:focus-visible,
   a:focus-visible,
-  input:focus-visible {
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
     outline: 2px solid #f1f5f9;
+    outline-offset: 2px;
+  }
+}
+
+/* Form Inputs */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  transition: all 0.2s ease;
+  background: white;
+  color: #0f172a;
+  font-family: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea,
+  select {
+    border: 1px solid #334155;
+    background: #1e293b;
+    color: #f8fafc;
+  }
+}
+
+input[type="text"]:hover:not(:disabled),
+input[type="email"]:hover:not(:disabled),
+input[type="password"]:hover:not(:disabled),
+textarea:hover:not(:disabled),
+select:hover:not(:disabled) {
+  border-color: #cbd5e1;
+}
+
+@media (prefers-color-scheme: dark) {
+  input[type="text"]:hover:not(:disabled),
+  input[type="email"]:hover:not(:disabled),
+  input[type="password"]:hover:not(:disabled),
+  textarea:hover:not(:disabled),
+  select:hover:not(:disabled) {
+    border-color: #475569;
+  }
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #1e293b;
+  box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  input[type="text"]:focus,
+  input[type="email"]:focus,
+  input[type="password"]:focus,
+  textarea:focus,
+  select:focus {
+    border-color: #64748b;
+    box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.1);
   }
 }
 
@@ -57,6 +160,7 @@ input[type="file"]::-webkit-file-upload-button {
   cursor: pointer;
 }
 
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -82,5 +186,128 @@ input[type="file"]::-webkit-file-upload-button {
 
   ::-webkit-scrollbar-thumb:hover {
     background: #64748b;
+  }
+}
+
+/* Typography */
+h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 0;
+}
+
+h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  h1 {
+    font-size: 1.875rem;
+    line-height: 1.25;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+    line-height: 1.4;
+  }
+
+  h3 {
+    font-size: 1.125rem;
+  }
+}
+
+/* Utilities */
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  letter-spacing: 0.01em;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.text-base {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+/* Selection */
+::selection {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  ::selection {
+    background: #f8fafc;
+    color: #0f172a;
+  }
+}
+
+/* Smooth transitions for theme changes */
+body,
+body * {
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+button,
+a {
+  transition: all 0.2s ease;
+}
+
+/* Ensure minimum touch target size for accessibility */
+button,
+a[role="button"],
+input[type="checkbox"],
+input[type="radio"],
+select {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+@media (pointer: fine) {
+  button,
+  a[role="button"],
+  input[type="checkbox"],
+  input[type="radio"],
+  select {
+    min-height: auto;
+    min-width: auto;
   }
 }
